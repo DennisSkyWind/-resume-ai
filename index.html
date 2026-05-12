@@ -877,7 +877,7 @@
         const API_BASE = window.location.hostname;
         const API = API_BASE === 'localhost' || API_BASE.startsWith('192.168.')
             ? `http://${API_BASE}:8001`  // 开发环境
-            : 'https://resume-ai-api.vercel.app';  // 生产环境（需配置实际域名）
+            : '/api';  // 生产环境（相对路径）
         
         let token = localStorage.getItem('token');
         let currentUser = null;
