@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: resume-ai-api
+    runtime: python
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRE_HOURS
+        value: "168"
+      - key: FREE_LIMIT
+        value: "5"
+      - key: DASHSCOPE_API_KEY
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_KEY
+        sync: false
+
+  - type: web
+    name: resume-ai-frontend
+    runtime: static
+    buildCommand: echo "Static site, no build needed"
+    staticPublishPath: frontend
+    routes:
+      - type: rewrite
+        source: /api/*
+        destination: https://resume-ai-api.onrender.com/api/*
