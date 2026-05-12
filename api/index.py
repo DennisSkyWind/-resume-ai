@@ -1,12 +1,22 @@
 # Vercel Serverless 入口文件
-# 用于将FastAPI适配到Vercel Functions
-
 import sys
 import os
+import traceback
 
-# 当前目录就是api目录，直接导入main
-from main import app
-from mangum import Mangum
-
-# Vercel handler
-handler = Mangum(app, lifespan="off")
+# 错误处理包装器
+def handler(event, context):
+    try:
+        # 动态导入main
+        from main import app
+        from mangum import Mangum
+        
+        # 创建Mangum适配器
+        mangum_handler = Mangum(app, lifespan="off")
+        return mangum_handler(event, context)
+    except Exception as e:
+        error_msg = f"Error: {str(e)}\nTraceback: {traceback.format_exc()}"
+        return {
+            "statusCode": 500,
+            "body": error_msg,
+            "headers": {"Content-Type": "text/plain"}
+        }
