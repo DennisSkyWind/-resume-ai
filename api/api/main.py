@@ -1179,3 +1179,16 @@ if __name__ == "__main__":
     print(f"Auth enabled: True")
     print(f"Free limit: {FREE_LIMIT} times/day")
     uvicorn.run(app, host="0.0.0.0", port=8001)
+
+# Vercel Serverless Handler
+try:
+    from mangum import Mangum
+    handler = Mangum(app, lifespan="off")
+except ImportError:
+    # 如果mangum未安装，提供一个基本的handler
+    def handler(event, context):
+        return {
+            "statusCode": 500,
+            "body": "Mangum not installed",
+            "headers": {"Content-Type": "text/plain"}
+        }
