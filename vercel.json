@@ -1,6 +1,5 @@
 {
   "version": 2,
-  "name": "resume-ai",
   "builds": [
     {
       "src": "frontend/index.html",
@@ -20,9 +19,5 @@
       "src": "/(.*)",
       "dest": "/frontend/$1"
     }
-  ],
-  "env": {
-    "JWT_SECRET": "@jwt_secret",
-    "DASHSCOPE_API_KEY": "@dashscope_api_key"
-  }
+  ]
 }
