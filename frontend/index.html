@@ -1,0 +1,1650 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ResumeAI - AI简历优化工具</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            background: #ffffff; 
+            min-height: 100vh;
+            color: #1a1a1a;
+        }
+        .container { max-width: 900px; margin: 0 auto; padding: 40px 20px; }
+        
+        /* Header */
+        .header { text-align: center; padding: 60px 20px 40px; border-bottom: 1px solid #e5e5e5; }
+        .logo { font-size: 36px; font-weight: 600; margin-bottom: 12px; letter-spacing: -1px; }
+        .subtitle { font-size: 16px; color: #666; }
+        
+        /* Auth Section */
+        .auth-section { 
+            padding: 40px 0; 
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        .auth-tabs { 
+            display: flex; 
+            border-bottom: 2px solid #1a1a1a; 
+            margin-bottom: 32px; 
+            justify-content: center;
+        }
+        .auth-tab { 
+            padding: 16px 40px; 
+            background: none; 
+            border: none; 
+            font-size: 15px;
+            font-weight: 500;
+            color: #666;
+            cursor: pointer;
+            position: relative;
+            transition: color 0.2s;
+        }
+        .auth-tab:hover { color: #1a1a1a; }
+        .auth-tab.active { color: #1a1a1a; }
+        .auth-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #1a1a1a;
+        }
+        
+        .auth-form { width: 100%; }
+        
+        /* 验证码行 */
+        .code-row {
+            display: flex;
+            gap: 12px;
+            align-items: stretch;
+        }
+        .code-row input {
+            flex: 1;
+            min-width: 0;
+        }
+        .code-row .btn {
+            white-space: nowrap;
+            padding: 16px 24px;
+            min-width: 110px;
+        }
+        .hint-text {
+            color: #666;
+            font-size: 13px;
+            margin-top: 10px;
+            padding: 10px 14px;
+            background: #f9f9f9;
+            border-radius: 4px;
+            border-left: 3px solid #1a1a1a;
+        }
+        
+        /* User Info */
+        .user-info { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid #e5e5e5;
+            margin-bottom: 24px;
+        }
+        .user-email { font-size: 14px; color: #1a1a1a; }
+        .user-usage { font-size: 13px; color: #666; }
+        
+        /* 剩余次数显示 */
+        .usage-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            background: #1a1a1a;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 500;
+            margin-left: 12px;
+        }
+        .usage-badge.warning {
+            background: #666;
+        }
+        .usage-badge.danger {
+            background: #999;
+        }
+        .usage-badge.unlimited {
+            background: #1a1a1a;
+        }
+        
+        .logout-btn { 
+            padding: 8px 16px; 
+            border: 1px solid #1a1a1a; 
+            background: #fff;
+            color: #1a1a1a;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .logout-btn:hover { background: #fafafa; }
+        
+        /* Card */
+        .card { 
+            background: #fff; 
+            padding: 40px 0; 
+            border-bottom: 1px solid #e5e5e5;
+        }
+        .card:last-child { border-bottom: none; }
+        
+        /* Form */
+        .form-group { margin-bottom: 20px; }
+        .form-group label { 
+            display: block; 
+            margin-bottom: 8px; 
+            font-weight: 500; 
+            font-size: 14px;
+            color: #1a1a1a; 
+        }
+        .form-group textarea, .form-group select, .form-group input { 
+            width: 100%; 
+            padding: 14px 16px; 
+            border: 1px solid #e0e0e0; 
+            font-size: 15px; 
+            transition: border-color 0.2s;
+            background: #fff;
+            border-radius: 4px;
+        }
+        .form-group textarea:focus, .form-group select:focus, .form-group input:focus { 
+            border-color: #1a1a1a; 
+            outline: none;
+        }
+        .form-group textarea { min-height: 180px; resize: vertical; line-height: 1.6; }
+        
+        /* Buttons */
+        .btn-group { display: flex; gap: 12px; margin-top: 24px; justify-content: center; }
+        .btn { 
+            padding: 16px 32px; 
+            border: none; 
+            font-size: 15px; 
+            font-weight: 500; 
+            cursor: pointer; 
+            transition: all 0.2s;
+        }
+        .btn-primary { background: #1a1a1a; color: #fff; }
+        .btn-primary:hover { background: #333; }
+        .btn-secondary { background: #fff; color: #1a1a1a; border: 1px solid #1a1a1a; }
+        .btn-secondary:hover { background: #fafafa; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        /* Results */
+        .result-section { margin-top: 40px; }
+        .result-header { 
+            font-size: 14px; 
+            font-weight: 500; 
+            color: #1a1a1a; 
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e5e5e5;
+        }
+        
+        .score-display { 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            gap: 60px; 
+            margin: 40px 0;
+            padding: 40px 0;
+            border-bottom: 1px solid #e5e5e5;
+        }
+        .score-item { text-align: center; }
+        .score-label { font-size: 13px; color: #666; margin-bottom: 8px; }
+        .score-value { font-size: 48px; font-weight: 600; color: #1a1a1a; }
+        
+        /* 评分圆环图 */
+        .score-ring {
+            width: 120px;
+            height: 120px;
+            position: relative;
+            display: inline-block;
+        }
+        .score-ring svg {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+        .score-ring-bg {
+            fill: none;
+            stroke: #e5e5e5;
+            stroke-width: 8;
+        }
+        .score-ring-progress {
+            fill: none;
+            stroke: #1a1a1a;
+            stroke-width: 8;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.5s ease;
+        }
+        .score-ring-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+        
+        /* 评分条形图 */
+        .score-bar-container {
+            margin: 16px 0;
+        }
+        .score-bar-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+        .score-bar {
+            height: 8px;
+            background: #e5e5e5;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .score-bar-fill {
+            height: 100%;
+            background: #1a1a1a;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        
+        /* 优化建议卡片 */
+        .suggestion-card {
+            padding: 20px;
+            margin: 12px 0;
+            border: 1px solid #e5e5e5;
+            background: #fff;
+        }
+        .suggestion-card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .suggestion-card-icon {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #1a1a1a;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        .suggestion-card-title {
+            font-size: 15px;
+            font-weight: 600;
+        }
+        .suggestion-card-body {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.5;
+        }
+        .suggestion-card.priority-high {
+            border-left: 4px solid #1a1a1a;
+        }
+        .suggestion-card.priority-medium {
+            border-left: 4px solid #666;
+        }
+        .suggestion-card.priority-low {
+            border-left: 4px solid #ccc;
+        }
+        
+        /* Toast 提示 */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            background: #1a1a1a;
+            color: #fff;
+            font-size: 14px;
+            z-index: 2000;
+            animation: slideIn 0.3s ease;
+        }
+        .toast.warning {
+            background: #666;
+        }
+        .toast.success {
+            background: #1a1a1a;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        /* 响应式设计 - 移动端适配 */
+        @media (max-width: 768px) {
+            .container { padding: 12px; }
+            .header { font-size: 20px; margin-bottom: 16px; }
+            .user-info { flex-direction: column; gap: 12px; }
+            .tabs { flex-wrap: wrap; }
+            .tab { flex: 1; min-width: 45%; font-size: 13px; padding: 10px 8px; }
+            textarea { min-height: 150px; }
+            .btn { width: 100%; }
+            .score-ring { width: 100px; height: 100px; }
+            .score-ring-text { font-size: 20px; }
+            .score-bar-container { margin: 12px 0; }
+            .suggestion-card { padding: 14px; margin: 8px 0; }
+            .toast { top: 10px; right: 10px; left: 10px; text-align: center; }
+        }
+        
+        @media (max-width: 480px) {
+            .header { font-size: 18px; }
+            .tab { font-size: 12px; padding: 8px 6px; }
+            .form-group { margin-bottom: 12px; }
+            textarea { min-height: 120px; font-size: 14px; }
+            .score-display { flex-direction: column; }
+            .keywords-grid { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); }
+        }
+        
+        /* Keywords */
+        .keywords-section { margin: 32px 0; }
+        .keywords-title { font-size: 14px; font-weight: 500; margin-bottom: 16px; }
+        .keywords-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+        .keyword-item { padding: 8px 16px; font-size: 14px; }
+        .keyword-found { border: 1px solid #1a1a1a; background: #fff; }
+        .keyword-missing { border: 1px solid #ccc; background: #fafafa; color: #666; }
+        
+        /* Suggestions */
+        .suggestions-section { margin: 32px 0; }
+        .suggestions-title { font-size: 14px; font-weight: 500; margin-bottom: 16px; }
+        .suggestions-list { list-style: none; }
+        .suggestion-item { 
+            padding: 16px 0; 
+            border-bottom: 1px solid #e5e5e5;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+        .suggestion-item:last-child { border-bottom: none; }
+        .suggestion-item::before {
+            content: "→";
+            color: #1a1a1a;
+            margin-right: 12px;
+            font-weight: 500;
+        }
+        
+        /* Tabs */
+        .tabs { display: flex; border-bottom: 2px solid #1a1a1a; margin-bottom: 32px; }
+        .tab { 
+            padding: 16px 32px; 
+            background: none; 
+            border: none; 
+            font-size: 14px;
+            font-weight: 500;
+            color: #666;
+            cursor: pointer;
+            position: relative;
+        }
+        .tab.active { color: #1a1a1a; }
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #1a1a1a;
+        }
+        
+        /* Error Message */
+        .error-msg { 
+            padding: 12px 16px; 
+            background: #fff; 
+            border: 1px solid #1a1a1a; 
+            color: #1a1a1a; 
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+        
+        /* Loading */
+        .loading { text-align: center; padding: 60px 0; color: #666; font-size: 15px; }
+        .loading::after {
+            content: '...';
+            animation: dots 1.5s infinite;
+        }
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+        
+        /* Modal 弹窗 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: #fff;
+            padding: 32px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        .modal-body {
+            font-size: 15px;
+            color: #666;
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+        .modal-actions {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+        }
+        
+        /* 首次使用引导 */
+        .guide-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(26,26,26,0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+        .guide-content {
+            background: #fff;
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        }
+        .guide-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 24px;
+        }
+        .guide-steps {
+            text-align: left;
+            margin-bottom: 32px;
+        }
+        .guide-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            padding: 16px 0;
+            border-bottom: 1px solid #e5e5e5;
+        }
+        .guide-step:last-child { border-bottom: none; }
+        .guide-step-num {
+            width: 24px;
+            height: 24px;
+            background: #1a1a1a;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .guide-step-text {
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .guide-step-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .guide-step-desc {
+            color: #666;
+        }
+        
+        /* Tooltip */
+        .tooltip-container {
+            position: relative;
+            display: inline-block;
+        }
+        .tooltip-icon {
+            width: 16px;
+            height: 16px;
+            background: #e5e5e5;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: #666;
+            cursor: help;
+            margin-left: 4px;
+        }
+        .tooltip-text {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1a1a1a;
+            color: #fff;
+            padding: 8px 12px;
+            font-size: 12px;
+            white-space: nowrap;
+            border-radius: 4px;
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.2s;
+            z-index: 100;
+            margin-bottom: 8px;
+        }
+        .tooltip-container:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        /* Loading Spinner */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255,255,255,0.9);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+        }
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #e5e5e5;
+            border-top-color: #1a1a1a;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        .loading-text {
+            margin-top: 16px;
+            font-size: 14px;
+            color: #666;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Button Loading State */
+        .btn.loading {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+        .btn.loading::after {
+            content: '';
+            width: 14px;
+            height: 14px;
+            border: 2px solid #fff;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+        
+        /* Language Switch */
+        .language-switch {
+            display: flex;
+            gap: 8px;
+        }
+        .lang-btn {
+            padding: 8px 16px;
+            border: 1px solid #1a1a1a;
+            background: #fff;
+            color: #1a1a1a;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .lang-btn.active {
+            background: #1a1a1a;
+            color: #fff;
+        }
+        .lang-btn:hover:not(.active) {
+            background: #fafafa;
+        }
+        
+        /* Password Strength */
+        .password-strength {
+            font-size: 12px;
+            margin-top: 8px;
+        }
+        .password-strength.weak { color: #999; }
+        .password-strength.medium { color: #666; }
+        .password-strength.strong { color: #1a1a1a; font-weight: 500; }
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        .modal-body {
+            font-size: 15px;
+            color: #666;
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+        .modal-actions {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+        }
+        
+        /* Footer */
+        .footer { 
+            text-align: center; 
+            padding: 40px 20px; 
+            color: #999; 
+            font-size: 13px;
+            border-top: 1px solid #e5e5e5;
+            margin-top: 40px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container { padding: 20px; }
+            .header { padding: 40px 20px 30px; }
+            .logo { font-size: 28px; }
+            .score-display { gap: 40px; }
+            .score-value { font-size: 36px; }
+            .btn-group { flex-direction: column; }
+            .btn { width: 100%; }
+            .auth-form { padding: 0 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">ResumeAI</div>
+            <div class="subtitle">AI简历优化工具 · 为求职者提供专业简历分析</div>
+        </div>
+        
+        <!-- Auth Section (未登录时显示) -->
+        <div id="auth-section" class="auth-section">
+            <div class="auth-tabs">
+                <button class="auth-tab active" onclick="switchAuthTab('login', event)">登录</button>
+                <button class="auth-tab" onclick="switchAuthTab('register', event)">注册</button>
+            </div>
+            
+            <!-- Login Form -->
+            <div id="login-form" class="auth-form">
+                <div class="form-group">
+                    <label>邮箱</label>
+                    <input type="email" id="login-email" placeholder="请输入邮箱">
+                </div>
+                <div class="form-group">
+                    <label>密码</label>
+                    <input type="password" id="login-password" placeholder="请输入密码">
+                </div>
+                <div id="login-error" style="display:none;" class="error-msg"></div>
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="login()">登录</button>
+                </div>
+            </div>
+            
+            <!-- Register Form -->
+            <div id="register-form" class="auth-form" style="display:none;">
+                <div class="form-group">
+                    <label>邮箱</label>
+                    <input type="email" id="register-email" placeholder="请输入邮箱">
+                </div>
+                <div class="form-group">
+                    <label>验证码</label>
+                    <div class="code-row">
+                        <input type="text" id="register-code" placeholder="请输入验证码" maxlength="6">
+                        <button class="btn" onclick="sendCode()" id="send-code-btn">获取验证码</button>
+                    </div>
+                    <div id="test-code-hint" class="hint-text"></div>
+                </div>
+                <div class="form-group">
+                    <label>密码</label>
+                    <input type="password" id="register-password" placeholder="请输入密码（至少6位）" oninput="checkPasswordStrength()">
+                    <div id="password-strength" class="password-strength"></div>
+                </div>
+                <div class="form-group">
+                    <label>姓名（可选）</label>
+                    <input type="text" id="register-name" placeholder="请输入姓名">
+                </div>
+                <div id="register-error" style="display:none;" class="error-msg"></div>
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="register()">注册</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content (登录后显示) -->
+        <div id="main-content" style="display:none;">
+            <!-- User Info -->
+            <div class="user-info">
+                <div>
+                    <span class="user-email" id="user-email"></span>
+                    <span class="user-usage" id="user-usage"></span>
+                </div>
+                <button class="logout-btn" onclick="logout()">退出</button>
+            </div>
+            
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('analyze')">简历分析</button>
+                <button class="tab" onclick="switchTab('optimize')">简历优化</button>
+                <button class="tab" onclick="switchTab('history')">历史记录</button>
+            </div>
+            
+            <!-- Analyze Tab -->
+            <div id="analyze-tab">
+                <div class="form-group">
+                    <label>简历内容 <span class="tooltip-container"><span class="tooltip-icon">?</span><span class="tooltip-text">粘贴完整简历文本，AI将分析格式、内容和关键词</span></span></label>
+                    <textarea id="resume-content" placeholder="粘贴你的简历内容..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>目标行业 <span class="tooltip-container"><span class="tooltip-icon">?</span><span class="tooltip-text">选择目标行业，AI将提供针对性的优化建议</span></span></label>
+                    <select id="industry">
+                        <option value="">选择行业</option>
+                        <option value="sales">销售/市场</option>
+                        <option value="finance">财务/会计</option>
+                        <option value="administrative">行政/人事</option>
+                        <option value="customer_service">客服/服务</option>
+                        <option value="education">教育/培训</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>简历语言</label>
+                    <div class="language-switch">
+                        <button class="lang-btn active" onclick="setLanguage('zh', event)">中文</button>
+                        <button class="lang-btn" onclick="setLanguage('en', event)">英文</button>
+                        <button class="lang-btn" onclick="setLanguage('auto', event)">自动检测</button>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>职位描述（可选）</label>
+                    <textarea id="jd-content" placeholder="粘贴目标职位的JD..." style="min-height: 100px;"></textarea>
+                </div>
+                
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="analyzeResume()">分析简历</button>
+                    <button class="btn btn-secondary" onclick="clearForm()">清空</button>
+                </div>
+            </div>
+            
+            <!-- Optimize Tab -->
+            <div id="optimize-tab" style="display:none;">
+                <div class="form-group">
+                    <label>简历内容</label>
+                    <textarea id="optimize-resume" placeholder="粘贴你的简历内容..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>目标行业</label>
+                    <select id="optimize-industry">
+                        <option value="">选择行业</option>
+                        <option value="sales">销售/市场</option>
+                        <option value="finance">财务/会计</option>
+                        <option value="administrative">行政/人事</option>
+                        <option value="customer_service">客服/服务</option>
+                        <option value="education">教育/培训</option>
+                    </select>
+                </div>
+                
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="optimizeResume()">优化简历</button>
+                </div>
+            </div>
+            
+            <!-- History Tab -->
+            <div id="history-tab" style="display:none;">
+                <div id="history-list"></div>
+            </div>
+            
+            <!-- Results -->
+            <div id="results" style="display:none;"></div>
+        </div>
+        
+        <!-- 首次使用引导 -->
+        <div id="guide-overlay" class="guide-overlay" style="display:none;">
+            <div class="guide-content">
+                <div class="guide-title">欢迎使用 ResumeAI</div>
+                <div class="guide-steps">
+                    <div class="guide-step">
+                        <div class="guide-step-num">1</div>
+                        <div class="guide-step-text">
+                            <div class="guide-step-title">粘贴简历</div>
+                            <div class="guide-step-desc">将你的简历内容粘贴到输入框中</div>
+                        </div>
+                    </div>
+                    <div class="guide-step">
+                        <div class="guide-step-num">2</div>
+                        <div class="guide-step-text">
+                            <div class="guide-step-title">选择行业</div>
+                            <div class="guide-step-desc">选择你求职的目标行业</div>
+                        </div>
+                    </div>
+                    <div class="guide-step">
+                        <div class="guide-step-num">3</div>
+                        <div class="guide-step-text">
+                            <div class="guide-step-title">获取分析</div>
+                            <div class="guide-step-desc">AI将分析简历并给出优化建议</div>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="closeGuide()" style="width:100%;">开始使用</button>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            ResumeAI · 简历优化工具
+        </div>
+    </div>
+    
+    <!-- 付费提示弹窗 -->
+    <div id="upgrade-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-content">
+            <div class="modal-title">今日免费次数已用完</div>
+            <div class="modal-body">
+                您今天的免费使用次数已达上限。<br>
+                升级付费会员可获得无限使用权限。
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="hideUpgradeModal()">知道了</button>
+                <button class="btn btn-primary" onclick="showUpgradeInfo()">升级会员</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // API配置 - 自动检测环境
+        const API_BASE = window.location.hostname;
+        const API = API_BASE === 'localhost' || API_BASE.startsWith('192.168.')
+            ? `http://${API_BASE}:8001`  // 开发环境
+            : 'https://resume-ai-api.vercel.app';  // 生产环境（需配置实际域名）
+        
+        let token = localStorage.getItem('token');
+        let currentUser = null;
+        let currentLanguage = 'auto';  // 当前语言设置
+        
+        // ========== 语言切换 ==========
+        function setLanguage(lang, e) {
+            currentLanguage = lang;
+            document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+            e.target.classList.add('active');
+        }
+        
+        // ========== 密码强度检查 ==========
+        function checkPasswordStrength() {
+            const password = document.getElementById('register-password').value;
+            const strengthEl = document.getElementById('password-strength');
+            
+            if (!password) {
+                strengthEl.textContent = '';
+                strengthEl.className = 'password-strength';
+                return;
+            }
+            
+            let score = 0;
+            
+            // 长度
+            if (password.length >= 6) score++;
+            if (password.length >= 8) score++;
+            
+            // 复杂度
+            if (/[a-z]/.test(password)) score++;
+            if (/[A-Z]/.test(password)) score++;
+            if (/[0-9]/.test(password)) score++;
+            if (/[!@#$%^&*]/.test(password)) score++;
+            
+            // 显示强度
+            if (score <= 2) {
+                strengthEl.textContent = '密码强度：弱';
+                strengthEl.className = 'password-strength weak';
+            } else if (score <= 4) {
+                strengthEl.textContent = '密码强度：中等';
+                strengthEl.className = 'password-strength medium';
+            } else {
+                strengthEl.textContent = '密码强度：强 ✓';
+                strengthEl.className = 'password-strength strong';
+            }
+        }
+        
+        // ========== 弹窗函数 ==========
+        function showUpgradeModal() {
+            document.getElementById('upgrade-modal').style.display = 'flex';
+        }
+        
+        function hideUpgradeModal() {
+            document.getElementById('upgrade-modal').style.display = 'none';
+        }
+        
+        function showUpgradeInfo() {
+            hideUpgradeModal();
+            alert('付费会员功能即将上线，敬请期待！');
+        }
+        
+        // 生成评分圆环图
+        function createScoreRing(score, size = 120) {
+            const radius = (size - 16) / 2;
+            const circumference = 2 * Math.PI * radius;
+            const offset = circumference - (score / 100) * circumference;
+            
+            return `
+                <div class="score-ring" style="width:${size}px;height:${size}px;">
+                    <svg viewBox="0 0 ${size} ${size}">
+                        <circle class="score-ring-bg" cx="${size/2}" cy="${size/2}" r="${radius}"/>
+                        <circle class="score-ring-progress" cx="${size/2}" cy="${size/2}" r="${radius}"
+                            stroke-dasharray="${circumference}" stroke-dashoffset="${offset}"/>
+                    </svg>
+                    <span class="score-ring-text">${score}</span>
+                </div>
+            `;
+        }
+        
+        // 生成评分条形图
+        function createScoreBar(label, score, maxScore = 100) {
+            const percentage = (score / maxScore) * 100;
+            return `
+                <div class="score-bar-container">
+                    <div class="score-bar-label">
+                        <span>${label}</span>
+                        <span>${score}/${maxScore}</span>
+                    </div>
+                    <div class="score-bar">
+                        <div class="score-bar-fill" style="width:${percentage}%"></div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Toast提示
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+        
+        // 首次使用引导
+        function showGuide() {
+            if (!localStorage.getItem('guide_shown')) {
+                document.getElementById('guide-overlay').style.display = 'flex';
+            }
+        }
+        
+        function closeGuide() {
+            document.getElementById('guide-overlay').style.display = 'none';
+            localStorage.setItem('guide_shown', 'true');
+        }
+        
+        // Token过期处理
+        function handleTokenExpired() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('guide_shown');
+            token = null;
+            currentUser = null;
+            showToast('登录已过期，请重新登录', 'warning');
+            showAuthSection();
+        }
+        
+        // Loading状态
+        function showLoading(text = '处理中...') {
+            let overlay = document.getElementById('loading-overlay');
+            if (!overlay) {
+                overlay = document.createElement('div');
+                overlay.id = 'loading-overlay';
+                overlay.className = 'loading-overlay';
+                overlay.innerHTML = `
+                    <div class="loading-spinner"></div>
+                    <div class="loading-text">${text}</div>
+                `;
+                document.body.appendChild(overlay);
+            } else {
+                overlay.querySelector('.loading-text').textContent = text;
+                overlay.style.display = 'flex';
+            }
+        }
+        
+        function hideLoading() {
+            const overlay = document.getElementById('loading-overlay');
+            if (overlay) overlay.style.display = 'none';
+        }
+        
+        function setButtonLoading(btn, loading) {
+            if (loading) {
+                btn.classList.add('loading');
+                btn.disabled = true;
+                btn.dataset.originalText = btn.textContent;
+                btn.textContent = '处理中';
+            } else {
+                btn.classList.remove('loading');
+                btn.disabled = false;
+                btn.textContent = btn.dataset.originalText || btn.textContent;
+            }
+        }
+        
+        // 检查使用次数
+        async function checkUsage() {
+            try {
+                const res = await fetch(`${API}/api/v1/usage`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    // 次数不足警告
+                    if (data.data.remaining <= 2 && data.data.remaining > 0 && !data.data.is_paid) {
+                        showToast(`剩余次数不足${data.data.remaining}次，请合理使用`, 'warning');
+                    }
+                    return data.data;
+                }
+                return { can_use: true };
+            } catch (e) {
+                return { can_use: true };
+            }
+        }
+        
+        // 初始化
+        async function init() {
+            if (token) {
+                try {
+                    await loadUserInfo();
+                    showMainContent();
+                } catch (e) {
+                    showAuthSection();
+                }
+            } else {
+                showAuthSection();
+            }
+        }
+        
+        // 显示认证区域
+        function showAuthSection() {
+            document.getElementById('auth-section').style.display = 'block';
+            document.getElementById('main-content').style.display = 'none';
+        }
+        
+        // 显示主要内容
+        function showMainContent() {
+            document.getElementById('auth-section').style.display = 'none';
+            document.getElementById('main-content').style.display = 'block';
+        }
+        
+        // 切换认证标签
+        function switchAuthTab(tab, e) {
+            document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+            e.target.classList.add('active');
+            
+            document.getElementById('login-form').style.display = tab === 'login' ? 'block' : 'none';
+            document.getElementById('register-form').style.display = tab === 'register' ? 'block' : 'none';
+            
+            // 清除错误提示
+            document.getElementById('login-error').style.display = 'none';
+            document.getElementById('register-error').style.display = 'none';
+        }
+        
+        // 切换功能标签
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            document.getElementById('analyze-tab').style.display = tab === 'analyze' ? 'block' : 'none';
+            document.getElementById('optimize-tab').style.display = tab === 'optimize' ? 'block' : 'none';
+            document.getElementById('history-tab').style.display = tab === 'history' ? 'block' : 'none';
+            document.getElementById('results').style.display = 'none';
+            
+            if (tab === 'history') loadHistory();
+        }
+        
+        // 登录
+        async function login() {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            if (!email || !password) {
+                showError('login-error', '请输入邮箱和密码');
+                return;
+            }
+            
+            try {
+                const res = await fetch(`${API}/api/v1/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await res.json();
+                
+                if (!res.ok) {
+                    showError('login-error', data.detail || '登录失败');
+                    return;
+                }
+                
+                token = data.data.token;
+                localStorage.setItem('token', token);
+                currentUser = data.data;
+                
+                showMainContent();
+                await loadUserInfo();
+                
+                // 首次使用引导
+                showGuide();
+            } catch (e) {
+                showError('login-error', '网络错误，请检查连接');
+            }
+        }
+        
+        // 发送验证码
+        let countdownTimer = null;
+        
+        async function sendCode() {
+            const email = document.getElementById('register-email').value;
+            
+            if (!email) {
+                showError('register-error', '请先输入邮箱');
+                return;
+            }
+            
+            // 验证邮箱格式
+            if (!email.match(/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/)) {
+                showError('register-error', '邮箱格式不正确');
+                return;
+            }
+            
+            const btn = document.getElementById('send-code-btn');
+            btn.disabled = true;
+            
+            try {
+                const res = await fetch(`${API}/api/v1/send-code`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                
+                const data = await res.json();
+                
+                if (!data.success) {
+                    showError('register-error', data.message || '发送失败');
+                    btn.disabled = false;
+                    return;
+                }
+                
+                // 测试模式显示验证码
+                if (data.test_code) {
+                    document.getElementById('test-code-hint').textContent = `测试验证码: ${data.test_code}`;
+                } else {
+                    document.getElementById('test-code-hint').textContent = '验证码已发送到邮箱';
+                }
+                
+                // 开始倒计时
+                let seconds = 60;
+                countdownTimer = setInterval(() => {
+                    btn.textContent = `${seconds}秒`;
+                    seconds--;
+                    if (seconds <= 0) {
+                        clearInterval(countdownTimer);
+                        btn.disabled = false;
+                        btn.textContent = '获取验证码';
+                    }
+                }, 1000);
+                
+            } catch (e) {
+                showError('register-error', '网络错误');
+                btn.disabled = false;
+            }
+        }
+        
+        // 注册
+        async function register() {
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            const name = document.getElementById('register-name').value;
+            const code = document.getElementById('register-code').value;
+            
+            if (!email || !password || !code) {
+                showError('register-error', '请填写邮箱、验证码和密码');
+                return;
+            }
+            
+            if (password.length < 6) {
+                showError('register-error', '密码至少6位');
+                return;
+            }
+            
+            if (code.length !== 6) {
+                showError('register-error', '验证码为6位数字');
+                return;
+            }
+            
+            try {
+                const res = await fetch(`${API}/api/v1/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password, name, code })
+                });
+                
+                const data = await res.json();
+                
+                if (!res.ok) {
+                    showError('register-error', data.detail || '注册失败');
+                    return;
+                }
+                
+                token = data.data.token;
+                localStorage.setItem('token', token);
+                currentUser = data.data;
+                
+                showMainContent();
+                await loadUserInfo();
+                
+                // 首次使用引导
+                showGuide();
+                
+            } catch (e) {
+                showError('register-error', '网络错误，请检查连接');
+            }
+        }
+        
+        // 退出
+        function logout() {
+            localStorage.removeItem('token');
+            token = null;
+            currentUser = null;
+            showAuthSection();
+        }
+        
+        // 加载用户信息
+        async function loadUserInfo() {
+            const res = await fetch(`${API}/api/v1/me`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            
+            // Token过期处理
+            if (res.status === 401) {
+                handleTokenExpired();
+                return;
+            }
+            
+            const data = await res.json();
+            
+            if (!res.ok) {
+                throw new Error('获取用户信息失败');
+            }
+            
+            currentUser = data.data;
+            
+            document.getElementById('user-email').textContent = currentUser.email;
+            
+            // 剩余次数显示（醒目badge）
+            let usageHTML = '';
+            if (currentUser.is_paid) {
+                usageHTML = '<span class="usage-badge unlimited">✓ 付费会员</span>';
+            } else {
+                const remaining = currentUser.usage_limit - currentUser.usage_today;
+                const badgeClass = remaining <= 1 ? 'danger' : (remaining <= 3 ? 'warning' : '');
+                usageHTML = `<span class="usage-badge ${badgeClass}">剩余 ${remaining} 次</span>`;
+            }
+            
+            const usageText = currentUser.is_paid 
+                ? '付费用户 · 无限制' 
+                : `今日已用 ${currentUser.usage_today}/${currentUser.usage_limit} 次`;
+            document.getElementById('user-usage').innerHTML = usageText + usageHTML;
+        }
+        
+        // 分析简历
+        async function analyzeResume() {
+            // 检查使用次数
+            const usage = await checkUsage();
+            if (!usage.can_use) {
+                showUpgradeModal();
+                return;
+            }
+            
+            const content = document.getElementById('resume-content').value;
+            const industry = document.getElementById('industry').value;
+            const jd = document.getElementById('jd-content').value;
+            
+            if (!content || !industry) {
+                alert('请输入简历内容并选择行业');
+                return;
+            }
+            
+            document.getElementById('results').style.display = 'block';
+            document.getElementById('results').innerHTML = '<div class="loading">正在分析</div>';
+            
+            try {
+                const res = await fetch(`${API}/api/v1/analyze`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        resume_content: content,
+                        industry: industry,
+                        jd_content: jd || null
+                    })
+                });
+                
+                const data = await res.json();
+                
+                if (!res.ok) {
+                    if (data.detail && data.detail.includes('次数已用完')) {
+                        showUpgradeModal();
+                    } else {
+                        document.getElementById('results').innerHTML = `<div class="error-msg">${data.detail}</div>`;
+                    }
+                    return;
+                }
+                
+                displayResults(data.data);
+                await loadUserInfo();
+            } catch (e) {
+                document.getElementById('results').innerHTML = '<div class="error-msg">网络错误</div>';
+            }
+        }
+        
+        // 显示分析结果
+        function displayResults(data) {
+            let html = `
+                <div class="result-section">
+                    <div class="result-header">分析结果</div>
+                    
+                    <div class="score-display">
+                        <div class="score-item">
+                            <div class="score-label">综合评分</div>
+                            ${createScoreRing(data.overall_score)}
+                        </div>
+                    </div>
+                    
+                    <div style="margin:32px 0;">
+                        <div class="keywords-title">各项评分</div>
+                        ${createScoreBar('关键词匹配', data.keyword_score)}
+                        ${createScoreBar('ATS格式', data.ats_score)}
+                        ${createScoreBar('内容完整度', data.content_score || Math.round((data.keyword_score + data.ats_score) / 2))}
+                    </div>
+            `;
+            
+            if (data.keywords_found && data.keywords_found.length > 0) {
+                html += `
+                    <div class="keywords-section">
+                        <div class="keywords-title">已匹配关键词 (${data.keywords_found.length})</div>
+                        <div class="keywords-grid">
+                            ${data.keywords_found.map(k => `
+                                <div class="keyword-item keyword-found">
+                                    ${k.keyword}<span style="color:#999;margin-left:8px;">${k.count}次</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            if (data.keywords_missing && data.keywords_missing.length > 0) {
+                html += `
+                    <div class="keywords-section">
+                        <div class="keywords-title">缺失关键词 (${data.keywords_missing.length})</div>
+                        <div class="keywords-grid">
+                            ${data.keywords_missing.map(k => `
+                                <div class="keyword-item keyword-missing">${k.keyword}</div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            if (data.suggestions && data.suggestions.length > 0) {
+                html += `
+                    <div class="suggestions-section">
+                        <div class="keywords-title">优化建议</div>
+                        ${data.suggestions.map((s, i) => `
+                            <div class="suggestion-card priority-${s.priority || 'medium'}">
+                                <div class="suggestion-card-header">
+                                    <div class="suggestion-card-icon">${i + 1}</div>
+                                    <div class="suggestion-card-title">${s.category || '建议'}</div>
+                                </div>
+                                <div class="suggestion-card-body">${s.suggestion}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+                        <div class="suggestions-title">优化建议</div>
+                        <div class="suggestions-list">
+                            ${data.suggestions.map(s => `
+                                <div class="suggestion-item">${s.suggestion}</div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // 添加导出按钮
+            html += `
+                <div style="margin-top:32px;text-align:center;">
+                    <button class="btn btn-secondary" onclick="exportPDF()">导出PDF报告</button>
+                </div>
+            `;
+            
+            html += '</div>';
+            document.getElementById('results').innerHTML = html;
+        }
+        
+        // 优化简历
+        async function optimizeResume() {
+            // 检查使用次数
+            const usage = await checkUsage();
+            if (!usage.can_use) {
+                showUpgradeModal();
+                return;
+            }
+            
+            const content = document.getElementById('optimize-resume').value;
+            const industry = document.getElementById('optimize-industry').value;
+            
+            if (!content || !industry) {
+                alert('请输入简历内容并选择行业');
+                return;
+            }
+            
+            document.getElementById('results').style.display = 'block';
+            document.getElementById('results').innerHTML = '<div class="loading">正在优化</div>';
+            
+            try {
+                const res = await fetch(`${API}/api/v1/optimize`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        resume_content: content,
+                        industry: industry
+                    })
+                });
+                
+                const data = await res.json();
+                
+                if (!res.ok) {
+                    if (data.detail && data.detail.includes('次数已用完')) {
+                        showUpgradeModal();
+                    } else {
+                        document.getElementById('results').innerHTML = `<div class="error-msg">${data.detail}</div>`;
+                    }
+                    return;
+                }
+                
+                document.getElementById('results').innerHTML = `
+                    <div class="result-section">
+                        <div class="result-header">优化结果</div>
+                        <div class="form-group">
+                            <label>优化后的简历</label>
+                            <textarea style="min-height: 300px;">${data.data.optimized_resume}</textarea>
+                        </div>
+                    </div>
+                `;
+                
+                await loadUserInfo();
+            } catch (e) {
+                document.getElementById('results').innerHTML = '<div class="error-msg">网络错误</div>';
+            }
+        }
+        
+        // 加载历史记录
+        async function loadHistory() {
+            document.getElementById('history-list').innerHTML = '<div class="loading">正在加载</div>';
+            
+            try {
+                const res = await fetch(`${API}/api/v1/resumes/history`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                const data = await res.json();
+                
+                if (!res.ok) {
+                    document.getElementById('history-list').innerHTML = '<div class="error-msg">加载失败</div>';
+                    return;
+                }
+                
+                if (!data.data || !data.data.history || data.data.history.length === 0) {
+                    document.getElementById('history-list').innerHTML = '<div style="text-align:center;padding:40px;color:#666;">暂无历史记录</div>';
+                    return;
+                }
+                
+                const history = data.data.history;
+                document.getElementById('history-list').innerHTML = `
+                    <div class="keywords-section">
+                        <div class="keywords-title">历史简历 (${data.data.total}条)</div>
+                        <div class="history-list">
+                            ${history.map(r => `
+                                <div class="history-item" onclick="loadResumeDetail(${r.id})" style="cursor:pointer;padding:16px;border:1px solid #e5e5e5;margin-bottom:12px;background:#fff;">
+                                    <div style="font-weight:600;font-size:15px;margin-bottom:8px;">${r.title || r.industry}</div>
+                                    <div style="display:flex;gap:24px;font-size:13px;color:#666;">
+                                        <span>行业: ${r.industry}</span>
+                                        <span>评分: <b style="color:#1a1a1a;">${r.score || '-'}</b></span>
+                                        <span>字数: ${r.content_length || '-'}</span>
+                                    </div>
+                                    <div style="font-size:12px;color:#999;margin-top:6px;">${r.created_at}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            } catch (e) {
+                document.getElementById('history-list').innerHTML = '<div class="error-msg">网络错误</div>';
+            }
+        }
+        
+        // 加载简历详情
+        async function loadResumeDetail(id) {
+            document.getElementById('history-list').innerHTML = '<div class="loading">正在加载详情</div>';
+            
+            try {
+                const res = await fetch(`${API}/api/v1/resumes/${id}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                const data = await res.json();
+                
+                if (!res.ok) {
+                    document.getElementById('history-list').innerHTML = '<div class="error-msg">加载失败</div>';
+                    return;
+                }
+                
+                const r = data.data;
+                document.getElementById('history-list').innerHTML = `
+                    <div style="margin-bottom:16px;">
+                        <button class="btn btn-secondary" onclick="loadHistory()">← 返回列表</button>
+                    </div>
+                    <div class="keywords-section">
+                        <div class="keywords-title">简历详情 #${r.id}</div>
+                        <div style="padding:16px;border:1px solid #e5e5e5;background:#fff;margin-bottom:16px;">
+                            <div style="display:flex;gap:24px;margin-bottom:12px;font-size:14px;">
+                                <span>行业: <b>${r.industry}</b></span>
+                                <span>评分: <b style="font-size:20px;color:#1a1a1a;">${r.score || '-'}</b></span>
+                            </div>
+                            <div style="font-size:12px;color:#999;">创建时间: ${r.created_at}</div>
+                        </div>
+                        <div style="font-size:14px;font-weight:500;margin-bottom:12px;">简历内容:</div>
+                        <div style="padding:16px;background:#f9f9f9;font-size:14px;line-height:1.6;white-space:pre-wrap;">${r.content || '无内容'}</div>
+                    </div>
+                `;
+            } catch (e) {
+                document.getElementById('history-list').innerHTML = '<div class="error-msg">网络错误</div>';
+            }
+        }
+        
+        // 清空表单
+        function clearForm() {
+            document.getElementById('resume-content').value = '';
+            document.getElementById('industry').value = '';
+            document.getElementById('jd-content').value = '';
+            document.getElementById('results').style.display = 'none';
+        }
+        
+        // 导出PDF
+        async function exportPDF() {
+            showLoading('生成PDF报告...');
+            try {
+                const res = await fetch(`${API}/api/v1/export/pdf`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (res.status === 401) {
+                    handleTokenExpired();
+                    return;
+                }
+                
+                if (!res.ok) {
+                    throw new Error('生成失败');
+                }
+                
+                // 下载PDF
+                const blob = await res.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `resume_analysis_${new Date().toISOString().slice(0,10)}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+                
+                hideLoading();
+                showToast('PDF报告已生成', 'success');
+            } catch (e) {
+                hideLoading();
+                showToast('生成PDF失败: ' + e.message, 'warning');
+            }
+        }
+        
+        // 显示错误
+        function showError(id, msg) {
+            const el = document.getElementById(id);
+            el.textContent = msg;
+            el.style.display = 'block';
+        }
+        
+        // 初始化
+        init();
+    </script>
+</body>
+</html>
