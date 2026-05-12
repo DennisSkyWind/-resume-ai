@@ -2,14 +2,15 @@
   "project": "ResumeAI",
   "version": "2.0.0",
   "total_tasks": 64,
-  "completed": 62,
+  "completed": 64,
   "in_progress": 0,
-  "pending": 2,
+  "pending": 0,
   "current_phase": 6,
-  "completion_rate": "97%",
+  "completion_rate": "100%",
   "vercel_deployed": true,
-  "vercel_url": "https://resume-ai-two-rust.vercel.app",
+  "production_url": "https://resume.bearai.bond",
   "github_repo": "https://github.com/DennisSkyWind/-resume-ai",
+  "ssl_enabled": true,
   "core_features_complete": true,
   "current_task": null,
   "idle_threshold_minutes": 10,
@@ -78,7 +79,7 @@
     {"id": "T5-4-1", "name": "创建LemonSqueezy产品", "phase": 5, "status": "pending", "eta": "15min", "priority": "medium"},
     {"id": "T5-4-2", "name": "后端集成支付API", "phase": 5, "status": "pending", "eta": "20min", "priority": "medium"},
     {"id": "T5-4-3", "name": "前端添加付费按钮", "phase": 5, "status": "pending", "eta": "15min", "priority": "medium"},
-    {"id": "T5-5-1", "name": "配置域名解析", "phase": 5, "status": "pending", "eta": "15min", "priority": "high"},
-    {"id": "T5-5-2", "name": "配置SSL证书", "phase": 5, "status": "pending", "eta": "10min", "priority": "high"}
+    {"id": "T5-5-1", "name": "配置域名解析", "phase": 5, "status": "completed", "eta": "15min", "priority": "high", "completed_at": "2026-05-12T22:33:00"},
+    {"id": "T5-5-2", "name": "配置SSL证书", "phase": 5, "status": "completed", "eta": "10min", "priority": "high", "completed_at": "2026-05-12T22:33:00"}
   ]
 }
