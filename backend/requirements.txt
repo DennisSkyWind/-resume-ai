@@ -4,3 +4,4 @@ resend
 PyJWT
 pdfplumber
 reportlab
+python-docx
