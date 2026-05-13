@@ -19,8 +19,8 @@ EMAIL_CONFIG = {
     "smtp_password": "BAQesckiq8fTrUXY",  # 授权码
     "smtp_configured": True,  # 已配置
     
-    # 测试模式（关闭，实际发送）
-    "test_mode": False,
+    # 测试模式（开启，验证码返回给前端）
+    "test_mode": True,  # 生产环境先用测试模式
     
     # 验证码配置
     "code_length": 6,
