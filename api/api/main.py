@@ -1014,6 +1014,29 @@ async def debug_db():
     except Exception as e:
         return {"error": str(e)}
 
+@app.post("/debug/init-tables")
+async def init_tables():
+    """初始化缺失的数据库表"""
+    try:
+        conn = sqlite3.connect(USER_DB_PATH)
+        cursor = conn.cursor()
+        # 创建verification_codes表
+        cursor.execute('''CREATE TABLE IF NOT EXISTS verification_codes
+            (id INTEGER PRIMARY KEY AUTOINCREMENT,
+            email TEXT,
+            code TEXT,
+            expires_at TEXT,
+            used INTEGER DEFAULT 0,
+            created_at TEXT)''')
+        conn.commit()
+        # 检查表
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
+        tables = [row[0] for row in cursor.fetchall()]
+        conn.close()
+        return {"success": True, "tables": tables}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
 # ========== 管理员API ==========
 
 async def get_admin_user(authorization: Optional[str] = Header(None)):
