@@ -99,14 +99,25 @@ USER_DB_PATH = os.path.join(DATA_DIR, "users.db")
 if not os.path.exists(USER_DB_PATH):
     try:
         conn = sqlite3.connect(USER_DB_PATH)
+        # 用户表
         conn.execute('''CREATE TABLE IF NOT EXISTS users
             (id INTEGER PRIMARY KEY AUTOINCREMENT,
             email TEXT UNIQUE,
-            password TEXT,
+            password_hash TEXT,
             name TEXT,
-            created_at TEXT,
-            daily_usage INTEGER DEFAULT 0,
-            last_usage_date TEXT)''')
+            verified INTEGER DEFAULT 0,
+            daily_limit INTEGER DEFAULT 5,
+            last_reset TEXT,
+            last_login TEXT,
+            created_at TEXT)''')
+        # 验证码表
+        conn.execute('''CREATE TABLE IF NOT EXISTS verification_codes
+            (id INTEGER PRIMARY KEY AUTOINCREMENT,
+            email TEXT,
+            code TEXT,
+            expires_at TEXT,
+            used INTEGER DEFAULT 0,
+            created_at TEXT)''')
         conn.commit()
         conn.close()
         logger.info(f"Created database at {USER_DB_PATH}")
