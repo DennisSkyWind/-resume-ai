@@ -63,12 +63,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 启动事件 - 初始化管理员
-@app.on_event("startup")
-async def startup_event():
-    from init_admin import init_admin
-    init_admin(USER_DB_PATH)
-
 # 数据目录 - 多环境兼容
 # Render: 使用backend目录下的data子目录
 # Vercel: 使用/tmp目录（Serverless）
@@ -129,6 +123,12 @@ if not os.path.exists(USER_DB_PATH):
         logger.info(f"Created database at {USER_DB_PATH}")
     except Exception as e:
         logger.error(f"Failed to create database: {e}")
+
+# 启动事件 - 初始化管理员
+@app.on_event("startup")
+async def startup_event():
+    from init_admin import init_admin
+    init_admin(USER_DB_PATH)
 
 # JWT配置（使用固定密钥）
 JWT_SECRET = "resumeai_jwt_secret_key_2026"  # 固定密钥，生产环境应使用环境变量
