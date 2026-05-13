@@ -358,37 +358,43 @@ class OptimizeRequest(BaseModel):
 @app.post("/api/v1/send-code")
 async def send_code(request: SendCodeRequest):
     """发送验证码"""
-    import sqlite3
-    
-    conn = get_user_db()
-    cursor = conn.cursor()
-    
-    # 检查邮箱是否已注册
-    cursor.execute("SELECT id FROM users WHERE email = ?", (request.email,))
-    if cursor.fetchone():
+    try:
+        import sqlite3
+        
+        conn = get_user_db()
+        cursor = conn.cursor()
+        
+        # 检查邮箱是否已注册
+        cursor.execute("SELECT id FROM users WHERE email = ?", (request.email,))
+        if cursor.fetchone():
+            conn.close()
+            raise HTTPException(status_code=400, detail="邮箱已被注册")
+        
+        # 生成验证码
+        code = generate_code(EMAIL_CONFIG["code_length"])
+        expires_at = datetime.now() + timedelta(minutes=EMAIL_CONFIG["code_expire_minutes"])
+        
+        # 保存验证码到数据库
+        cursor.execute("""
+            INSERT INTO verification_codes (email, code, expires_at)
+            VALUES (?, ?, ?)
+        """, (request.email, code, expires_at.isoformat()))
+        conn.commit()
         conn.close()
-        raise HTTPException(status_code=400, detail="邮箱已被注册")
-    
-    # 生成验证码
-    code = generate_code(EMAIL_CONFIG["code_length"])
-    expires_at = datetime.now() + timedelta(minutes=EMAIL_CONFIG["code_expire_minutes"])
-    
-    # 保存验证码到数据库
-    cursor.execute("""
-        INSERT INTO verification_codes (email, code, expires_at)
-        VALUES (?, ?, ?)
-    """, (request.email, code, expires_at.isoformat()))
-    conn.commit()
-    conn.close()
-    
-    # 发送验证码
-    result = send_verification_code(request.email, code)
-    
-    return {
-        "success": result["success"],
-        "message": result["message"],
-        "test_code": result.get("test_code")  # 测试模式返回验证码
-    }
+        
+        # 发送验证码
+        result = send_verification_code(request.email, code)
+        
+        return {
+            "success": result["success"],
+            "message": result["message"],
+            "test_code": result.get("test_code")  # 测试模式返回验证码
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"发送验证码失败: {e}")
+        raise HTTPException(status_code=500, detail=f"发送失败: {str(e)}")
 
 @app.post("/api/v1/register")
 async def register(request: RegisterRequest):
@@ -1036,6 +1042,23 @@ async def init_tables():
         return {"success": True, "tables": tables}
     except Exception as e:
         return {"success": False, "error": str(e)}
+
+@app.post("/debug/test-email")
+async def test_email(request: SendCodeRequest):
+    """测试邮件发送"""
+    try:
+        code = generate_code(EMAIL_CONFIG["code_length"])
+        result = send_verification_code(request.email, code)
+        return {
+            "success": result["success"],
+            "message": result["message"],
+            "test_mode": EMAIL_CONFIG["test_mode"],
+            "smtp_server": EMAIL_CONFIG["smtp_server"],
+            "smtp_user": EMAIL_CONFIG["smtp_user"],
+            "error": result.get("error") if not result["success"] else None
+        }
+    except Exception as e:
+        return {"success": False, "error": str(e), "error_type": type(e).__name__}
 
 # ========== 管理员API ==========
 

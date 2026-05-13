@@ -80,7 +80,9 @@ def send_verification_code(email: str, code: str) -> dict:
         
     except Exception as e:
         print(f"邮件发送失败: {e}")
-        return {"success": False, "message": f"发送失败: {str(e)}"}
+        import traceback
+        traceback.print_exc()
+        return {"success": False, "message": f"发送失败: {str(e)}", "error": str(e), "error_type": type(e).__name__}
 
 def get_email_config():
     """获取邮箱配置状态"""
