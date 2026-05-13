@@ -63,6 +63,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# 启动事件 - 初始化管理员
+@app.on_event("startup")
+async def startup_event():
+    from init_admin import init_admin
+    init_admin(USER_DB_PATH)
+
 # 数据目录 - 多环境兼容
 # Render: 使用backend目录下的data子目录
 # Vercel: 使用/tmp目录（Serverless）
@@ -189,10 +195,6 @@ def load_keywords():
     return {}
 
 KEYWORDS_DB = load_keywords()
-
-# 启动时初始化管理员
-from init_admin import init_admin
-init_admin(USER_DB_PATH)
 
 # ========== 用户认证函数 ==========
 
