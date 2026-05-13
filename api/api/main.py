@@ -1124,6 +1124,53 @@ async def test_email(request: SendCodeRequest):
     except Exception as e:
         return {"success": False, "error": str(e), "error_type": type(e).__name__}
 
+@app.get("/debug/users")
+async def debug_users():
+    """查看所有用户"""
+    try:
+        conn = get_user_db()
+        cursor = conn.cursor()
+        cursor.execute("SELECT id, email, name, password_hash, created_at FROM users")
+        users = []
+        for row in cursor.fetchall():
+            users.append({
+                "id": row["id"],
+                "email": row["email"],
+                "name": row["name"],
+                "password_hash": row["password_hash"],
+                "created_at": row["created_at"]
+            })
+        conn.close()
+        return {"users": users, "count": len(users)}
+    except Exception as e:
+        return {"error": str(e)}
+
+@app.post("/debug/check-password")
+async def debug_check_password(email: str, password: str):
+    """检查密码匹配"""
+    try:
+        conn = get_user_db()
+        cursor = conn.cursor()
+        cursor.execute("SELECT password_hash FROM users WHERE email = ?", (email,))
+        user = cursor.fetchone()
+        conn.close()
+        
+        if not user:
+            return {"error": "用户不存在", "email": email}
+        
+        stored_hash = user["password_hash"]
+        input_hash = hash_password(password)
+        
+        return {
+            "email": email,
+            "stored_hash": stored_hash,
+            "input_hash": input_hash,
+            "match": stored_hash == input_hash,
+            "password": password
+        }
+    except Exception as e:
+        return {"error": str(e)}
+
 # ========== 管理员API ==========
 
 async def get_admin_user(authorization: Optional[str] = Header(None)):
