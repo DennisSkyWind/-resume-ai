@@ -2,3 +2,4 @@
 uvicorn
 resend
 PyJWT
+python-multipart

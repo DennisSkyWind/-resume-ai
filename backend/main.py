@@ -109,6 +109,8 @@ if not os.path.exists(USER_DB_PATH):
             daily_limit INTEGER DEFAULT 5,
             last_reset TEXT,
             last_login TEXT,
+            is_admin INTEGER DEFAULT 0,
+            is_paid INTEGER DEFAULT 0,
             created_at TEXT)''')
         # 验证码表
         conn.execute('''CREATE TABLE IF NOT EXISTS verification_codes
@@ -124,11 +126,39 @@ if not os.path.exists(USER_DB_PATH):
     except Exception as e:
         logger.error(f"Failed to create database: {e}")
 
-# 启动事件 - 初始化管理员
-@app.on_event("startup")
-async def startup_event():
-    from init_admin import init_admin
-    init_admin(USER_DB_PATH)
+# 确保字段存在（ALTER TABLE）
+try:
+    conn = sqlite3.connect(USER_DB_PATH)
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    cursor.execute("PRAGMA table_info(users)")
+    columns = [row[1] for row in cursor.fetchall()]
+    
+    if 'is_admin' not in columns:
+        cursor.execute("ALTER TABLE users ADD COLUMN is_admin INTEGER DEFAULT 0")
+        logger.info("Added is_admin column")
+    
+    if 'is_paid' not in columns:
+        cursor.execute("ALTER TABLE users ADD COLUMN is_paid INTEGER DEFAULT 0")
+        logger.info("Added is_paid column")
+    
+    # 创建管理员账号
+    import hashlib
+    password_hash = hashlib.sha256('Hiller'.encode()).hexdigest()
+    cursor.execute("SELECT id FROM users WHERE email = 'zhwffy@hotmail.com'")
+    if cursor.fetchone():
+        cursor.execute("UPDATE users SET is_admin = 1, is_paid = 1 WHERE email = 'zhwffy@hotmail.com'")
+    else:
+        cursor.execute('''INSERT INTO users 
+            (email, name, password_hash, is_admin, is_paid, created_at)
+            VALUES (?, ?, ?, 1, 1, ?)''', 
+            ('zhwffy@hotmail.com', 'Admin', password_hash, datetime.now().isoformat()))
+        logger.info("Created admin user: zhwffy@hotmail.com")
+    
+    conn.commit()
+    conn.close()
+except Exception as e:
+    logger.error(f"Failed to update database: {e}")
 
 # JWT配置（使用固定密钥）
 JWT_SECRET = "resumeai_jwt_secret_key_2026"  # 固定密钥，生产环境应使用环境变量
