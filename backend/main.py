@@ -120,6 +120,16 @@ if not os.path.exists(USER_DB_PATH):
             expires_at TEXT,
             used INTEGER DEFAULT 0,
             created_at TEXT)''')
+        # 用户模板偏好表
+        conn.execute('''CREATE TABLE IF NOT EXISTS user_templates
+            (id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
+            template_id TEXT,
+            custom_settings TEXT,
+            is_default INTEGER DEFAULT 0,
+            created_at TEXT,
+            updated_at TEXT,
+            FOREIGN KEY(user_id) REFERENCES users(id))''')
         conn.commit()
         conn.close()
         logger.info(f"Created database at {USER_DB_PATH}")
@@ -1274,6 +1284,79 @@ async def recommend_template(industry: str):
         "industry": industry,
         "recommended": recommended
     }
+
+# ========== 用户模板存储API ==========
+
+class SaveTemplateRequest(BaseModel):
+    template_id: str
+    custom_settings: Optional[str] = "{}"  # JSON格式的自定义设置
+    is_default: Optional[bool] = False
+
+@app.post("/api/v1/user/templates")
+async def save_user_template(request: SaveTemplateRequest, user: dict = Depends(get_current_user)):
+    """保存用户模板偏好"""
+    conn = get_user_db()
+    cursor = conn.cursor()
+    
+    # 检查是否已存在
+    cursor.execute("SELECT id FROM user_templates WHERE user_id = ? AND template_id = ?", 
+                   (user["user_id"], request.template_id))
+    existing = cursor.fetchone()
+    
+    if existing:
+        # 更新
+        cursor.execute('''UPDATE user_templates 
+            SET custom_settings = ?, is_default = ?, updated_at = ?
+            WHERE id = ?''',
+            (request.custom_settings, 1 if request.is_default else 0, 
+             datetime.now().isoformat(), existing["id"]))
+    else:
+        # 新建
+        cursor.execute('''INSERT INTO user_templates 
+            (user_id, template_id, custom_settings, is_default, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?)''',
+            (user["user_id"], request.template_id, request.custom_settings,
+             1 if request.is_default else 0, datetime.now().isoformat(), datetime.now().isoformat()))
+    
+    conn.commit()
+    conn.close()
+    
+    return {"success": True, "message": "模板已保存"}
+
+@app.get("/api/v1/user/templates")
+async def get_user_templates(user: dict = Depends(get_current_user)):
+    """获取用户保存的模板列表"""
+    conn = get_user_db()
+    cursor = conn.cursor()
+    
+    cursor.execute('''SELECT id, template_id, custom_settings, is_default, created_at 
+        FROM user_templates WHERE user_id = ?''', (user["user_id"],))
+    
+    templates = []
+    for row in cursor.fetchall():
+        templates.append({
+            "id": row["id"],
+            "template_id": row["template_id"],
+            "custom_settings": row["custom_settings"],
+            "is_default": row["is_default"],
+            "created_at": row["created_at"]
+        })
+    
+    conn.close()
+    return {"success": True, "templates": templates}
+
+@app.delete("/api/v1/user/templates/{template_id}")
+async def delete_user_template(template_id: int, user: dict = Depends(get_current_user)):
+    """删除用户模板"""
+    conn = get_user_db()
+    cursor = conn.cursor()
+    
+    cursor.execute("DELETE FROM user_templates WHERE id = ? AND user_id = ?", 
+                   (template_id, user["user_id"]))
+    conn.commit()
+    conn.close()
+    
+    return {"success": True, "message": "模板已删除"}
 
 # ========== 管理员API ==========
 
