@@ -1,35 +1,31 @@
 #!/usr/bin/env python3
 """
 邮箱验证码发送模块
-支持SMTP发送和本地测试模式
+支持Resend API发送
 """
 
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 import os
 import random
 
-# 邮箱配置（163邮箱）
+# Resend API配置
+RESEND_API_KEY = os.environ.get("RESEND_API_KEY", "re_ARxpVJ73_7nqzDoQoPkLdDaUe6budhJHP")
+
+# 邮箱配置
 EMAIL_CONFIG = {
-    # SMTP配置
-    "smtp_server": "smtp.163.com",
-    "smtp_port": 465,  # SSL端口
-    "smtp_user": "zhwffy@163.com",
-    "smtp_password": "BAQesckiq8fTrUXY",  # 授权码
-    "smtp_configured": True,  # 已配置
+    # Resend配置
+    "resend_api_key": RESEND_API_KEY,
+    "from_email": "onboarding@resend.dev",  # Resend默认发件人
+    "from_name": "ResumeAI",
     
-    # 测试模式（开启，因Render阻止SMTP端口）
-    # TODO: 后续接入SendGrid/Mailgun等API服务
-    "test_mode": True,
+    # 测试模式（关闭，使用Resend真实发送）
+    "test_mode": False,
     
     # 验证码配置
     "code_length": 6,
     "code_expire_minutes": 10,
     
     # 验证码内容
-    "subject": "ResumeAI 邮箱验证码",
-    "from_name": "ResumeAI"
+    "subject": "ResumeAI 验证码",
 }
 
 def generate_code(length=6):
@@ -48,15 +44,15 @@ def send_verification_code(email: str, code: str) -> dict:
         return {
             "success": True,
             "message": "验证码已生成（测试模式）",
-            "test_code": code  # 测试模式返回验证码供前端显示
+            "test_code": code
         }
     
-    # 实际发送邮件
+    # 使用Resend API发送
     try:
-        msg = MIMEMultipart()
-        msg['From'] = f"{EMAIL_CONFIG['from_name']} <{EMAIL_CONFIG['smtp_user']}>"
-        msg['To'] = email
-        msg['Subject'] = EMAIL_CONFIG['subject']
+        import resend
+        
+        # 设置API Key
+        resend.api_key = EMAIL_CONFIG["resend_api_key"]
         
         body = f"""
 您好！
@@ -69,26 +65,37 @@ def send_verification_code(email: str, code: str) -> dict:
 
 — ResumeAI团队
 """
-        msg.attach(MIMEText(body, 'plain', 'utf-8'))
         
-        # 发送邮件（SSL方式，163邮箱需要）
-        server = smtplib.SMTP_SSL(EMAIL_CONFIG['smtp_server'], EMAIL_CONFIG['smtp_port'])
-        server.login(EMAIL_CONFIG['smtp_user'], EMAIL_CONFIG['smtp_password'])
-        server.send_message(msg)
-        server.quit()
+        result = resend.Emails.send({
+            "from": f"{EMAIL_CONFIG['from_name']} <{EMAIL_CONFIG['from_email']}>",
+            "to": [email],
+            "subject": EMAIL_CONFIG["subject"],
+            "text": body
+        })
         
-        return {"success": True, "message": "验证码已发送到邮箱"}
+        print(f"Resend发送成功: {result}")
+        return {
+            "success": True,
+            "message": "验证码已发送到邮箱",
+            "email_id": result.get("id") if isinstance(result, dict) else str(result)
+        }
         
     except Exception as e:
         print(f"邮件发送失败: {e}")
         import traceback
         traceback.print_exc()
-        return {"success": False, "message": f"发送失败: {str(e)}", "error": str(e), "error_type": type(e).__name__}
+        return {
+            "success": False,
+            "message": f"发送失败: {str(e)}",
+            "error": str(e),
+            "error_type": type(e).__name__
+        }
 
 def get_email_config():
     """获取邮箱配置状态"""
     return {
         "test_mode": EMAIL_CONFIG["test_mode"],
-        "smtp_configured": bool(EMAIL_CONFIG["smtp_server"] and EMAIL_CONFIG["smtp_user"]),
+        "resend_configured": bool(EMAIL_CONFIG["resend_api_key"]),
+        "from_email": EMAIL_CONFIG["from_email"],
         "code_expire_minutes": EMAIL_CONFIG["code_expire_minutes"]
     }
