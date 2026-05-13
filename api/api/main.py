@@ -470,8 +470,8 @@ async def login(request: LoginRequest):
     
     password_hash = hash_password(request.password)
     cursor.execute("""
-        SELECT * FROM users WHERE email = ? AND password_hash = ?
-    """, (request.email, password_hash))
+            SELECT id, email, name, daily_limit FROM users WHERE email = ? AND password_hash = ?
+        """, (request.email, password_hash))
     
     user = cursor.fetchone()
     
@@ -496,8 +496,11 @@ async def login(request: LoginRequest):
             "user_id": user["id"],
             "email": user["email"],
             "name": user["name"],
-            "is_paid": user["is_paid"],
+            "daily_limit": user["daily_limit"],
             "token": token,
+            "token_type": "Bearer"
+        }
+    }
             "token_type": "Bearer"
         }
     }
