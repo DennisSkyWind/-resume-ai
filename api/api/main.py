@@ -1035,33 +1035,16 @@ async def init_tables():
         cursor.execute("PRAGMA table_info(users)")
         columns = [row[1] for row in cursor.fetchall()]
         
-        # 如果缺少password_hash字段，重建表
-        if 'password_hash' not in columns:
-            # 备份现有用户数据
-            cursor.execute("SELECT id, email, password, name, created_at FROM users")
-            old_users = cursor.fetchall()
-            
-            # 删除旧表
-            cursor.execute("DROP TABLE users")
-            
-            # 创建新表（正确结构）
-            cursor.execute('''CREATE TABLE users
-                (id INTEGER PRIMARY KEY AUTOINCREMENT,
-                email TEXT UNIQUE,
-                password_hash TEXT,
-                name TEXT,
-                verified INTEGER DEFAULT 0,
-                daily_limit INTEGER DEFAULT 5,
-                last_reset TEXT,
-                last_login TEXT,
-                created_at TEXT)''')
-            
-            # 迁移数据（password -> password_hash）
-            for user in old_users:
-                cursor.execute('''INSERT INTO users (id, email, password_hash, name, created_at)
-                    VALUES (?, ?, ?, ?, ?)''', user)
-            
-            logger.info(f"Users表已重建，迁移了{len(old_users)}个用户")
+        # 添加缺失的字段
+        missing_columns = []
+        
+        if 'is_admin' not in columns:
+            cursor.execute("ALTER TABLE users ADD COLUMN is_admin INTEGER DEFAULT 0")
+            missing_columns.append('is_admin')
+        
+        if 'is_paid' not in columns:
+            cursor.execute("ALTER TABLE users ADD COLUMN is_paid INTEGER DEFAULT 0")
+            missing_columns.append('is_paid')
         
         # 创建verification_codes表
         cursor.execute('''CREATE TABLE IF NOT EXISTS verification_codes
@@ -1070,21 +1053,7 @@ async def init_tables():
             code TEXT,
             expires_at TEXT,
             used INTEGER DEFAULT 0,
-            created_at TEXT)''')
-        
-        # 添加created_at默认值
-        cursor.execute("PRAGMA table_info(verification_codes)")
-        vc_columns = [row[1] for row in cursor.fetchall()]
-        if 'created_at' not in vc_columns:
-            # 重建verification_codes表
-            cursor.execute("DROP TABLE verification_codes")
-            cursor.execute('''CREATE TABLE verification_codes
-                (id INTEGER PRIMARY KEY AUTOINCREMENT,
-                email TEXT,
-                code TEXT,
-                expires_at TEXT,
-                used INTEGER DEFAULT 0,
-                created_at TEXT DEFAULT CURRENT_TIMESTAMP)''')
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP)''')
         
         conn.commit()
         
@@ -1099,7 +1068,51 @@ async def init_tables():
             "success": True, 
             "tables": tables,
             "users_columns": users_columns,
+            "added_columns": missing_columns,
             "message": "数据库表结构已修复"
+        }
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+@app.post("/debug/create-admin")
+async def create_admin(email: str = "zhwffy@hotmail.com", name: str = "Admin", password: str = "Hiller"):
+    """创建管理员账号"""
+    try:
+        conn = get_user_db()
+        cursor = conn.cursor()
+        
+        # 检查用户是否存在
+        cursor.execute("SELECT id FROM users WHERE email = ?", (email,))
+        if cursor.fetchone():
+            # 更新为管理员
+            cursor.execute("UPDATE users SET is_admin = 1 WHERE email = ?", (email,))
+            conn.commit()
+            conn.close()
+            return {"success": True, "message": "已将用户设置为管理员", "email": email}
+        
+        # 创建新管理员
+        password_hash = hash_password(password)
+        cursor.execute('''INSERT INTO users 
+            (email, name, password_hash, is_admin, is_paid, created_at)
+            VALUES (?, ?, ?, 1, 1, ?)''', 
+            (email, name, password_hash, datetime.now().isoformat()))
+        conn.commit()
+        user_id = cursor.lastrowid
+        conn.close()
+        
+        # 生成token
+        token = create_token(user_id, email)
+        
+        return {
+            "success": True,
+            "message": "管理员账号已创建",
+            "user": {
+                "id": user_id,
+                "email": email,
+                "name": name,
+                "is_admin": True
+            },
+            "token": token
         }
     except Exception as e:
         return {"success": False, "error": str(e)}
