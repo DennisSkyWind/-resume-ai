@@ -14,7 +14,7 @@ RESEND_API_KEY = os.environ.get("RESEND_API_KEY", "re_ARxpVJ73_7nqzDoQoPkLdDaUe6
 EMAIL_CONFIG = {
     # Resend配置
     "resend_api_key": RESEND_API_KEY,
-    "from_email": "onboarding@resend.dev",  # Resend默认发件人
+    "from_email": "noreply@bearai.bond",  # 已验证域名
     "from_name": "ResumeAI",
     
     # 测试模式（关闭，使用Resend真实发送）
