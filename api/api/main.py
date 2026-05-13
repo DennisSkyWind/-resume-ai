@@ -3,7 +3,7 @@ ResumeAI Backend - FastAPIwith User Authentication
 简历优化系统后端服务（带用户认证）
 """
 
-from fastapi import FastAPI, HTTPException, Depends, Header, File, UploadFile
+from fastapi import FastAPI, HTTPException, Depends, Header, File, UploadFile, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
 from pydantic import BaseModel
@@ -1075,7 +1075,11 @@ async def init_tables():
         return {"success": False, "error": str(e)}
 
 @app.post("/debug/create-admin")
-async def create_admin(email: str = "zhwffy@hotmail.com", name: str = "Admin", password: str = "Hiller"):
+async def create_admin(
+    email: str = Query(default="zhwffy@hotmail.com"),
+    name: str = Query(default="Admin"),
+    password: str = Query(default="Hiller")
+):
     """创建管理员账号"""
     try:
         conn = get_user_db()
