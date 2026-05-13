@@ -987,8 +987,32 @@ async def health_check():
         "status": "healthy",
         "timestamp": datetime.now().isoformat(),
         "keywords_loaded": len(KEYWORDS_DB),
-        "auth_enabled": True
+        "auth_enabled": True,
+        "data_dir": DATA_DIR,
+        "db_path": USER_DB_PATH
     }
+
+@app.get("/debug/db")
+async def debug_db():
+    """调试数据库状态"""
+    try:
+        conn = get_user_db()
+        cursor = conn.cursor()
+        # 检查表
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
+        tables = [row[0] for row in cursor.fetchall()]
+        # 检查用户数量
+        cursor.execute("SELECT COUNT(*) FROM users")
+        user_count = cursor.fetchone()[0]
+        conn.close()
+        return {
+            "tables": tables,
+            "user_count": user_count,
+            "db_path": USER_DB_PATH,
+            "data_dir": DATA_DIR
+        }
+    except Exception as e:
+        return {"error": str(e)}
 
 # ========== 管理员API ==========
 
