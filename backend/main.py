@@ -1358,6 +1358,150 @@ async def delete_user_template(template_id: int, user: dict = Depends(get_curren
     
     return {"success": True, "message": "模板已删除"}
 
+# ========== 支付API (LemonSqueezy) ==========
+
+# LemonSqueezy配置（占位，需用户创建产品后替换）
+LEMONSQUEEZY_API_KEY = os.getenv("LEMONSQUEEZY_API_KEY", "")
+LEMONSQUEEZY_STORE_ID = os.getenv("LEMONSQUEEZY_STORE_ID", "")
+LEMONSQUEEZY_WEBHOOK_SECRET = os.getenv("LEMONSQUEEZY_WEBHOOK_SECRET", "")
+
+class CreateCheckoutRequest(BaseModel):
+    product_id: str
+    variant_id: Optional[str] = None
+    email: Optional[str] = None
+
+@app.get("/api/v1/payments/status")
+async def payment_status():
+    """检查支付配置状态"""
+    return {
+        "success": True,
+        "configured": bool(LEMONSQUEEZY_API_KEY and LEMONSQUEEZY_STORE_ID),
+        "store_id": LEMONSQUEEZY_STORE_ID if LEMONSQUEEZY_API_KEY else None,
+        "message": "支付功能配置完成" if LEMONSQUEEZY_API_KEY else "请配置LemonSqueezy API Key和Store ID"
+    }
+
+@app.post("/api/v1/payments/checkout")
+async def create_checkout(request: CreateCheckoutRequest, user: dict = Depends(get_current_user)):
+    """创建支付checkout链接"""
+    if not LEMONSQUEEZY_API_KEY or not LEMONSQUEEZY_STORE_ID:
+        return {"error": "支付功能未配置，请联系管理员"}
+    
+    try:
+        # LemonSqueezy Checkout API调用
+        import httpx
+        
+        payload = {
+            "data": {
+                "type": "checkouts",
+                "attributes": {
+                    "checkout_data": {
+                        "email": request.email or user["email"],
+                        "custom": {
+                            "user_id": str(user["user_id"])
+                        }
+                    }
+                },
+                "relationships": {
+                    "store": {"type": "stores", "id": LEMONSQUEEZY_STORE_ID},
+                    "variant": {"type": "variants", "id": request.variant_id or request.product_id}
+                }
+            }
+        }
+        
+        headers = {
+            "Authorization": f"Bearer {LEMONSQUEEZY_API_KEY}",
+            "Content-Type": "application/vnd.api+json"
+        }
+        
+        async with httpx.AsyncClient() as client:
+            resp = await client.post(
+                "https://api.lemonsqueezy.com/v1/checkouts",
+                json=payload,
+                headers=headers
+            )
+            
+            if resp.status_code == 201:
+                data = resp.json()
+                checkout_url = data["data"]["attributes"]["url"]
+                return {"success": True, "checkout_url": checkout_url}
+            else:
+                logger.error(f"LemonSqueezy checkout failed: {resp.text}")
+                return {"error": "创建支付链接失败"}
+    
+    except Exception as e:
+        logger.error(f"Payment error: {e}")
+        return {"error": str(e)}
+
+@app.post("/api/v1/payments/webhook")
+async def payment_webhook(request: dict, x_signature: Optional[str] = Header(None)):
+    """处理LemonSqueezy webhook回调"""
+    # 验证签名
+    if LEMONSQUEEZY_WEBHOOK_SECRET and x_signature:
+        # TODO: 实现签名验证
+        pass
+    
+    event_type = request.get("meta", {}).get("event_name", "")
+    
+    if event_type == "order_created":
+        # 订单创建成功
+        order_data = request["data"]["attributes"]
+        custom_data = request["meta"]["custom_data"] or {}
+        user_id = custom_data.get("user_id")
+        
+        if user_id:
+            # 更新用户为付费用户
+            conn = get_user_db()
+            cursor = conn.cursor()
+            cursor.execute(
+                "UPDATE users SET is_paid = 1 WHERE id = ?",
+                (int(user_id),)
+            )
+            
+            # 记录订单
+            cursor.execute(
+                "INSERT INTO orders (user_id, order_id, amount, status, created_at) VALUES (?, ?, ?, ?, ?)",
+                (int(user_id), order_data["order_id"], order_data["total"], "completed", datetime.now().isoformat())
+            )
+            conn.commit()
+            conn.close()
+            
+            logger.info(f"Payment successful for user {user_id}")
+    
+    return {"success": True}
+
+@app.get("/api/v1/user/orders")
+async def get_user_orders(user: dict = Depends(get_current_user)):
+    """获取用户订单历史"""
+    conn = get_user_db()
+    cursor = conn.cursor()
+    
+    # 确保orders表存在
+    cursor.execute('''CREATE TABLE IF NOT EXISTS orders
+        (id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER,
+        order_id TEXT,
+        amount REAL,
+        status TEXT,
+        created_at TEXT)''')
+    
+    cursor.execute(
+        "SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC",
+        (user["user_id"],)
+    )
+    
+    orders = []
+    for row in cursor.fetchall():
+        orders.append({
+            "id": row["id"],
+            "order_id": row["order_id"],
+            "amount": row["amount"],
+            "status": row["status"],
+            "created_at": row["created_at"]
+        })
+    
+    conn.close()
+    return {"success": True, "orders": orders}
+
 # ========== 管理员API ==========
 
 async def get_admin_user(authorization: Optional[str] = Header(None)):

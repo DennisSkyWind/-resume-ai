@@ -469,9 +469,10 @@
       "id": "T4-4-4",
       "name": "管理后台添加日志筛选",
       "phase": 4,
-      "status": "pending",
+      "status": "completed",
       "eta": "15min",
-      "priority": "medium"
+      "priority": "medium",
+      "completed_at": "2026-05-14T00:00:56.913459"
     },
     {
       "id": "T5-1-1",

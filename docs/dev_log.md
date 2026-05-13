@@ -77,3 +77,12 @@
 - 总任务: 64项
 - 已完成: 59项 (92%)
 - 待处理: 5项 (支付和域名配置，可选)
+## 2026-05-14 00:00:56 - T4-4-4 完成
+
+**任务**: 管理后台添加日志筛选
+**内容**:
+- 后端: admin/usage API支持email、action、date_from、date_to筛选参数
+- 前端: 添加筛选栏（邮箱、操作类型、日期范围）
+- 功能: applyFilters/clearFilters函数
+
+**提交**: 7bbad9f - feat: add log filtering for admin usage page

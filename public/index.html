@@ -1083,9 +1083,47 @@
             document.getElementById('upgrade-modal').style.display = 'none';
         }
         
-        function showUpgradeInfo() {
+        async function showUpgradeInfo() {
             hideUpgradeModal();
-            alert('付费会员功能即将上线，敬请期待！');
+            
+            // 检查支付配置状态
+            try {
+                const statusRes = await fetch(`${API}/api/v1/payments/status`);
+                const status = await statusRes.json();
+                
+                if (!status.configured) {
+                    showToast('支付功能即将上线，敬请期待！', 'info');
+                    return;
+                }
+                
+                // 创建checkout链接
+                showLoading('正在跳转支付页面...');
+                
+                const checkoutRes = await fetch(`${API}/api/v1/payments/checkout`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        product_id: 'resume-ai-pro',
+                        email: currentUser?.email
+                    })
+                });
+                
+                const checkoutData = await checkoutRes.json();
+                hideLoading();
+                
+                if (checkoutData.success && checkoutData.checkout_url) {
+                    // 跳转到LemonSqueezy支付页面
+                    window.location.href = checkoutData.checkout_url;
+                } else {
+                    showToast(checkoutData.error || '支付功能暂时不可用', 'error');
+                }
+            } catch (e) {
+                hideLoading();
+                showToast('网络错误，请稍后重试', 'error');
+            }
         }
         
         // 生成评分圆环图
