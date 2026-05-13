@@ -667,6 +667,56 @@
             .btn { width: 100%; }
             .auth-form { padding: 0 20px; }
         }
+        
+        /* Templates Styles */
+        .templates-header { text-align: center; margin-bottom: 32px; }
+        .templates-header h3 { font-size: 24px; margin-bottom: 8px; }
+        .templates-subtitle { color: #666; font-size: 14px; }
+        .templates-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+        }
+        .template-card {
+            border: 2px solid #e5e5e5;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #fff;
+        }
+        .template-card:hover {
+            border-color: #1a1a1a;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .template-card.selected {
+            border-color: #1a1a1a;
+            background: #fafafa;
+        }
+        .template-preview {
+            height: 120px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #999;
+        }
+        .template-name { font-weight: 600; margin-bottom: 8px; font-size: 16px; }
+        .template-desc { color: #666; font-size: 13px; margin-bottom: 12px; }
+        .template-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+        .template-tag {
+            background: #f0f0f0;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #666;
+        }
+        .loading-templates { text-align: center; padding: 40px; color: #666; }
+        .template-actions { margin-top: 12px; display: flex; gap: 8px; }
+        .template-actions .btn { padding: 8px 16px; font-size: 13px; }
     </style>
 </head>
 <body>
@@ -745,6 +795,7 @@
             <div class="tabs">
                 <button class="tab active" onclick="switchTab('analyze')">简历分析</button>
                 <button class="tab" onclick="switchTab('optimize')">简历优化</button>
+                <button class="tab" onclick="switchTab('templates')">简历模板</button>
                 <button class="tab" onclick="switchTab('history')">历史记录</button>
             </div>
             
@@ -808,6 +859,22 @@
                 
                 <div class="btn-group">
                     <button class="btn btn-primary" onclick="optimizeResume()">优化简历</button>
+                </div>
+            </div>
+            
+            <!-- Templates Tab -->
+            <div id="templates-tab" style="display:none;">
+                <div class="templates-header">
+                    <h3>选择简历模板</h3>
+                    <p class="templates-subtitle">选择适合您行业的专业简历模板</p>
+                </div>
+                <div id="templates-grid" class="templates-grid">
+                    <!-- 模板将通过JS动态加载 -->
+                    <div class="loading-templates">加载中...</div>
+                </div>
+                <div id="user-saved-templates" style="margin-top: 32px; display:none;">
+                    <h4 style="margin-bottom: 16px;">我保存的模板</h4>
+                    <div id="saved-templates-list"></div>
                 </div>
             </div>
             
@@ -1107,10 +1174,12 @@
             
             document.getElementById('analyze-tab').style.display = tab === 'analyze' ? 'block' : 'none';
             document.getElementById('optimize-tab').style.display = tab === 'optimize' ? 'block' : 'none';
+            document.getElementById('templates-tab').style.display = tab === 'templates' ? 'block' : 'none';
             document.getElementById('history-tab').style.display = tab === 'history' ? 'block' : 'none';
             document.getElementById('results').style.display = 'none';
             
             if (tab === 'history') loadHistory();
+            if (tab === 'templates') loadTemplates();
         }
         
         // 登录
@@ -1632,6 +1701,147 @@
             const el = document.getElementById(id);
             el.textContent = msg;
             el.style.display = 'block';
+        }
+        
+        // ========== 模板功能 ==========
+        
+        let selectedTemplate = null;
+        
+        async function loadTemplates() {
+            const grid = document.getElementById('templates-grid');
+            grid.innerHTML = '<div class="loading-templates">加载中...</div>';
+            
+            try {
+                const res = await fetch(`${API}/api/v1/templates`);
+                const data = await res.json();
+                
+                if (!data.success) {
+                    grid.innerHTML = '<div class="error-msg">加载模板失败</div>';
+                    return;
+                }
+                
+                const templates = data.templates;
+                let html = '';
+                
+                for (const [id, template] of Object.entries(templates)) {
+                    const tags = template.industries?.map(i => `<span class="template-tag">${getIndustryName(i)}</span>`).join('') || '';
+                    html += `
+                        <div class="template-card" onclick="selectTemplate('${id}')">
+                            <div class="template-preview">${template.name} 模板预览</div>
+                            <div class="template-name">${template.name}</div>
+                            <div class="template-desc">${template.description}</div>
+                            <div class="template-tags">${tags}</div>
+                            <div class="template-actions">
+                                <button class="btn btn-secondary" onclick="previewTemplate('${id}', event)">预览</button>
+                                <button class="btn btn-primary" onclick="useTemplate('${id}', event)">使用</button>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                grid.innerHTML = html;
+                
+                // 加载用户保存的模板
+                await loadUserSavedTemplates();
+            } catch (e) {
+                grid.innerHTML = '<div class="error-msg">网络错误</div>';
+            }
+        }
+        
+        function getIndustryName(code) {
+            const names = {
+                'sales': '销售/市场',
+                'finance': '财务/会计',
+                'administrative': '行政/人事',
+                'customer_service': '客服/服务',
+                'education': '教育/培训'
+            };
+            return names[code] || code;
+        }
+        
+        function selectTemplate(id) {
+            document.querySelectorAll('.template-card').forEach(c => c.classList.remove('selected'));
+            event.currentTarget.classList.add('selected');
+            selectedTemplate = id;
+        }
+        
+        function previewTemplate(id, e) {
+            e.stopPropagation();
+            showToast('模板预览功能开发中', 'info');
+        }
+        
+        async function useTemplate(id, e) {
+            e.stopPropagation();
+            
+            try {
+                const res = await fetch(`${API}/api/v1/user/templates`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        template_id: id,
+                        is_default: true
+                    })
+                });
+                
+                const data = await res.json();
+                
+                if (data.success) {
+                    showToast('模板已保存为默认模板');
+                    await loadUserSavedTemplates();
+                } else {
+                    showToast(data.error || '保存失败', 'error');
+                }
+            } catch (e) {
+                showToast('网络错误', 'error');
+            }
+        }
+        
+        async function loadUserSavedTemplates() {
+            const container = document.getElementById('user-saved-templates');
+            const list = document.getElementById('saved-templates-list');
+            
+            try {
+                const res = await fetch(`${API}/api/v1/user/templates`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                const data = await res.json();
+                
+                if (data.success && data.templates.length > 0) {
+                    container.style.display = 'block';
+                    list.innerHTML = data.templates.map(t => `
+                        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:#f9f9f9;border-radius:8px;margin-bottom:8px;">
+                            <span>${t.template_id}</span>
+                            <button class="btn btn-secondary" onclick="deleteSavedTemplate(${t.id})">删除</button>
+                        </div>
+                    `).join('');
+                } else {
+                    container.style.display = 'none';
+                }
+            } catch (e) {
+                container.style.display = 'none';
+            }
+        }
+        
+        async function deleteSavedTemplate(id) {
+            try {
+                const res = await fetch(`${API}/api/v1/user/templates/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                const data = await res.json();
+                
+                if (data.success) {
+                    showToast('模板已删除');
+                    await loadUserSavedTemplates();
+                }
+            } catch (e) {
+                showToast('删除失败', 'error');
+            }
         }
         
         // 初始化

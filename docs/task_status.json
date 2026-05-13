@@ -334,9 +334,10 @@
       "id": "T3-3-2",
       "name": "后端添加模板存储",
       "phase": 3,
-      "status": "pending",
+      "status": "completed",
       "eta": "15min",
-      "priority": "low"
+      "priority": "low",
+      "completed_at": "2026-05-13T22:34:07.083404"
     },
     {
       "id": "T3-3-3",
