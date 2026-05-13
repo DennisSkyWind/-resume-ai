@@ -1007,12 +1007,16 @@ async def debug_db():
         # 检查表
         cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
         tables = [row[0] for row in cursor.fetchall()]
+        # 检查users表结构
+        cursor.execute("PRAGMA table_info(users)")
+        users_columns = [row[1] for row in cursor.fetchall()]
         # 检查用户数量
         cursor.execute("SELECT COUNT(*) FROM users")
         user_count = cursor.fetchone()[0]
         conn.close()
         return {
             "tables": tables,
+            "users_columns": users_columns,
             "user_count": user_count,
             "db_path": USER_DB_PATH,
             "data_dir": DATA_DIR
@@ -1022,10 +1026,43 @@ async def debug_db():
 
 @app.post("/debug/init-tables")
 async def init_tables():
-    """初始化缺失的数据库表"""
+    """初始化/修复数据库表结构"""
     try:
         conn = sqlite3.connect(USER_DB_PATH)
         cursor = conn.cursor()
+        
+        # 检查users表结构
+        cursor.execute("PRAGMA table_info(users)")
+        columns = [row[1] for row in cursor.fetchall()]
+        
+        # 如果缺少password_hash字段，重建表
+        if 'password_hash' not in columns:
+            # 备份现有用户数据
+            cursor.execute("SELECT id, email, password, name, created_at FROM users")
+            old_users = cursor.fetchall()
+            
+            # 删除旧表
+            cursor.execute("DROP TABLE users")
+            
+            # 创建新表（正确结构）
+            cursor.execute('''CREATE TABLE users
+                (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                email TEXT UNIQUE,
+                password_hash TEXT,
+                name TEXT,
+                verified INTEGER DEFAULT 0,
+                daily_limit INTEGER DEFAULT 5,
+                last_reset TEXT,
+                last_login TEXT,
+                created_at TEXT)''')
+            
+            # 迁移数据（password -> password_hash）
+            for user in old_users:
+                cursor.execute('''INSERT INTO users (id, email, password_hash, name, created_at)
+                    VALUES (?, ?, ?, ?, ?)''', user)
+            
+            logger.info(f"Users表已重建，迁移了{len(old_users)}个用户")
+        
         # 创建verification_codes表
         cursor.execute('''CREATE TABLE IF NOT EXISTS verification_codes
             (id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -1034,12 +1071,36 @@ async def init_tables():
             expires_at TEXT,
             used INTEGER DEFAULT 0,
             created_at TEXT)''')
+        
+        # 添加created_at默认值
+        cursor.execute("PRAGMA table_info(verification_codes)")
+        vc_columns = [row[1] for row in cursor.fetchall()]
+        if 'created_at' not in vc_columns:
+            # 重建verification_codes表
+            cursor.execute("DROP TABLE verification_codes")
+            cursor.execute('''CREATE TABLE verification_codes
+                (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                email TEXT,
+                code TEXT,
+                expires_at TEXT,
+                used INTEGER DEFAULT 0,
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP)''')
+        
         conn.commit()
-        # 检查表
+        
+        # 检查最终表结构
+        cursor.execute("PRAGMA table_info(users)")
+        users_columns = [row[1] for row in cursor.fetchall()]
         cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
         tables = [row[0] for row in cursor.fetchall()]
         conn.close()
-        return {"success": True, "tables": tables}
+        
+        return {
+            "success": True, 
+            "tables": tables,
+            "users_columns": users_columns,
+            "message": "数据库表结构已修复"
+        }
     except Exception as e:
         return {"success": False, "error": str(e)}
 
