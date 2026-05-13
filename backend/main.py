@@ -1031,7 +1031,8 @@ async def health_check():
         "keywords_loaded": len(KEYWORDS_DB),
         "auth_enabled": True,
         "data_dir": DATA_DIR,
-        "db_path": USER_DB_PATH
+        "db_path": USER_DB_PATH,
+        "version": "2026-05-13-v2"  # 版本标记
     }
 
 @app.get("/debug/db")
