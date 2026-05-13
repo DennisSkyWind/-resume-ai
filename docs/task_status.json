@@ -352,9 +352,10 @@
       "id": "T3-3-4",
       "name": "前端实现模板预览功能",
       "phase": 3,
-      "status": "pending",
+      "status": "completed",
       "eta": "15min",
-      "priority": "low"
+      "priority": "low",
+      "completed_at": "2026-05-13T22:38:50.256364"
     },
     {
       "id": "T3-4-1",
@@ -459,9 +460,10 @@
       "id": "T4-4-3",
       "name": "管理后台添加日志查看",
       "phase": 4,
-      "status": "pending",
+      "status": "completed",
       "eta": "20min",
-      "priority": "medium"
+      "priority": "medium",
+      "completed_at": "2026-05-13T23:30:28.667464"
     },
     {
       "id": "T4-4-4",

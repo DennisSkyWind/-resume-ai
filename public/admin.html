@@ -210,19 +210,47 @@
             </div>
             
             <!-- 使用日志 -->
-            <div id="usageTab" class="table-container hidden">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>用户邮箱</th>
-                            <th>操作</th>
-                            <th>行业</th>
-                            <th>时间</th>
-                        </tr>
-                    </thead>
-                    <tbody id="usageTable"></tbody>
-                </table>
+            <!-- 使用日志 -->
+            <div id="usageTab" class="hidden">
+                <!-- 筛选区域 -->
+                <div class="filter-bar" style="background:#fff;padding:15px;margin-bottom:15px;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,0.1);display:flex;gap:15px;flex-wrap:wrap;align-items:center;">
+                    <div style="display:flex;gap:8px;align-items:center;">
+                        <label style="font-size:14px;color:#666;">邮箱:</label>
+                        <input type="text" id="filterEmail" placeholder="输入邮箱筛选" style="padding:8px 12px;border:1px solid #e0e0e0;border-radius:4px;width:180px;">
+                    </div>
+                    <div style="display:flex;gap:8px;align-items:center;">
+                        <label style="font-size:14px;color:#666;">操作:</label>
+                        <select id="filterAction" style="padding:8px 12px;border:1px solid #e0e0e0;border-radius:4px;">
+                            <option value="">全部</option>
+                            <option value="analyze">分析</option>
+                            <option value="optimize">优化</option>
+                            <option value="export">导出</option>
+                        </select>
+                    </div>
+                    <div style="display:flex;gap:8px;align-items:center;">
+                        <label style="font-size:14px;color:#666;">日期:</label>
+                        <input type="date" id="filterDateFrom" style="padding:8px 12px;border:1px solid #e0e0e0;border-radius:4px;">
+                        <span style="color:#666;">至</span>
+                        <input type="date" id="filterDateTo" style="padding:8px 12px;border:1px solid #e0e0e0;border-radius:4px;">
+                    </div>
+                    <button class="btn" onclick="applyFilters()">筛选</button>
+                    <button class="btn btn-secondary" onclick="clearFilters()">清除</button>
+                </div>
+                
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>用户邮箱</th>
+                                <th>操作</th>
+                                <th>行业</th>
+                                <th>时间</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usageTable"></tbody>
+                    </table>
+                </div>
             </div>
             
             <!-- 系统设置 -->
@@ -404,10 +432,18 @@
             }
         }
         
-        // 加载使用日志
-        async function loadUsage() {
+        // 加载使用日志（支持筛选）
+        async function loadUsage(filters = {}) {
             try {
-                const res = await fetch(`${API_BASE}/api/v1/admin/usage`, {
+                // 构建URL参数
+                const params = new URLSearchParams();
+                if (filters.email) params.append('email', filters.email);
+                if (filters.action) params.append('action', filters.action);
+                if (filters.date_from) params.append('date_from', filters.date_from);
+                if (filters.date_to) params.append('date_to', filters.date_to);
+                
+                const url = `${API_BASE}/api/v1/admin/usage?${params.toString()}`;
+                const res = await fetch(url, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const data = await res.json();
@@ -423,10 +459,35 @@
                             <td>${new Date(l.created_at).toLocaleString()}</td>
                         </tr>
                     `).join('');
+                    
+                    // 显示筛选结果数量
+                    if (filters && Object.keys(filters).length > 0) {
+                        console.log(`筛选结果: ${data.count} 条`);
+                    }
                 }
             } catch (e) {
                 console.error('加载日志失败', e);
             }
+        }
+        
+        // 应用筛选
+        function applyFilters() {
+            const filters = {
+                email: document.getElementById('filterEmail').value,
+                action: document.getElementById('filterAction').value,
+                date_from: document.getElementById('filterDateFrom').value,
+                date_to: document.getElementById('filterDateTo').value
+            };
+            loadUsage(filters);
+        }
+        
+        // 清除筛选
+        function clearFilters() {
+            document.getElementById('filterEmail').value = '';
+            document.getElementById('filterAction').value = '';
+            document.getElementById('filterDateFrom').value = '';
+            document.getElementById('filterDateTo').value = '';
+            loadUsage();
         }
         
         // 切换付费状态

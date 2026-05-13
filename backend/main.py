@@ -1499,20 +1499,47 @@ async def admin_update_user(user_id: int, request: UpdateUserRequest, admin: dic
     return {"success": True, "message": "用户已更新"}
 
 @app.get("/api/v1/admin/usage")
-async def admin_usage_logs(admin: dict = Depends(get_admin_user)):
-    """获取使用日志"""
+async def admin_usage_logs(
+    email: Optional[str] = None,
+    action: Optional[str] = None,
+    date_from: Optional[str] = None,
+    date_to: Optional[str] = None,
+    admin: dict = Depends(get_admin_user)
+):
+    """获取使用日志（支持筛选）"""
     conn = get_user_db()
     cursor = conn.cursor()
     
-    cursor.execute("""
+    # 构建查询
+    query = """
         SELECT 
             u.id, u.user_id, u.action, u.industry, u.created_at,
             us.email, us.name as user_name
         FROM usage u
         LEFT JOIN users us ON u.user_id = us.id
-        ORDER BY u.created_at DESC
-        LIMIT 100
-    """)
+        WHERE 1=1
+    """
+    params = []
+    
+    if email:
+        query += " AND us.email LIKE ?"
+        params.append(f"%{email}%")
+    
+    if action:
+        query += " AND u.action = ?"
+        params.append(action)
+    
+    if date_from:
+        query += " AND u.created_at >= ?"
+        params.append(f"{date_from}T00:00:00")
+    
+    if date_to:
+        query += " AND u.created_at <= ?"
+        params.append(f"{date_to}T23:59:59")
+    
+    query += " ORDER BY u.created_at DESC LIMIT 200"
+    
+    cursor.execute(query, params)
     
     logs = []
     for row in cursor.fetchall():
@@ -1527,7 +1554,7 @@ async def admin_usage_logs(admin: dict = Depends(get_admin_user)):
         })
     
     conn.close()
-    return {"success": True, "data": logs}
+    return {"success": True, "data": logs, "count": len(logs)}
 
 class TestAIRequest(BaseModel):
     provider: str = "dashscope"
