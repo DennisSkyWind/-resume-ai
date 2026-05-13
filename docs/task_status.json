@@ -343,9 +343,10 @@
       "id": "T3-3-3",
       "name": "前端添加模板选择页",
       "phase": 3,
-      "status": "pending",
+      "status": "completed",
       "eta": "20min",
-      "priority": "low"
+      "priority": "low",
+      "completed_at": "2026-05-13T22:36:52.508466"
     },
     {
       "id": "T3-3-4",

@@ -717,6 +717,65 @@
         .loading-templates { text-align: center; padding: 40px; color: #666; }
         .template-actions { margin-top: 12px; display: flex; gap: 8px; }
         .template-actions .btn { padding: 8px 16px; font-size: 13px; }
+        
+        /* Template Preview Modal */
+        .template-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .template-modal-content {
+            background: #fff;
+            border-radius: 16px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+        .template-modal-header {
+            padding: 24px;
+            border-bottom: 1px solid #e5e5e5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .template-modal-header h3 { font-size: 20px; }
+        .template-modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+        .template-modal-body { padding: 24px; }
+        .template-preview-large {
+            background: #f9f9f9;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            padding: 40px;
+            margin-bottom: 24px;
+            min-height: 400px;
+        }
+        .template-preview-section { margin-bottom: 20px; }
+        .template-preview-label { font-size: 12px; color: #999; text-transform: uppercase; margin-bottom: 8px; }
+        .template-preview-title { font-size: 24px; font-weight: 600; margin-bottom: 4px; }
+        .template-preview-subtitle { font-size: 14px; color: #666; }
+        .template-preview-line { height: 8px; background: #e5e5e5; border-radius: 4px; margin: 8px 0; }
+        .template-preview-line.short { width: 60%; }
+        .template-preview-line.medium { width: 80%; }
+        .template-details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 24px; }
+        .template-detail-item { padding: 12px; background: #f9f9f9; border-radius: 8px; }
+        .template-detail-label { font-size: 12px; color: #666; margin-bottom: 4px; }
+        .template-detail-value { font-size: 14px; font-weight: 500; }
+        .template-modal-footer { padding: 24px; border-top: 1px solid #e5e5e5; display: flex; justify-content: flex-end; gap: 12px; }
     </style>
 </head>
 <body>
@@ -885,6 +944,28 @@
             
             <!-- Results -->
             <div id="results" style="display:none;"></div>
+        </div>
+        
+        <!-- Template Preview Modal -->
+        <div id="template-modal" class="template-modal" style="display:none;" onclick="closeTemplateModal(event)">
+            <div class="template-modal-content" onclick="event.stopPropagation()">
+                <div class="template-modal-header">
+                    <h3 id="modal-template-name">模板预览</h3>
+                    <button class="template-modal-close" onclick="closeTemplateModal()">&times;</button>
+                </div>
+                <div class="template-modal-body">
+                    <div class="template-preview-large" id="template-preview-area">
+                        <!-- 预览内容将动态生成 -->
+                    </div>
+                    <div class="template-details-grid" id="template-details">
+                        <!-- 模板详情 -->
+                    </div>
+                </div>
+                <div class="template-modal-footer">
+                    <button class="btn btn-secondary" onclick="closeTemplateModal()">关闭</button>
+                    <button class="btn btn-primary" id="modal-use-btn" onclick="useTemplateFromModal()">使用此模板</button>
+                </div>
+            </div>
         </div>
         
         <!-- 首次使用引导 -->
@@ -1767,7 +1848,127 @@
         
         function previewTemplate(id, e) {
             e.stopPropagation();
-            showToast('模板预览功能开发中', 'info');
+            
+            // 获取模板数据
+            fetch(`${API}/api/v1/templates`)
+                .then(res => res.json())
+                .then(data => {
+                    if (!data.success) return;
+                    
+                    const template = data.templates[id];
+                    if (!template) return;
+                    
+                    // 设置模态框标题
+                    document.getElementById('modal-template-name').textContent = template.name;
+                    
+                    // 生成预览内容
+                    const previewArea = document.getElementById('template-preview-area');
+                    previewArea.innerHTML = generateTemplatePreview(id, template);
+                    
+                    // 生成详情
+                    const details = document.getElementById('template-details');
+                    details.innerHTML = `
+                        <div class="template-detail-item">
+                            <div class="template-detail-label">风格</div>
+                            <div class="template-detail-value">${getStyleName(template.style)}</div>
+                        </div>
+                        <div class="template-detail-item">
+                            <div class="template-detail-label">适用行业</div>
+                            <div class="template-detail-value">${(template.industries || []).map(i => getIndustryName(i)).join('、') || '通用'}</div>
+                        </div>
+                        <div class="template-detail-item">
+                            <div class="template-detail-label">字体</div>
+                            <div class="template-detail-value">${template.font_family || '系统默认'}</div>
+                        </div>
+                        <div class="template-detail-item">
+                            <div class="template-detail-label">布局</div>
+                            <div class="template-detail-value">${getLayoutName(template.layout)}</div>
+                        </div>
+                    `;
+                    
+                    // 设置当前预览的模板ID
+                    document.getElementById('modal-use-btn').dataset.templateId = id;
+                    
+                    // 显示模态框
+                    document.getElementById('template-modal').style.display = 'flex';
+                })
+                .catch(err => {
+                    showToast('加载模板失败', 'error');
+                });
+        }
+        
+        function generateTemplatePreview(id, template) {
+            const style = template.style || 'classic';
+            let headerStyle = '';
+            let contentStyle = '';
+            
+            if (style === 'modern') {
+                headerStyle = 'border-left: 4px solid #1a1a1a; padding-left: 16px;';
+            } else if (style === 'creative') {
+                headerStyle = 'background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 8px;';
+                contentStyle = 'color: white;';
+            } else if (style === 'professional') {
+                headerStyle = 'border-bottom: 3px solid #1a1a1a; padding-bottom: 12px;';
+            }
+            
+            return `
+                <div style="${headerStyle}">
+                    <div class="template-preview-section">
+                        <div class="template-preview-label">姓名</div>
+                        <div class="template-preview-title" style="${contentStyle}">张三</div>
+                        <div class="template-preview-subtitle" style="${contentStyle}">高级销售经理</div>
+                    </div>
+                </div>
+                <div class="template-preview-section" style="margin-top: 24px;">
+                    <div class="template-preview-label">联系方式</div>
+                    <div class="template-preview-line medium"></div>
+                    <div class="template-preview-line short"></div>
+                </div>
+                <div class="template-preview-section" style="margin-top: 24px;">
+                    <div class="template-preview-label">工作经历</div>
+                    <div class="template-preview-line"></div>
+                    <div class="template-preview-line"></div>
+                    <div class="template-preview-line medium"></div>
+                </div>
+                <div class="template-preview-section" style="margin-top: 24px;">
+                    <div class="template-preview-label">教育背景</div>
+                    <div class="template-preview-line medium"></div>
+                    <div class="template-preview-line short"></div>
+                </div>
+            `;
+        }
+        
+        function getStyleName(style) {
+            const names = {
+                'classic': '经典',
+                'modern': '现代',
+                'minimal': '简约',
+                'creative': '创意',
+                'professional': '专业'
+            };
+            return names[style] || style;
+        }
+        
+        function getLayoutName(layout) {
+            const names = {
+                'single-column': '单栏',
+                'two-column': '双栏',
+                'sidebar': '侧边栏'
+            };
+            return names[layout] || layout;
+        }
+        
+        function closeTemplateModal(e) {
+            if (e && e.target !== e.currentTarget) return;
+            document.getElementById('template-modal').style.display = 'none';
+        }
+        
+        function useTemplateFromModal() {
+            const templateId = document.getElementById('modal-use-btn').dataset.templateId;
+            if (templateId) {
+                useTemplate(templateId, { stopPropagation: () => {} });
+                closeTemplateModal();
+            }
         }
         
         async function useTemplate(id, e) {
