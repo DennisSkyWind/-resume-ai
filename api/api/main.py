@@ -501,9 +501,6 @@ async def login(request: LoginRequest):
             "token_type": "Bearer"
         }
     }
-            "token_type": "Bearer"
-        }
-    }
 
 @app.get("/api/v1/me")
 async def get_me(user: dict = Depends(get_current_user)):
