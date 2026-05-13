@@ -1,0 +1,122 @@
+{
+  "templates": {
+    "classic": {
+      "id": "classic",
+      "name": "经典模板",
+      "name_en": "Classic",
+      "description": "传统稳重风格，适合金融、政府、国企等传统行业",
+      "suitable_for": ["finance", "administrative", "government", "legal", "hr"],
+      "style": {
+        "primary_color": "#2C3E50",
+        "secondary_color": "#34495E",
+        "accent_color": "#3498DB",
+        "background": "#FFFFFF",
+        "font_family": "SimSun, serif",
+        "header_style": "centered",
+        "layout": "traditional"
+      },
+      "sections": ["个人信息", "求职意向", "教育背景", "工作经历", "技能特长", "自我评价"],
+      "features": {
+        "photo_optional": true,
+        "border_style": "solid",
+        "spacing": "moderate"
+      }
+    },
+    "modern": {
+      "id": "modern",
+      "name": "现代模板",
+      "name_en": "Modern",
+      "description": "简洁现代风格，适合IT互联网、科技公司",
+      "suitable_for": ["it_developer", "it_product", "it_operation", "data_analyst", "ai_engineer"],
+      "style": {
+        "primary_color": "#1A1A2E",
+        "secondary_color": "#16213E",
+        "accent_color": "#0F3460",
+        "background": "#FFFFFF",
+        "font_family": "Microsoft YaHei, sans-serif",
+        "header_style": "left-aligned",
+        "layout": "sidebar"
+      },
+      "sections": ["个人信息", "技术栈", "项目经验", "工作经历", "教育背景", "荣誉奖项"],
+      "features": {
+        "photo_optional": false,
+        "border_style": "none",
+        "spacing": "compact",
+        "skills_chart": true
+      }
+    },
+    "minimal": {
+      "id": "minimal",
+      "name": "简约模板",
+      "name_en": "Minimal",
+      "description": "极简风格，内容聚焦，适合所有行业",
+      "suitable_for": ["sales", "customer_service", "education", "medical", "campus_recruit"],
+      "style": {
+        "primary_color": "#333333",
+        "secondary_color": "#666666",
+        "accent_color": "#000000",
+        "background": "#FFFFFF",
+        "font_family": "PingFang SC, sans-serif",
+        "header_style": "inline",
+        "layout": "single-column"
+      },
+      "sections": ["个人信息", "教育背景", "工作经历", "核心技能", "语言能力"],
+      "features": {
+        "photo_optional": false,
+        "border_style": "none",
+        "spacing": "wide"
+      }
+    },
+    "creative": {
+      "id": "creative",
+      "name": "创意模板",
+      "name_en": "Creative",
+      "description": "创意风格，视觉突出，适合设计、媒体、广告行业",
+      "suitable_for": ["design", "media", "game_design", "animation", "content_creator", "digital_marketing"],
+      "style": {
+        "primary_color": "#E74C3C",
+        "secondary_color": "#C0392B",
+        "accent_color": "#F39C12",
+        "background": "#FAFAFA",
+        "font_family": "Microsoft YaHei, sans-serif",
+        "header_style": "colored",
+        "layout": "two-column"
+      },
+      "sections": ["个人信息", "作品展示", "项目经验", "技能特长", "教育背景", "个人陈述"],
+      "features": {
+        "photo_optional": true,
+        "border_style": "rounded",
+        "spacing": "moderate",
+        "portfolio_section": true
+      }
+    },
+    "professional": {
+      "id": "professional",
+      "name": "专业模板",
+      "name_en": "Professional",
+      "description": "专业商务风格，适合管理岗位、咨询、外企",
+      "suitable_for": ["project_management", "consulting", "strategy_planning", "business_analysis", "investment"],
+      "style": {
+        "primary_color": "#2980B9",
+        "secondary_color": "#1A5276",
+        "accent_color": "#27AE60",
+        "background": "#FFFFFF",
+        "font_family": "Times New Roman, serif",
+        "header_style": "underlined",
+        "layout": "structured"
+      },
+      "sections": ["个人信息", "职业概要", "核心能力", "工作经历", "教育背景", "证书资质"],
+      "features": {
+        "photo_optional": false,
+        "border_style": "thin",
+        "spacing": "moderate",
+        "achievements_highlight": true
+      }
+    }
+  },
+  "default_template": "classic",
+  "template_matching": {
+    "auto_select": true,
+    "fallback": "minimal"
+  }
+}

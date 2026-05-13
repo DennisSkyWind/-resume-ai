@@ -1222,6 +1222,59 @@ async def debug_check_password(email: str, password: str):
     except Exception as e:
         return {"error": str(e)}
 
+# ========== 简历模板API ==========
+
+RESUME_TEMPLATES_FILE = os.path.join(os.path.dirname(__file__), "resume_templates.json")
+
+def load_templates():
+    """加载简历模板"""
+    try:
+        with open(RESUME_TEMPLATES_FILE, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except:
+        return {"templates": {}, "default_template": "classic"}
+
+@app.get("/api/v1/templates")
+async def get_templates():
+    """获取所有简历模板"""
+    templates_data = load_templates()
+    return {
+        "success": True,
+        "templates": templates_data["templates"],
+        "default": templates_data.get("default_template", "classic")
+    }
+
+@app.get("/api/v1/templates/{template_id}")
+async def get_template(template_id: str):
+    """获取单个模板详情"""
+    templates_data = load_templates()
+    template = templates_data["templates"].get(template_id)
+    if not template:
+        raise HTTPException(status_code=404, detail="模板不存在")
+    return {"success": True, "template": template}
+
+@app.get("/api/v1/templates/recommend/{industry}")
+async def recommend_template(industry: str):
+    """根据行业推荐模板"""
+    templates_data = load_templates()
+    recommended = []
+    for tid, template in templates_data["templates"].items():
+        if industry in template.get("suitable_for", []):
+            recommended.append({"id": tid, "name": template["name"], "match_score": 100})
+    
+    if not recommended:
+        # 使用默认模板
+        default_tid = templates_data.get("default_template", "classic")
+        default_template = templates_data["templates"].get(default_tid)
+        if default_template:
+            recommended.append({"id": default_tid, "name": default_template["name"], "match_score": 50})
+    
+    return {
+        "success": True,
+        "industry": industry,
+        "recommended": recommended
+    }
+
 # ========== 管理员API ==========
 
 async def get_admin_user(authorization: Optional[str] = Header(None)):
