@@ -4,4 +4,4 @@ resend
 PyJWT
 pdfplumber
 reportlab
-python-docx
+python-docx# Force deploy 2026年 05月 13日 星期三 20:36:49 CST
