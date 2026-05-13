@@ -192,7 +192,7 @@ KEYWORDS_DB = load_keywords()
 
 # 启动时初始化管理员
 from init_admin import init_admin
-init_admin()
+init_admin(USER_DB_PATH)
 
 # ========== 用户认证函数 ==========
 
