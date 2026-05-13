@@ -19,8 +19,9 @@ EMAIL_CONFIG = {
     "smtp_password": "BAQesckiq8fTrUXY",  # 授权码
     "smtp_configured": True,  # 已配置
     
-    # 测试模式（关闭，实际发送邮件）
-    "test_mode": False,
+    # 测试模式（开启，因Render阻止SMTP端口）
+    # TODO: 后续接入SendGrid/Mailgun等API服务
+    "test_mode": True,
     
     # 验证码配置
     "code_length": 6,
