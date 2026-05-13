@@ -63,10 +63,55 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 数据目录 - Vercel兼容
-# Vercel Serverless使用/tmp目录
-DATA_DIR = os.environ.get("VERCEL", "") == "1" and "/tmp" or os.path.join(os.path.dirname(__file__), "..", "data")
+# 数据目录 - 多环境兼容
+# Render: 使用backend目录下的data子目录
+# Vercel: 使用/tmp目录（Serverless）
+# 本地: 使用项目根目录的data目录
+def get_data_dir():
+    # 检查环境变量
+    if os.environ.get("VERCEL") == "1":
+        return "/tmp"
+    
+    # Render或本地环境
+    # 尝试多个可能的路径
+    possible_paths = [
+        os.path.join(os.path.dirname(__file__), "data"),  # backend/data
+        os.path.join(os.path.dirname(__file__), "..", "data"),  # project_root/data
+        "/tmp"  # fallback
+    ]
+    
+    for path in possible_paths:
+        if os.path.exists(path):
+            return path
+        # 尝试创建目录
+        try:
+            os.makedirs(path, exist_ok=True)
+            return path
+        except:
+            continue
+    
+    return "/tmp"
+
+DATA_DIR = get_data_dir()
 USER_DB_PATH = os.path.join(DATA_DIR, "users.db")
+
+# 确保数据库文件存在
+if not os.path.exists(USER_DB_PATH):
+    try:
+        conn = sqlite3.connect(USER_DB_PATH)
+        conn.execute('''CREATE TABLE IF NOT EXISTS users
+            (id INTEGER PRIMARY KEY AUTOINCREMENT,
+            email TEXT UNIQUE,
+            password TEXT,
+            name TEXT,
+            created_at TEXT,
+            daily_usage INTEGER DEFAULT 0,
+            last_usage_date TEXT)''')
+        conn.commit()
+        conn.close()
+        logger.info(f"Created database at {USER_DB_PATH}")
+    except Exception as e:
+        logger.error(f"Failed to create database: {e}")
 
 # JWT配置（使用固定密钥）
 JWT_SECRET = "resumeai_jwt_secret_key_2026"  # 固定密钥，生产环境应使用环境变量
