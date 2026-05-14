@@ -475,6 +475,24 @@
             font-weight: 600;
             margin-bottom: 16px;
         }
+        
+        /* 升级弹窗样式 */
+        .upgrade-content { max-width: 700px; padding: 24px; }
+        .upgrade-plans { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 20px 0; }
+        .plan-card { border: 1px solid #e5e5e5; padding: 16px; text-align: center; }
+        .plan-card:hover { border-color: #333; }
+        .plan-header { margin-bottom: 12px; }
+        .plan-name { font-weight: 600; font-size: 16px; }
+        .plan-name.vip { color: #c62828; }
+        .plan-price { font-size: 14px; color: #666; margin-top: 4px; display: block; }
+        .plan-price.vip { color: #c62828; }
+        .plan-features { margin: 16px 0; }
+        .plan-feature { font-size: 13px; color: #666; margin: 8px 0; }
+        .plan-btn { width: 100%; margin-top: 12px; }
+        .plan-btn.vip { background: #c62828; }
+        .plan-status { font-size: 12px; color: #666; margin-top: 12px; }
+        .plan-status.current { color: #28a745; font-weight: 500; }
+        
         .modal-body {
             font-size: 15px;
             color: #666;
@@ -890,6 +908,7 @@
                     <div class="usage-progress" id="usage-progress"></div>
                     <div class="usage-text" id="usage-text"></div>
                 </div>
+                <button class="btn btn-sm btn-secondary" onclick="showUpgradeModal()" id="upgrade-btn" style="display:none;">升级</button>
                 <button class="logout-btn" onclick="logout()">退出</button>
             </div>
             
@@ -1070,15 +1089,62 @@
     
     <!-- 付费提示弹窗 -->
     <div id="upgrade-modal" class="modal-overlay" style="display:none;">
-        <div class="modal-content">
-            <div class="modal-title">今日免费次数已用完</div>
+        <div class="modal-content upgrade-content">
+            <div class="modal-title">选择会员等级</div>
             <div class="modal-body">
-                您今天的免费使用次数已达上限。<br>
-                升级付费会员可获得无限使用权限。
+                <div class="upgrade-plans">
+                    <div class="plan-card">
+                        <div class="plan-header">
+                            <span class="plan-name">免费用户</span>
+                            <span class="plan-price">¥0</span>
+                        </div>
+                        <div class="plan-features">
+                            <div class="plan-feature">每日 5 次</div>
+                            <div class="plan-feature">简历分析</div>
+                            <div class="plan-feature">简历优化</div>
+                        </div>
+                        <div class="plan-status current" id="plan-free-status">当前等级</div>
+                    </div>
+                    <div class="plan-card">
+                        <div class="plan-header">
+                            <span class="plan-name">基础会员</span>
+                            <span class="plan-price">¥19/月</span>
+                        </div>
+                        <div class="plan-features">
+                            <div class="plan-feature">每日 20 次</div>
+                            <div class="plan-feature">文件上传</div>
+                            <div class="plan-feature">导出功能</div>
+                        </div>
+                        <button class="btn btn-primary plan-btn" onclick="selectPlan('basic')">选择</button>
+                    </div>
+                    <div class="plan-card">
+                        <div class="plan-header">
+                            <span class="plan-name">专业会员</span>
+                            <span class="plan-price">¥49/月</span>
+                        </div>
+                        <div class="plan-features">
+                            <div class="plan-feature">每日 50 次</div>
+                            <div class="plan-feature">简历模板</div>
+                            <div class="plan-feature">历史记录</div>
+                        </div>
+                        <button class="btn btn-primary plan-btn" onclick="selectPlan('pro')">选择</button>
+                    </div>
+                    <div class="plan-card">
+                        <div class="plan-header">
+                            <span class="plan-name vip">VIP会员</span>
+                            <span class="plan-price vip">¥99/月</span>
+                        </div>
+                        <div class="plan-features">
+                            <div class="plan-feature">无限使用</div>
+                            <div class="plan-feature">优先支持</div>
+                            <div class="plan-feature">全部功能</div>
+                        </div>
+                        <button class="btn btn-primary plan-btn vip" onclick="selectPlan('vip')">选择</button>
+                    </div>
+                </div>
             </div>
             <div class="modal-actions">
-                <button class="btn btn-secondary" onclick="hideUpgradeModal()">知道了</button>
-                <button class="btn btn-primary" onclick="showUpgradeInfo()">升级会员</button>
+                <button class="btn btn-secondary" onclick="hideUpgradeModal()">关闭</button>
             </div>
         </div>
     </div>
@@ -1182,11 +1248,40 @@
         // ========== 弹窗函数 ==========
         function showUpgradeModal() {
             document.getElementById('upgrade-modal').style.display = 'flex';
+            
+            // 标记当前等级
+            if (currentUser) {
+                const level = currentUser.user_level || 'free';
+                document.querySelectorAll('.plan-card').forEach(card => {
+                    const statusEl = card.querySelector('.plan-status');
+                    if (statusEl) statusEl.classList.remove('current');
+                });
+                
+                // 显示升级按钮（仅非VIP用户）
+                const upgradeBtn = document.getElementById('upgrade-btn');
+                if (upgradeBtn && level !== 'vip') {
+                    upgradeBtn.style.display = 'inline-block';
+                }
+            }
         }
         
         function hideUpgradeModal() {
             document.getElementById('upgrade-modal').style.display = 'none';
         }
+        
+        function selectPlan(level) {
+            hideUpgradeModal();
+            showToast(`即将开通${USER_LEVELS[level]?.name || level}会员，支付功能开发中...`);
+            // TODO: 调用支付API
+        }
+        
+        // 用户等级权益配置（与后端同步）
+        const USER_LEVELS = {
+            free: { name: '免费用户', daily_limit: 5 },
+            basic: { name: '基础会员', daily_limit: 20 },
+            pro: { name: '专业会员', daily_limit: 50 },
+            vip: { name: 'VIP会员', daily_limit: -1 }
+        };
         
         async function showUpgradeInfo() {
             hideUpgradeModal();
