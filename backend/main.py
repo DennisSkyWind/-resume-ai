@@ -113,7 +113,21 @@ def ensure_tables_exist():
         last_login TEXT,
         is_admin INTEGER DEFAULT 0,
         is_paid INTEGER DEFAULT 0,
+        user_level TEXT DEFAULT 'free',
+        level_expires_at TEXT,
         created_at TEXT)''')
+    
+    # 添加新字段（兼容旧数据）
+    cursor = conn.cursor()
+    cursor.execute("PRAGMA table_info(users)")
+    columns = [col[1] for col in cursor.fetchall()]
+    
+    if 'user_level' not in columns:
+        cursor.execute("ALTER TABLE users ADD COLUMN user_level TEXT DEFAULT 'free'")
+    if 'level_expires_at' not in columns:
+        cursor.execute("ALTER TABLE users ADD COLUMN level_expires_at TEXT")
+    
+    conn.commit()
     
     conn.execute('''CREATE TABLE IF NOT EXISTS verification_codes
         (id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -195,6 +209,34 @@ ensure_tables_exist()
 JWT_SECRET = "resumeai_jwt_secret_key_2026"  # 固定密钥，生产环境应使用环境变量
 JWT_ALGORITHM = "HS256"
 JWT_EXPIRE_HOURS = 168  # 7天有效期
+
+# 用户等级权益配置
+USER_LEVELS = {
+    "free": {
+        "name": "免费用户",
+        "daily_limit": 5,
+        "features": ["analyze", "optimize"],
+        "price": 0
+    },
+    "basic": {
+        "name": "基础会员",
+        "daily_limit": 20,
+        "features": ["analyze", "optimize", "upload", "export"],
+        "price": 19
+    },
+    "pro": {
+        "name": "专业会员",
+        "daily_limit": 50,
+        "features": ["analyze", "optimize", "upload", "export", "templates", "history"],
+        "price": 49
+    },
+    "vip": {
+        "name": "VIP会员",
+        "daily_limit": -1,  # 无限
+        "features": ["analyze", "optimize", "upload", "export", "templates", "history", "priority"],
+        "price": 99
+    }
+}
 
 # 免费用户限制
 FREE_LIMIT = 5  # 每天免费使用次数
@@ -376,20 +418,35 @@ async def get_current_user(authorization: Optional[str] = Header(None)):
     
     return dict(user)
 
-def check_usage_limit(user_id: int) -> bool:
-    """检查用户今日使用次数"""
+def get_user_level_info(user_id: int) -> dict:
+    """获取用户等级信息"""
     conn = get_user_db()
     cursor = conn.cursor()
-    
-    # 检查是否付费用户
-    cursor.execute("SELECT is_paid FROM users WHERE id = ?", (user_id,))
+    cursor.execute("SELECT user_level, level_expires_at FROM users WHERE id = ?", (user_id,))
     user = cursor.fetchone()
+    conn.close()
     
-    if user and user["is_paid"]:
-        conn.close()
-        return True  # 付费用户无限制
+    level = user["user_level"] if user else "free"
+    
+    # 检查等级是否过期
+    if user and user["level_expires_at"]:
+        expires = datetime.fromisoformat(user["level_expires_at"])
+        if datetime.now() > expires:
+            level = "free"  # 过期降级
+    
+    return USER_LEVELS.get(level, USER_LEVELS["free"])
+
+def check_usage_limit(user_id: int) -> bool:
+    """检查用户今日使用次数（根据等级）"""
+    level_info = get_user_level_info(user_id)
+    
+    # VIP用户无限制
+    if level_info["daily_limit"] == -1:
+        return True
     
     # 检查今日使用次数
+    conn = get_user_db()
+    cursor = conn.cursor()
     today = datetime.now().strftime("%Y-%m-%d")
     cursor.execute("""
         SELECT COUNT(*) as count FROM usage 
@@ -399,7 +456,7 @@ def check_usage_limit(user_id: int) -> bool:
     result = cursor.fetchone()
     conn.close()
     
-    return result["count"] < FREE_LIMIT
+    return result["count"] < level_info["daily_limit"]
 
 def record_usage(user_id: int, action: str, industry: str = None):
     """记录用户使用"""
@@ -1674,7 +1731,7 @@ async def admin_list_users(admin: dict = Depends(get_admin_user)):
     
     cursor.execute("""
         SELECT 
-            u.id, u.email, u.name, u.is_paid, u.is_admin, u.created_at, u.last_login,
+            u.id, u.email, u.name, u.user_level, u.level_expires_at, u.is_paid, u.is_admin, u.created_at, u.last_login,
             (SELECT COUNT(*) FROM resumes WHERE user_id = u.id) as resume_count,
             (SELECT COUNT(*) FROM usage WHERE user_id = u.id) as usage_count
         FROM users u
@@ -1687,6 +1744,9 @@ async def admin_list_users(admin: dict = Depends(get_admin_user)):
             "id": row["id"],
             "email": row["email"],
             "name": row["name"],
+            "user_level": row["user_level"] or "free",
+            "level_expires_at": row["level_expires_at"],
+            "level_name": USER_LEVELS.get(row["user_level"] or "free", {}).get("name", "免费用户"),
             "is_paid": bool(row["is_paid"]),
             "is_admin": bool(row["is_admin"]),
             "created_at": row["created_at"],
@@ -1701,10 +1761,12 @@ async def admin_list_users(admin: dict = Depends(get_admin_user)):
 class UpdateUserRequest(BaseModel):
     is_paid: Optional[bool] = None
     is_admin: Optional[bool] = None
+    user_level: Optional[str] = None
+    level_expires_at: Optional[str] = None
 
 @app.put("/api/v1/admin/users/{user_id}")
 async def admin_update_user(user_id: int, request: UpdateUserRequest, admin: dict = Depends(get_admin_user)):
-    """更新用户状态"""
+    """更新用户状态和等级"""
     conn = get_user_db()
     cursor = conn.cursor()
     
@@ -1718,6 +1780,17 @@ async def admin_update_user(user_id: int, request: UpdateUserRequest, admin: dic
     if request.is_admin is not None:
         updates.append("is_admin = ?")
         params.append(1 if request.is_admin else 0)
+    
+    if request.user_level is not None:
+        if request.user_level not in USER_LEVELS:
+            conn.close()
+            raise HTTPException(status_code=400, detail="无效的用户等级")
+        updates.append("user_level = ?")
+        params.append(request.user_level)
+    
+    if request.level_expires_at is not None:
+        updates.append("level_expires_at = ?")
+        params.append(request.level_expires_at)
     
     if not updates:
         conn.close()
@@ -1851,7 +1924,8 @@ async def admin_get_config(admin: dict = Depends(get_admin_user)):
             "model": DASHSCOPE_MODEL,
             "base_url": DASHSCOPE_BASE_URL,
             "configured": bool(DASHSCOPE_API_KEY)
-        }
+        },
+        "levels": USER_LEVELS
     }
     return {"success": True, "data": config}
 
