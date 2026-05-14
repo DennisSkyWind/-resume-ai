@@ -1370,8 +1370,11 @@
         
         // 登录
         async function login() {
+            console.log('login() called');
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
+            
+            console.log('email:', email, 'password:', password);
             
             if (!email || !password) {
                 showError('login-error', '请输入邮箱和密码');
@@ -1379,13 +1382,16 @@
             }
             
             try {
+                console.log('fetching:', `${API}/api/v1/login`);
                 const res = await fetch(`${API}/api/v1/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email, password })
                 });
                 
+                console.log('response status:', res.status);
                 const data = await res.json();
+                console.log('response data:', data);
                 
                 if (!res.ok) {
                     showError('login-error', data.detail || '登录失败');
@@ -1402,6 +1408,7 @@
                 // 首次使用引导
                 showGuide();
             } catch (e) {
+                console.error('login error:', e);
                 showError('login-error', '网络错误，请检查连接');
             }
         }

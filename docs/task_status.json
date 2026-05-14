@@ -606,9 +606,10 @@
       "phase": "Phase 3",
       "name": "\u524d\u7aef\u7b80\u5386\u6587\u4ef6\u4e0a\u4f20\u529f\u80fd",
       "description": "\u6dfb\u52a0PDF/Word\u6587\u4ef6\u4e0a\u4f20\u5165\u53e3\uff0c\u63d0\u53d6\u6587\u672c\u540e\u586b\u5145\u8f93\u5165\u6846",
-      "status": "pending",
+      "status": "completed",
       "priority": "high",
-      "created_at": "2026-05-14T19:00:56.698413"
+      "created_at": "2026-05-14T19:00:56.698413",
+      "completed_at": "2026-05-14T19:12:49.139697"
     }
   ]
 }
