@@ -235,19 +235,38 @@ DASHSCOPE_MODEL = "qwen3.5-plus"
 
 # 加载关键词库
 def load_keywords():
-    # Vercel环境：从api目录读取
+    """加载关键词数据库"""
+    # 首先尝试从backend目录加载
     keywords_file = os.path.join(os.path.dirname(__file__), "keywords.json")
+    logger.info(f"尝试加载关键词文件: {keywords_file}")
+    
     if os.path.exists(keywords_file):
-        with open(keywords_file, 'r', encoding='utf-8') as f:
-            return json.load(f)
+        try:
+            with open(keywords_file, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+            logger.info(f"成功加载关键词数据库，包含 {len(data)} 个行业")
+            return data
+        except Exception as e:
+            logger.error(f"加载关键词文件失败: {e}")
+    
     # 兜底：尝试data目录
     keywords_file = os.path.join(DATA_DIR, "keywords.json")
+    logger.info(f"尝试从data目录加载: {keywords_file}")
+    
     if os.path.exists(keywords_file):
-        with open(keywords_file, 'r', encoding='utf-8') as f:
-            return json.load(f)
+        try:
+            with open(keywords_file, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+            logger.info(f"从data目录成功加载关键词数据库")
+            return data
+        except Exception as e:
+            logger.error(f"从data目录加载失败: {e}")
+    
+    logger.warning("关键词数据库未加载，使用空字典")
     return {}
 
 KEYWORDS_DB = load_keywords()
+logger.info(f"KEYWORDS_DB 初始化完成，行业数: {len(KEYWORDS_DB)}")
 
 # ========== 用户认证函数 ==========
 
