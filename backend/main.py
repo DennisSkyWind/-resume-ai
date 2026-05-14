@@ -1405,6 +1405,22 @@ async def debug_status():
         "jwt_secret": JWT_SECRET[:10] + "..."
     }
 
+@app.post("/api/v1/debug/analyze")
+async def debug_analyze():
+    """调试简历分析"""
+    try:
+        # 测试分析函数
+        test_resume = "张三销售经理电话13800138000"
+        result = analyze_resume(test_resume, "sales", "zh", None)
+        return {"success": True, "result": result}
+    except Exception as e:
+        import traceback
+        return {
+            "success": False,
+            "error": str(e),
+            "traceback": traceback.format_exc()
+        }
+
 # ========== 支付API (LemonSqueezy) ==========
 
 # LemonSqueezy配置（占位，需用户创建产品后替换）
