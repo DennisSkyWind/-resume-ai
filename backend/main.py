@@ -148,6 +148,14 @@ def ensure_tables_exist():
         status TEXT,
         created_at TEXT)''')
     
+    conn.execute('''CREATE TABLE IF NOT EXISTS resumes
+        (id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER,
+        content TEXT,
+        industry TEXT,
+        score REAL,
+        created_at TEXT)''')
+    
     conn.commit()
     
     # 确保字段存在（ALTER TABLE）
