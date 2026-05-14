@@ -1690,6 +1690,16 @@ async def admin_stats(admin: dict = Depends(get_admin_user)):
     cursor.execute("SELECT COUNT(*) as count FROM users WHERE DATE(created_at) = DATE('now')")
     new_users_today = cursor.fetchone()["count"]
     
+    # 等级分布
+    cursor.execute("SELECT user_level, COUNT(*) as count FROM users GROUP BY user_level")
+    level_distribution = {}
+    for row in cursor.fetchall():
+        level_distribution[row["user_level"] or "free"] = row["count"]
+    
+    # VIP用户数
+    cursor.execute("SELECT COUNT(*) as count FROM users WHERE user_level = 'vip'")
+    vip_users = cursor.fetchone()["count"]
+    
     # 使用统计
     cursor.execute("SELECT COUNT(*) as count FROM usage")
     total_usage = cursor.fetchone()["count"]
@@ -1706,20 +1716,14 @@ async def admin_stats(admin: dict = Depends(get_admin_user)):
     return {
         "success": True,
         "data": {
-            "users": {
-                "total": total_users,
-                "paid": paid_users,
-                "free": total_users - paid_users,
-                "new_today": new_users_today
-            },
-            "usage": {
-                "total": total_usage,
-                "today": usage_today
-            },
-            "resumes": {
-                "total": total_resumes
-            },
-            "email_config": get_email_config()
+            "total_users": total_users,
+            "paid_users": paid_users,
+            "vip_users": vip_users,
+            "new_users_today": new_users_today,
+            "total_usage": total_usage,
+            "today_usage": usage_today,
+            "total_resumes": total_resumes,
+            "level_distribution": level_distribution
         }
     }
 
