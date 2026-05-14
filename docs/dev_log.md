@@ -107,3 +107,17 @@
   - 支付未配置时显示提示
 
 **提交**: 41ee60d - feat: add LemonSqueezy payment integration framework
+
+## {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} - 简历分析API修复
+
+**问题**: 简历分析API返回500错误
+**原因**: resumes表未在数据库初始化时创建
+**修复**: 在ensure_tables_exist()中添加resumes表创建
+**提交**: 794da07 - fix: add resumes table creation
+
+**测试结果**:
+- ✅ 登录API: 正常
+- ✅ 简历分析API: 已修复 (返回评分)
+- ✅ 发送验证码: 正常
+- ✅ 模板API: 正常
+- 🔴 模板保存API: 500错误 (待排查)

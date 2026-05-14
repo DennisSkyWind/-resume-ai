@@ -1338,9 +1338,11 @@ async def save_user_template(request: SaveTemplateRequest, user: dict = Depends(
     conn = get_user_db()
     cursor = conn.cursor()
     
+    user_id = user["id"]  # 使用正确的字段名
+    
     # 检查是否已存在
     cursor.execute("SELECT id FROM user_templates WHERE user_id = ? AND template_id = ?", 
-                   (user["user_id"], request.template_id))
+                   (user_id, request.template_id))
     existing = cursor.fetchone()
     
     if existing:
@@ -1355,7 +1357,7 @@ async def save_user_template(request: SaveTemplateRequest, user: dict = Depends(
         cursor.execute('''INSERT INTO user_templates 
             (user_id, template_id, custom_settings, is_default, created_at, updated_at)
             VALUES (?, ?, ?, ?, ?, ?)''',
-            (user["user_id"], request.template_id, request.custom_settings,
+            (user_id, request.template_id, request.custom_settings,
              1 if request.is_default else 0, datetime.now().isoformat(), datetime.now().isoformat()))
     
     conn.commit()
@@ -1370,7 +1372,7 @@ async def get_user_templates(user: dict = Depends(get_current_user)):
     cursor = conn.cursor()
     
     cursor.execute('''SELECT id, template_id, custom_settings, is_default, created_at 
-        FROM user_templates WHERE user_id = ?''', (user["user_id"],))
+        FROM user_templates WHERE user_id = ?''', (user["id"],))
     
     templates = []
     for row in cursor.fetchall():
@@ -1392,7 +1394,7 @@ async def delete_user_template(template_id: int, user: dict = Depends(get_curren
     cursor = conn.cursor()
     
     cursor.execute("DELETE FROM user_templates WHERE id = ? AND user_id = ?", 
-                   (template_id, user["user_id"]))
+                   (template_id, user["id"]))
     conn.commit()
     conn.close()
     
@@ -1468,7 +1470,7 @@ async def create_checkout(request: CreateCheckoutRequest, user: dict = Depends(g
                     "checkout_data": {
                         "email": request.email or user["email"],
                         "custom": {
-                            "user_id": str(user["user_id"])
+                            "user_id": str(user["id"])
                         }
                     }
                 },
@@ -1557,7 +1559,7 @@ async def get_user_orders(user: dict = Depends(get_current_user)):
     
     cursor.execute(
         "SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC",
-        (user["user_id"],)
+        (user["id"],)
     )
     
     orders = []
