@@ -916,6 +916,12 @@
                     </select>
                 </div>
                 
+                <div class="language-switch">
+                    <button class="lang-btn active" onclick="setLanguage('zh', event)">中文</button>
+                    <button class="lang-btn" onclick="setLanguage('en', event)">英文</button>
+                    <button class="lang-btn" onclick="setLanguage('auto', event)">自动检测</button>
+                </div>
+                
                 <div class="btn-group">
                     <button class="btn btn-primary" onclick="optimizeResume()">优化简历</button>
                 </div>
@@ -1527,6 +1533,7 @@
                     body: JSON.stringify({
                         resume_content: content,
                         industry: industry,
+                        language: currentLanguage,
                         jd_content: jd || null
                     })
                 });
@@ -1655,7 +1662,8 @@
                     },
                     body: JSON.stringify({
                         resume_content: content,
-                        industry: industry
+                        industry: industry,
+                        language: currentLanguage
                     })
                 });
                 
