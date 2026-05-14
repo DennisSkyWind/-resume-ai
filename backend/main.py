@@ -1410,6 +1410,14 @@ async def delete_user_template(template_id: int, user: dict = Depends(get_curren
 @app.get("/api/v1/debug/status")
 async def debug_status():
     """调试状态检查"""
+    conn = get_user_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT COUNT(*) as count FROM users")
+    users_count = cursor.fetchone()["count"]
+    cursor.execute("SELECT email FROM users LIMIT 10")
+    users_emails = [row["email"] for row in cursor.fetchall()]
+    conn.close()
+    
     return {
         "success": True,
         "keywords_loaded": len(KEYWORDS_DB),
@@ -1417,7 +1425,9 @@ async def debug_status():
         "data_dir": DATA_DIR,
         "user_db_path": USER_DB_PATH,
         "has_sales": "sales" in KEYWORDS_DB,
-        "jwt_secret": JWT_SECRET[:10] + "..."
+        "jwt_secret": JWT_SECRET[:10] + "...",
+        "users_count": users_count,
+        "users_emails": users_emails
     }
 
 @app.post("/api/v1/debug/analyze")
