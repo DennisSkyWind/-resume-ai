@@ -1855,6 +1855,7 @@
             html += `
                 <div style="margin-top:32px;text-align:center;">
                     <button class="btn btn-secondary" onclick="exportPDF()">导出PDF报告</button>
+                    <button class="btn btn-secondary" onclick="exportWord()" style="margin-left:8px;">导出Word文档</button>
                 </div>
             `;
             
@@ -2049,6 +2050,42 @@
             } catch (e) {
                 hideLoading();
                 showToast('生成PDF失败: ' + e.message, 'warning');
+            }
+        }
+        
+        async function exportWord() {
+            showLoading('生成Word文档...');
+            try {
+                const res = await fetch(`${API}/api/v1/export/word`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (res.status === 401) {
+                    handleTokenExpired();
+                    return;
+                }
+                
+                if (!res.ok) {
+                    throw new Error('生成失败');
+                }
+                
+                // 下载Word
+                const blob = await res.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `resume_optimized_${new Date().toISOString().slice(0,10)}.docx`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+                
+                hideLoading();
+                showToast('Word文档已生成', 'success');
+            } catch (e) {
+                hideLoading();
+                showToast('生成Word失败: ' + e.message, 'warning');
             }
         }
         

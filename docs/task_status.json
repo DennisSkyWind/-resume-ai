@@ -652,16 +652,18 @@
       "phase": "Phase 6",
       "name": "\u524d\u7aef\u7edf\u8ba1\u6570\u636e\u5c55\u793a",
       "description": "\u4f7f\u7528\u7edf\u8ba1\u3001\u6536\u5165\u7edf\u8ba1",
-      "status": "pending",
-      "priority": "medium"
+      "status": "completed",
+      "priority": "medium",
+      "completed_at": "2026-05-14T22:31:47.320273"
     },
     {
       "id": "T6-2-4",
       "phase": "Phase 6",
       "name": "\u524d\u7aef\u7cfb\u7edf\u914d\u7f6e\u529f\u80fd",
       "description": "\u7b49\u7ea7\u6743\u76ca\u914d\u7f6e\u3001\u7cfb\u7edf\u53c2\u6570",
-      "status": "pending",
-      "priority": "medium"
+      "status": "completed",
+      "priority": "medium",
+      "completed_at": "2026-05-14T23:30:55.684005"
     },
     {
       "id": "T7-1-1",
@@ -698,9 +700,11 @@
       "phase": "Phase 8",
       "name": "\u7b80\u5386\u5bfc\u51faPDF\u529f\u80fd",
       "description": "\u5c06\u4f18\u5316\u540e\u7684\u7b80\u5386\u5bfc\u51fa\u4e3a\u4e13\u4e1aPDF\u683c\u5f0f",
-      "status": "pending",
+      "status": "completed",
       "priority": "high",
-      "created_at": "2026-05-14T21:03:52.436666"
+      "created_at": "2026-05-14T21:03:52.436666",
+      "completed_at": "2026-05-15T01:01:59.847719",
+      "note": "PDF\u5bfc\u51faAPI\u5df2\u5b9e\u73b0\uff0c\u524d\u7aef\u5df2\u96c6\u6210\u5bfc\u51fa\u6309\u94ae"
     },
     {
       "id": "T8-1-2",

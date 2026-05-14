@@ -1034,6 +1034,50 @@ async def export_pdf(user: dict = Depends(get_current_user)):
         headers={"Content-Disposition": f"attachment; filename=resume_analysis_{datetime.now().strftime('%Y%m%d')}.pdf"}
     )
 
+@app.post("/api/v1/export/word")
+async def export_word(user: dict = Depends(get_current_user)):
+    """导出简历优化结果为Word文档"""
+    from docx import Document
+    from docx.shared import Pt, Inches
+    from docx.enum.text import WD_ALIGN_PARAGRAPH
+    from io import BytesIO
+    
+    # 创建Word文档
+    doc = Document()
+    
+    # 标题
+    title = doc.add_heading('简历优化报告', level=0)
+    title.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    
+    # 基本信息
+    doc.add_heading('基本信息', level=1)
+    doc.add_paragraph(f'分析日期: {datetime.now().strftime("%Y-%m-%d %H:%M")}')
+    doc.add_paragraph(f'用户邮箱: {user.get("email", "未知")}')
+    
+    # 说明
+    doc.add_heading('使用说明', level=1)
+    doc.add_paragraph('本报告由 ResumeAI 自动生成，供求职者参考使用。')
+    doc.add_paragraph('建议根据分析结果优化简历内容，提高求职成功率。')
+    
+    # 落款
+    doc.add_paragraph()
+    doc.add_paragraph()
+    footer = doc.add_paragraph(f'{datetime.now().strftime("%Y年%m月%d日")}')
+    footer.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+    footer2 = doc.add_paragraph('智能与数字化中心·数据智能')
+    footer2.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+    
+    # 保存到内存
+    buffer = BytesIO()
+    doc.save(buffer)
+    buffer.seek(0)
+    
+    return Response(
+        content=buffer.getvalue(),
+        media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        headers={"Content-Disposition": f"attachment; filename=resume_optimized_{datetime.now().strftime('%Y%m%d')}.docx"}
+    )
+
 # ========== 核心分析函数 ==========
 
 def analyze_resume(resume: str, industry: str, language: str, jd: Optional[str] = None):
