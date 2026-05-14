@@ -1390,6 +1390,21 @@ async def delete_user_template(template_id: int, user: dict = Depends(get_curren
     
     return {"success": True, "message": "模板已删除"}
 
+# ========== 调试API ==========
+
+@app.get("/api/v1/debug/status")
+async def debug_status():
+    """调试状态检查"""
+    return {
+        "success": True,
+        "keywords_loaded": len(KEYWORDS_DB),
+        "keywords_industries": list(KEYWORDS_DB.keys())[:10] if KEYWORDS_DB else [],
+        "data_dir": DATA_DIR,
+        "user_db_path": USER_DB_PATH,
+        "has_sales": "sales" in KEYWORDS_DB,
+        "jwt_secret": JWT_SECRET[:10] + "..."
+    }
+
 # ========== 支付API (LemonSqueezy) ==========
 
 # LemonSqueezy配置（占位，需用户创建产品后替换）
