@@ -1,7 +1,7 @@
 {
   "project": "ResumeAI",
   "version": "2.0.0",
-  "total_tasks": 64,
+  "total_tasks": 66,
   "completed": 63,
   "in_progress": 0,
   "pending": 0,
@@ -18,7 +18,7 @@
   "tasks": [
     {
       "id": "T1-1-1",
-      "name": "后端添加历史列表API /api/v1/resumes/history",
+      "name": "\u540e\u7aef\u6dfb\u52a0\u5386\u53f2\u5217\u8868API /api/v1/resumes/history",
       "phase": 1,
       "status": "completed",
       "eta": "15min",
@@ -27,7 +27,7 @@
     },
     {
       "id": "T1-1-2",
-      "name": "后端添加历史详情API /api/v1/resumes/{id}",
+      "name": "\u540e\u7aef\u6dfb\u52a0\u5386\u53f2\u8be6\u60c5API /api/v1/resumes/{id}",
       "phase": 1,
       "status": "completed",
       "eta": "10min",
@@ -36,7 +36,7 @@
     },
     {
       "id": "T1-1-3",
-      "name": "前端添加历史记录展示区域",
+      "name": "\u524d\u7aef\u6dfb\u52a0\u5386\u53f2\u8bb0\u5f55\u5c55\u793a\u533a\u57df",
       "phase": 1,
       "status": "completed",
       "eta": "20min",
@@ -45,7 +45,7 @@
     },
     {
       "id": "T1-1-4",
-      "name": "前端实现历史点击查看详情",
+      "name": "\u524d\u7aef\u5b9e\u73b0\u5386\u53f2\u70b9\u51fb\u67e5\u770b\u8be6\u60c5",
       "phase": 1,
       "status": "completed",
       "eta": "15min",
@@ -54,7 +54,7 @@
     },
     {
       "id": "T1-2-1",
-      "name": "后端添加用户次数查询API",
+      "name": "\u540e\u7aef\u6dfb\u52a0\u7528\u6237\u6b21\u6570\u67e5\u8be2API",
       "phase": 1,
       "status": "completed",
       "eta": "10min",
@@ -63,7 +63,7 @@
     },
     {
       "id": "T1-2-2",
-      "name": "前端添加付费提示弹窗组件",
+      "name": "\u524d\u7aef\u6dfb\u52a0\u4ed8\u8d39\u63d0\u793a\u5f39\u7a97\u7ec4\u4ef6",
       "phase": 1,
       "status": "completed",
       "eta": "20min",
@@ -72,7 +72,7 @@
     },
     {
       "id": "T1-2-3",
-      "name": "前端次数用完时触发弹窗",
+      "name": "\u524d\u7aef\u6b21\u6570\u7528\u5b8c\u65f6\u89e6\u53d1\u5f39\u7a97",
       "phase": 1,
       "status": "completed",
       "eta": "15min",
@@ -81,7 +81,7 @@
     },
     {
       "id": "T1-3-1",
-      "name": "添加评分圆环图组件",
+      "name": "\u6dfb\u52a0\u8bc4\u5206\u5706\u73af\u56fe\u7ec4\u4ef6",
       "phase": 1,
       "status": "completed",
       "eta": "20min",
@@ -90,7 +90,7 @@
     },
     {
       "id": "T1-3-2",
-      "name": "添加各项评分条形图",
+      "name": "\u6dfb\u52a0\u5404\u9879\u8bc4\u5206\u6761\u5f62\u56fe",
       "phase": 1,
       "status": "completed",
       "eta": "15min",
@@ -99,7 +99,7 @@
     },
     {
       "id": "T1-3-3",
-      "name": "添加优化建议卡片样式",
+      "name": "\u6dfb\u52a0\u4f18\u5316\u5efa\u8bae\u5361\u7247\u6837\u5f0f",
       "phase": 1,
       "status": "completed",
       "eta": "15min",
@@ -108,7 +108,7 @@
     },
     {
       "id": "T1-3-4",
-      "name": "整合结果展示页面布局",
+      "name": "\u6574\u5408\u7ed3\u679c\u5c55\u793a\u9875\u9762\u5e03\u5c40",
       "phase": 1,
       "status": "completed",
       "eta": "20min",
@@ -117,7 +117,7 @@
     },
     {
       "id": "T1-4-1",
-      "name": "添加剩余次数显示组件",
+      "name": "\u6dfb\u52a0\u5269\u4f59\u6b21\u6570\u663e\u793a\u7ec4\u4ef6",
       "phase": 1,
       "status": "completed",
       "eta": "10min",
@@ -126,7 +126,7 @@
     },
     {
       "id": "T1-4-2",
-      "name": "添加次数不足警告提示",
+      "name": "\u6dfb\u52a0\u6b21\u6570\u4e0d\u8db3\u8b66\u544a\u63d0\u793a",
       "phase": 1,
       "status": "completed",
       "eta": "15min",
@@ -135,7 +135,7 @@
     },
     {
       "id": "T1-4-3",
-      "name": "添加次数用完引导升级",
+      "name": "\u6dfb\u52a0\u6b21\u6570\u7528\u5b8c\u5f15\u5bfc\u5347\u7ea7",
       "phase": 1,
       "status": "completed",
       "eta": "15min",
@@ -144,7 +144,7 @@
     },
     {
       "id": "T2-1-1",
-      "name": "添加响应式CSS媒体查询",
+      "name": "\u6dfb\u52a0\u54cd\u5e94\u5f0fCSS\u5a92\u4f53\u67e5\u8be2",
       "phase": 2,
       "status": "completed",
       "eta": "20min",
@@ -153,7 +153,7 @@
     },
     {
       "id": "T2-1-2",
-      "name": "优化表单布局适配手机",
+      "name": "\u4f18\u5316\u8868\u5355\u5e03\u5c40\u9002\u914d\u624b\u673a",
       "phase": 2,
       "status": "completed",
       "eta": "15min",
@@ -162,7 +162,7 @@
     },
     {
       "id": "T2-1-3",
-      "name": "优化结果展示适配手机",
+      "name": "\u4f18\u5316\u7ed3\u679c\u5c55\u793a\u9002\u914d\u624b\u673a",
       "phase": 2,
       "status": "completed",
       "eta": "15min",
@@ -171,7 +171,7 @@
     },
     {
       "id": "T2-1-4",
-      "name": "测试移动端交互体验",
+      "name": "\u6d4b\u8bd5\u79fb\u52a8\u7aef\u4ea4\u4e92\u4f53\u9a8c",
       "phase": 2,
       "status": "completed",
       "eta": "20min",
@@ -180,7 +180,7 @@
     },
     {
       "id": "T2-2-1",
-      "name": "添加首次使用引导组件",
+      "name": "\u6dfb\u52a0\u9996\u6b21\u4f7f\u7528\u5f15\u5bfc\u7ec4\u4ef6",
       "phase": 2,
       "status": "completed",
       "eta": "20min",
@@ -189,7 +189,7 @@
     },
     {
       "id": "T2-2-2",
-      "name": "添加功能说明tooltip",
+      "name": "\u6dfb\u52a0\u529f\u80fd\u8bf4\u660etooltip",
       "phase": 2,
       "status": "completed",
       "eta": "15min",
@@ -198,7 +198,7 @@
     },
     {
       "id": "T2-2-3",
-      "name": "添加操作完成记录",
+      "name": "\u6dfb\u52a0\u64cd\u4f5c\u5b8c\u6210\u8bb0\u5f55",
       "phase": 2,
       "status": "completed",
       "eta": "10min",
@@ -207,7 +207,7 @@
     },
     {
       "id": "T2-3-1",
-      "name": "添加成功toast提示",
+      "name": "\u6dfb\u52a0\u6210\u529ftoast\u63d0\u793a",
       "phase": 2,
       "status": "completed",
       "eta": "10min",
@@ -216,7 +216,7 @@
     },
     {
       "id": "T2-3-2",
-      "name": "添加错误toast提示",
+      "name": "\u6dfb\u52a0\u9519\u8beftoast\u63d0\u793a",
       "phase": 2,
       "status": "completed",
       "eta": "10min",
@@ -225,7 +225,7 @@
     },
     {
       "id": "T2-3-3",
-      "name": "添加加载状态指示器",
+      "name": "\u6dfb\u52a0\u52a0\u8f7d\u72b6\u6001\u6307\u793a\u5668",
       "phase": 2,
       "status": "completed",
       "eta": "15min",
@@ -234,7 +234,7 @@
     },
     {
       "id": "T2-4-1",
-      "name": "后端延长JWT有效期到7天",
+      "name": "\u540e\u7aef\u5ef6\u957fJWT\u6709\u6548\u671f\u52307\u5929",
       "phase": 2,
       "status": "completed",
       "eta": "10min",
@@ -243,7 +243,7 @@
     },
     {
       "id": "T2-4-2",
-      "name": "前端添加Token过期处理",
+      "name": "\u524d\u7aef\u6dfb\u52a0Token\u8fc7\u671f\u5904\u7406",
       "phase": 2,
       "status": "completed",
       "eta": "15min",
@@ -252,7 +252,7 @@
     },
     {
       "id": "T2-4-3",
-      "name": "前端添加自动登录逻辑",
+      "name": "\u524d\u7aef\u6dfb\u52a0\u81ea\u52a8\u767b\u5f55\u903b\u8f91",
       "phase": 2,
       "status": "completed",
       "eta": "15min",
@@ -261,7 +261,7 @@
     },
     {
       "id": "T3-1-1",
-      "name": "后端添加PDF生成API",
+      "name": "\u540e\u7aef\u6dfb\u52a0PDF\u751f\u6210API",
       "phase": 3,
       "status": "completed",
       "eta": "20min",
@@ -270,7 +270,7 @@
     },
     {
       "id": "T3-1-2",
-      "name": "配置reportlab中文字体",
+      "name": "\u914d\u7f6ereportlab\u4e2d\u6587\u5b57\u4f53",
       "phase": 3,
       "status": "completed",
       "eta": "15min",
@@ -279,7 +279,7 @@
     },
     {
       "id": "T3-1-3",
-      "name": "前端添加导出按钮",
+      "name": "\u524d\u7aef\u6dfb\u52a0\u5bfc\u51fa\u6309\u94ae",
       "phase": 3,
       "status": "completed",
       "eta": "10min",
@@ -288,7 +288,7 @@
     },
     {
       "id": "T3-1-4",
-      "name": "前端实现PDF下载功能",
+      "name": "\u524d\u7aef\u5b9e\u73b0PDF\u4e0b\u8f7d\u529f\u80fd",
       "phase": 3,
       "status": "completed",
       "eta": "15min",
@@ -297,7 +297,7 @@
     },
     {
       "id": "T3-2-1",
-      "name": "后端添加语言检测逻辑",
+      "name": "\u540e\u7aef\u6dfb\u52a0\u8bed\u8a00\u68c0\u6d4b\u903b\u8f91",
       "phase": 3,
       "status": "completed",
       "eta": "15min",
@@ -306,7 +306,7 @@
     },
     {
       "id": "T3-2-2",
-      "name": "后端添加英文关键词库",
+      "name": "\u540e\u7aef\u6dfb\u52a0\u82f1\u6587\u5173\u952e\u8bcd\u5e93",
       "phase": 3,
       "status": "completed",
       "eta": "20min",
@@ -315,15 +315,16 @@
     },
     {
       "id": "T3-2-3",
-      "name": "前端添加语言选择开关",
+      "name": "\u524d\u7aef\u6dfb\u52a0\u8bed\u8a00\u9009\u62e9\u5f00\u5173",
       "phase": 3,
-      "status": "in_progress",
+      "status": "completed",
       "eta": "10min",
-      "priority": "medium"
+      "priority": "medium",
+      "completed_at": "2026-05-14T16:59:58.344197"
     },
     {
       "id": "T3-3-1",
-      "name": "设计5种行业简历模板",
+      "name": "\u8bbe\u8ba15\u79cd\u884c\u4e1a\u7b80\u5386\u6a21\u677f",
       "phase": 3,
       "status": "completed",
       "eta": "25min",
@@ -332,7 +333,7 @@
     },
     {
       "id": "T3-3-2",
-      "name": "后端添加模板存储",
+      "name": "\u540e\u7aef\u6dfb\u52a0\u6a21\u677f\u5b58\u50a8",
       "phase": 3,
       "status": "completed",
       "eta": "15min",
@@ -341,7 +342,7 @@
     },
     {
       "id": "T3-3-3",
-      "name": "前端添加模板选择页",
+      "name": "\u524d\u7aef\u6dfb\u52a0\u6a21\u677f\u9009\u62e9\u9875",
       "phase": 3,
       "status": "completed",
       "eta": "20min",
@@ -350,7 +351,7 @@
     },
     {
       "id": "T3-3-4",
-      "name": "前端实现模板预览功能",
+      "name": "\u524d\u7aef\u5b9e\u73b0\u6a21\u677f\u9884\u89c8\u529f\u80fd",
       "phase": 3,
       "status": "completed",
       "eta": "15min",
@@ -359,7 +360,7 @@
     },
     {
       "id": "T3-4-1",
-      "name": "后端提取缺失关键词",
+      "name": "\u540e\u7aef\u63d0\u53d6\u7f3a\u5931\u5173\u952e\u8bcd",
       "phase": 3,
       "status": "completed",
       "eta": "15min",
@@ -368,7 +369,7 @@
     },
     {
       "id": "T3-4-2",
-      "name": "后端生成关键词建议",
+      "name": "\u540e\u7aef\u751f\u6210\u5173\u952e\u8bcd\u5efa\u8bae",
       "phase": 3,
       "status": "completed",
       "eta": "20min",
@@ -377,7 +378,7 @@
     },
     {
       "id": "T3-4-3",
-      "name": "前端展示关键词建议",
+      "name": "\u524d\u7aef\u5c55\u793a\u5173\u952e\u8bcd\u5efa\u8bae",
       "phase": 3,
       "status": "completed",
       "eta": "15min",
@@ -386,7 +387,7 @@
     },
     {
       "id": "T4-1-1",
-      "name": "后端添加密码强度检查",
+      "name": "\u540e\u7aef\u6dfb\u52a0\u5bc6\u7801\u5f3a\u5ea6\u68c0\u67e5",
       "phase": 4,
       "status": "completed",
       "eta": "15min",
@@ -395,7 +396,7 @@
     },
     {
       "id": "T4-1-2",
-      "name": "前端添加密码强度提示",
+      "name": "\u524d\u7aef\u6dfb\u52a0\u5bc6\u7801\u5f3a\u5ea6\u63d0\u793a",
       "phase": 4,
       "status": "completed",
       "eta": "15min",
@@ -404,7 +405,7 @@
     },
     {
       "id": "T4-2-1",
-      "name": "后端添加IP限制中间件",
+      "name": "\u540e\u7aef\u6dfb\u52a0IP\u9650\u5236\u4e2d\u95f4\u4ef6",
       "phase": 4,
       "status": "completed",
       "eta": "20min",
@@ -413,7 +414,7 @@
     },
     {
       "id": "T4-2-2",
-      "name": "配置速率限制参数",
+      "name": "\u914d\u7f6e\u901f\u7387\u9650\u5236\u53c2\u6570",
       "phase": 4,
       "status": "completed",
       "eta": "10min",
@@ -422,7 +423,7 @@
     },
     {
       "id": "T4-3-1",
-      "name": "前端添加验证码倒计时",
+      "name": "\u524d\u7aef\u6dfb\u52a0\u9a8c\u8bc1\u7801\u5012\u8ba1\u65f6",
       "phase": 4,
       "status": "completed",
       "eta": "10min",
@@ -431,7 +432,7 @@
     },
     {
       "id": "T4-3-2",
-      "name": "前端添加过期提示",
+      "name": "\u524d\u7aef\u6dfb\u52a0\u8fc7\u671f\u63d0\u793a",
       "phase": 4,
       "status": "completed",
       "eta": "15min",
@@ -440,7 +441,7 @@
     },
     {
       "id": "T4-4-1",
-      "name": "后端添加请求日志记录",
+      "name": "\u540e\u7aef\u6dfb\u52a0\u8bf7\u6c42\u65e5\u5fd7\u8bb0\u5f55",
       "phase": 4,
       "status": "completed",
       "eta": "15min",
@@ -449,7 +450,7 @@
     },
     {
       "id": "T4-4-2",
-      "name": "后端添加错误日志记录",
+      "name": "\u540e\u7aef\u6dfb\u52a0\u9519\u8bef\u65e5\u5fd7\u8bb0\u5f55",
       "phase": 4,
       "status": "completed",
       "eta": "15min",
@@ -458,7 +459,7 @@
     },
     {
       "id": "T4-4-3",
-      "name": "管理后台添加日志查看",
+      "name": "\u7ba1\u7406\u540e\u53f0\u6dfb\u52a0\u65e5\u5fd7\u67e5\u770b",
       "phase": 4,
       "status": "completed",
       "eta": "20min",
@@ -467,7 +468,7 @@
     },
     {
       "id": "T4-4-4",
-      "name": "管理后台添加日志筛选",
+      "name": "\u7ba1\u7406\u540e\u53f0\u6dfb\u52a0\u65e5\u5fd7\u7b5b\u9009",
       "phase": 4,
       "status": "completed",
       "eta": "15min",
@@ -476,7 +477,7 @@
     },
     {
       "id": "T5-1-1",
-      "name": "创建Supabase项目",
+      "name": "\u521b\u5efaSupabase\u9879\u76ee",
       "phase": 5,
       "status": "completed",
       "eta": "10min",
@@ -485,7 +486,7 @@
     },
     {
       "id": "T5-1-2",
-      "name": "配置数据库表结构",
+      "name": "\u914d\u7f6e\u6570\u636e\u5e93\u8868\u7ed3\u6784",
       "phase": 5,
       "status": "completed",
       "eta": "15min",
@@ -494,7 +495,7 @@
     },
     {
       "id": "T5-1-3",
-      "name": "编写数据迁移脚本",
+      "name": "\u7f16\u5199\u6570\u636e\u8fc1\u79fb\u811a\u672c",
       "phase": 5,
       "status": "completed",
       "eta": "20min",
@@ -503,7 +504,7 @@
     },
     {
       "id": "T5-1-4",
-      "name": "执行数据迁移测试",
+      "name": "\u6267\u884c\u6570\u636e\u8fc1\u79fb\u6d4b\u8bd5",
       "phase": 5,
       "status": "completed",
       "eta": "15min",
@@ -512,7 +513,7 @@
     },
     {
       "id": "T5-2-1",
-      "name": "配置Render部署文件",
+      "name": "\u914d\u7f6eRender\u90e8\u7f72\u6587\u4ef6",
       "phase": 5,
       "status": "completed",
       "eta": "15min",
@@ -521,7 +522,7 @@
     },
     {
       "id": "T5-2-2",
-      "name": "配置环境变量",
+      "name": "\u914d\u7f6e\u73af\u5883\u53d8\u91cf",
       "phase": 5,
       "status": "completed",
       "eta": "10min",
@@ -530,7 +531,7 @@
     },
     {
       "id": "T5-2-3",
-      "name": "执行部署测试",
+      "name": "\u6267\u884c\u90e8\u7f72\u6d4b\u8bd5",
       "phase": 5,
       "status": "completed",
       "eta": "15min",
@@ -539,7 +540,7 @@
     },
     {
       "id": "T5-3-1",
-      "name": "配置Vercel部署",
+      "name": "\u914d\u7f6eVercel\u90e8\u7f72",
       "phase": 5,
       "status": "completed",
       "eta": "15min",
@@ -548,7 +549,7 @@
     },
     {
       "id": "T5-3-2",
-      "name": "配置API代理",
+      "name": "\u914d\u7f6eAPI\u4ee3\u7406",
       "phase": 5,
       "status": "completed",
       "eta": "10min",
@@ -557,16 +558,16 @@
     },
     {
       "id": "T5-4-1",
-      "name": "创建LemonSqueezy产品",
+      "name": "\u521b\u5efaLemonSqueezy\u4ea7\u54c1",
       "phase": 5,
       "status": "postponed",
       "eta": "15min",
       "priority": "medium",
-      "note": "支付功能暂停，等待核心功能测试完成后继续"
+      "note": "\u652f\u4ed8\u529f\u80fd\u6682\u505c\uff0c\u7b49\u5f85\u6838\u5fc3\u529f\u80fd\u6d4b\u8bd5\u5b8c\u6210\u540e\u7ee7\u7eed"
     },
     {
       "id": "T5-4-2",
-      "name": "后端集成支付API",
+      "name": "\u540e\u7aef\u96c6\u6210\u652f\u4ed8API",
       "phase": 5,
       "status": "completed",
       "eta": "20min",
@@ -575,7 +576,7 @@
     },
     {
       "id": "T5-4-3",
-      "name": "前端添加付费按钮",
+      "name": "\u524d\u7aef\u6dfb\u52a0\u4ed8\u8d39\u6309\u94ae",
       "phase": 5,
       "status": "completed",
       "eta": "15min",
@@ -584,7 +585,7 @@
     },
     {
       "id": "T5-5-1",
-      "name": "配置域名解析",
+      "name": "\u914d\u7f6e\u57df\u540d\u89e3\u6790",
       "phase": 5,
       "status": "completed",
       "eta": "15min",
@@ -593,12 +594,21 @@
     },
     {
       "id": "T5-5-2",
-      "name": "配置SSL证书",
+      "name": "\u914d\u7f6eSSL\u8bc1\u4e66",
       "phase": 5,
       "status": "completed",
       "eta": "10min",
       "priority": "high",
       "completed_at": "2026-05-12T22:33:00"
+    },
+    {
+      "id": "T3-5-1",
+      "phase": "Phase 3",
+      "name": "\u524d\u7aef\u7b80\u5386\u6587\u4ef6\u4e0a\u4f20\u529f\u80fd",
+      "description": "\u6dfb\u52a0PDF/Word\u6587\u4ef6\u4e0a\u4f20\u5165\u53e3\uff0c\u63d0\u53d6\u6587\u672c\u540e\u586b\u5145\u8f93\u5165\u6846",
+      "status": "pending",
+      "priority": "high",
+      "created_at": "2026-05-14T19:00:56.698413"
     }
   ]
 }

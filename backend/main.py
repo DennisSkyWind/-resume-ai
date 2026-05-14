@@ -441,6 +441,11 @@ class OptimizeRequest(BaseModel):
 
 # ========== 用户认证API ==========
 
+# 显式处理OPTIONS预检请求（确保CORS正常工作）
+@app.options("/api/v1/{path:path}")
+async def options_handler():
+    return Response(status_code=200)
+
 @app.post("/api/v1/send-code")
 async def send_code(request: SendCodeRequest):
     """发送验证码"""
