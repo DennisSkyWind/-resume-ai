@@ -652,9 +652,28 @@ async def login(request: LoginRequest):
 
 @app.get("/api/v1/me")
 async def get_me(user: dict = Depends(get_current_user)):
-    """获取当前用户信息"""
+    """获取当前用户信息（包含等级详情）"""
     conn = get_user_db()
     cursor = conn.cursor()
+    
+    # 获取用户等级信息
+    user_level = user.get("user_level", "free")
+    level_expires_at = user.get("level_expires_at")
+    
+    # 检查等级是否过期
+    is_expired = False
+    if level_expires_at:
+        try:
+            expires = datetime.fromisoformat(level_expires_at)
+            if datetime.now() > expires:
+                is_expired = True
+                user_level = "free"  # 过期降级
+        except:
+            pass
+    
+    # 获取等级权益
+    level_info = USER_LEVELS.get(user_level, USER_LEVELS["free"])
+    daily_limit = level_info["daily_limit"]
     
     # 获取今日使用次数
     today = datetime.now().strftime("%Y-%m-%d")
@@ -663,11 +682,19 @@ async def get_me(user: dict = Depends(get_current_user)):
         WHERE user_id = ? AND DATE(created_at) = ?
     """, (user["id"], today))
     
-    usage = cursor.fetchone()
+    usage_today = cursor.fetchone()["count"]
+    
+    # 计算剩余次数
+    if daily_limit == -1:
+        remaining = "无限"
+        usage_percentage = 0
+    else:
+        remaining = max(0, daily_limit - usage_today)
+        usage_percentage = min(100, int(usage_today / daily_limit * 100))
     
     # 获取简历数量
     cursor.execute("SELECT COUNT(*) as count FROM resumes WHERE user_id = ?", (user["id"],))
-    resumes = cursor.fetchone()
+    resumes_count = cursor.fetchone()["count"]
     conn.close()
     
     return {
@@ -676,11 +703,17 @@ async def get_me(user: dict = Depends(get_current_user)):
             "user_id": user["id"],
             "email": user["email"],
             "name": user["name"],
-            "is_paid": user["is_paid"],
-            "plan_type": user["plan_type"],
-            "usage_today": usage["count"],
-            "usage_limit": FREE_LIMIT if not user["is_paid"] else "unlimited",
-            "resumes_count": resumes["count"]
+            "user_level": user_level,
+            "level_name": level_info["name"],
+            "level_features": level_info["features"],
+            "daily_limit": daily_limit,
+            "usage_today": usage_today,
+            "remaining_usage": remaining,
+            "usage_percentage": usage_percentage,
+            "level_expires_at": level_expires_at,
+            "is_expired": is_expired,
+            "is_admin": bool(user.get("is_admin", 0)),
+            "resumes_count": resumes_count
         }
     }
 

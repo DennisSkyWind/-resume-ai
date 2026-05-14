@@ -89,8 +89,42 @@
             padding: 16px 0;
             border-bottom: 1px solid #e5e5e5;
             margin-bottom: 24px;
+            gap: 16px;
         }
+        .user-details { display: flex; align-items: center; gap: 12px; }
         .user-email { font-size: 14px; color: #1a1a1a; }
+        
+        /* 等级徽章 */
+        .level-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .level-badge.free { background: #e0e0e0; color: #666; }
+        .level-badge.basic { background: #fff3e0; color: #e65100; }
+        .level-badge.pro { background: #e3f2fd; color: #1565c0; }
+        .level-badge.vip { background: #fce4ec; color: #c62828; }
+        
+        /* 使用进度条 */
+        .usage-info { display: flex; flex-direction: column; gap: 4px; min-width: 120px; }
+        .usage-progress-bar {
+            height: 8px;
+            background: #e5e5e5;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .usage-progress-fill {
+            height: 100%;
+            background: #333;
+            transition: width 0.3s;
+        }
+        .usage-progress-fill.warning { background: #ff9800; }
+        .usage-progress-fill.danger { background: #f44336; }
+        .usage-progress-fill.unlimited { background: #4caf50; width: 100%; }
+        .usage-text { font-size: 13px; color: #666; }
+        
         .user-usage { font-size: 13px; color: #666; }
         
         /* 剩余次数显示 */
@@ -848,9 +882,13 @@
         <div id="main-content" style="display:none;">
             <!-- User Info -->
             <div class="user-info">
-                <div>
+                <div class="user-details">
                     <span class="user-email" id="user-email"></span>
-                    <span class="user-usage" id="user-usage"></span>
+                    <span class="level-badge" id="level-badge"></span>
+                </div>
+                <div class="usage-info">
+                    <div class="usage-progress" id="usage-progress"></div>
+                    <div class="usage-text" id="usage-text"></div>
                 </div>
                 <button class="logout-btn" onclick="logout()">退出</button>
             </div>
@@ -1552,22 +1590,50 @@
             
             currentUser = data.data;
             
+            // 显示用户邮箱
             document.getElementById('user-email').textContent = currentUser.email;
             
-            // 剩余次数显示（醒目badge）
-            let usageHTML = '';
-            if (currentUser.is_paid) {
-                usageHTML = '<span class="usage-badge unlimited">✓ 付费会员</span>';
+            // 显示等级徽章
+            const levelBadge = document.getElementById('level-badge');
+            levelBadge.className = `level-badge ${currentUser.user_level}`;
+            levelBadge.textContent = currentUser.level_name;
+            
+            // 显示使用进度
+            const usageProgress = document.getElementById('usage-progress');
+            const usageText = document.getElementById('usage-text');
+            
+            if (currentUser.daily_limit === -1) {
+                // VIP用户无限
+                usageProgress.innerHTML = '<div class="usage-progress-bar"><div class="usage-progress-fill unlimited"></div></div>';
+                usageText.textContent = 'VIP会员 · 无限使用';
             } else {
-                const remaining = currentUser.usage_limit - currentUser.usage_today;
-                const badgeClass = remaining <= 1 ? 'danger' : (remaining <= 3 ? 'warning' : '');
-                usageHTML = `<span class="usage-badge ${badgeClass}">剩余 ${remaining} 次</span>`;
+                const percentage = currentUser.usage_percentage;
+                const remaining = currentUser.remaining_usage;
+                
+                // 进度条颜色
+                let progressClass = '';
+                if (remaining <= 1) progressClass = 'danger';
+                else if (remaining <= 3) progressClass = 'warning';
+                
+                usageProgress.innerHTML = `<div class="usage-progress-bar"><div class="usage-progress-fill ${progressClass}" style="width: ${percentage}%"></div></div>`;
+                usageText.textContent = `今日已用 ${currentUser.usage_today}/${currentUser.daily_limit} 次`;
             }
             
-            const usageText = currentUser.is_paid 
-                ? '付费用户 · 无限制' 
-                : `今日已用 ${currentUser.usage_today}/${currentUser.usage_limit} 次`;
-            document.getElementById('user-usage').innerHTML = usageText + usageHTML;
+            // 等级到期提醒
+            if (currentUser.level_expires_at && currentUser.user_level !== 'free') {
+                const expires = new Date(currentUser.level_expires_at);
+                const daysLeft = Math.ceil((expires - new Date()) / (1000 * 60 * 60 * 24));
+                
+                if (daysLeft <= 7 && daysLeft > 0) {
+                    usageText.innerHTML += `<span style="color:#e65100;margin-left:8px;">· ${daysLeft}天后到期</span>`;
+                }
+            }
+            
+            // 过期提醒
+            if (currentUser.is_expired) {
+                levelBadge.style.background = '#ffcdd2';
+                levelBadge.textContent = '已过期';
+            }
         }
         
         // 分析简历
