@@ -776,6 +776,11 @@
         .template-detail-label { font-size: 12px; color: #666; margin-bottom: 4px; }
         .template-detail-value { font-size: 14px; font-weight: 500; }
         .template-modal-footer { padding: 24px; border-top: 1px solid #e5e5e5; display: flex; justify-content: flex-end; gap: 12px; }
+        .upload-area { margin-top: 8px; display: flex; align-items: center; gap: 12px; }
+        .upload-status { font-size: 13px; color: #666; }
+        .upload-status.success { color: #28a745; }
+        .upload-status.error { color: #dc3545; }
+        .btn-sm { padding: 6px 12px; font-size: 13px; }
     </style>
 </head>
 <body>
@@ -909,6 +914,13 @@
                 <div class="form-group">
                     <label>简历内容</label>
                     <textarea id="optimize-resume" placeholder="粘贴你的简历内容..."></textarea>
+                    <div class="upload-area">
+                        <input type="file" id="upload-file-optimize" accept=".pdf,.docx,.doc" style="display:none" onchange="uploadResume('optimize', event)">
+                        <button class="btn btn-secondary btn-sm" onclick="document.getElementById('upload-file-optimize').click()">
+                            📎 上传文件 (PDF/Word)
+                        </button>
+                        <span id="upload-status-optimize" class="upload-status"></span>
+                    </div>
                 </div>
                 
                 <div class="form-group">
@@ -1049,6 +1061,48 @@
             currentLanguage = lang;
             document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
             e.target.classList.add('active');
+        }
+        
+        // ========== 文件上传 ==========
+        async function uploadResume(tab, e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const statusEl = document.getElementById(`upload-status-${tab}`);
+            statusEl.textContent = '正在上传...';
+            statusEl.className = 'upload-status';
+            
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+                
+                const res = await fetch(`${API}/api/v1/upload`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    body: formData
+                });
+                
+                const data = await res.json();
+                
+                if (!res.ok) {
+                    statusEl.textContent = data.detail || '上传失败';
+                    statusEl.className = 'upload-status error';
+                    return;
+                }
+                
+                // 填充文本到输入框
+                const textareaId = tab === 'analyze' ? 'resume-content' : 'optimize-resume';
+                document.getElementById(textareaId).value = data.data.content;
+                
+                statusEl.textContent = `✓ ${file.name} (${data.data.length}字)`;
+                statusEl.className = 'upload-status success';
+            } catch (err) {
+                statusEl.textContent = '上传失败';
+                statusEl.className = 'upload-status error';
+            }
+            
+            // 清空文件选择
+            e.target.value = '';
         }
         
         // ========== 密码强度检查 ==========
