@@ -2,7 +2,7 @@
   "project": "ResumeAI",
   "version": "2.0.0",
   "total_tasks": 64,
-  "completed": 64,
+  "completed": 63,
   "in_progress": 0,
   "pending": 0,
   "current_phase": 6,
@@ -559,25 +559,28 @@
       "id": "T5-4-1",
       "name": "创建LemonSqueezy产品",
       "phase": 5,
-      "status": "pending",
+      "status": "postponed",
       "eta": "15min",
-      "priority": "medium"
+      "priority": "medium",
+      "note": "支付功能暂停，等待核心功能测试完成后继续"
     },
     {
       "id": "T5-4-2",
       "name": "后端集成支付API",
       "phase": 5,
-      "status": "pending",
+      "status": "completed",
       "eta": "20min",
-      "priority": "medium"
+      "priority": "medium",
+      "completed_at": "2026-05-14T01:31:21.512393"
     },
     {
       "id": "T5-4-3",
       "name": "前端添加付费按钮",
       "phase": 5,
-      "status": "pending",
+      "status": "completed",
       "eta": "15min",
-      "priority": "medium"
+      "priority": "medium",
+      "completed_at": "2026-05-14T01:31:21.512438"
     },
     {
       "id": "T5-5-1",

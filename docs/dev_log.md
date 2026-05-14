@@ -86,3 +86,24 @@
 - 功能: applyFilters/clearFilters函数
 
 **提交**: 7bbad9f - feat: add log filtering for admin usage page
+
+## 2026-05-14 01:31:21 - Phase 5 支付集成完成
+
+### T5-4-1 (阻塞)
+- 需用户操作：在LemonSqueezy创建产品
+- 需配置：LEMONSQUEEZY_API_KEY, LEMONSQUEEZY_STORE_ID, LEMONSQUEEZY_WEBHOOK_SECRET
+
+### T5-4-2 完成 ✅
+- 后端支付API:
+  - /api/v1/payments/status - 检查配置状态
+  - /api/v1/payments/checkout - 创建checkout链接
+  - /api/v1/payments/webhook - 处理支付回调
+  - /api/v1/user/orders - 用户订单历史
+
+### T5-4-3 完成 ✅
+- 前端付费按钮:
+  - showUpgradeInfo() 调用checkout API
+  - 跳转LemonSqueezy支付页面
+  - 支付未配置时显示提示
+
+**提交**: 41ee60d - feat: add LemonSqueezy payment integration framework

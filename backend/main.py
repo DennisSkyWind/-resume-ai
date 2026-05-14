@@ -95,80 +95,93 @@ def get_data_dir():
 DATA_DIR = get_data_dir()
 USER_DB_PATH = os.path.join(DATA_DIR, "users.db")
 
-# 确保数据库文件存在
-if not os.path.exists(USER_DB_PATH):
-    try:
-        conn = sqlite3.connect(USER_DB_PATH)
-        # 用户表
-        conn.execute('''CREATE TABLE IF NOT EXISTS users
-            (id INTEGER PRIMARY KEY AUTOINCREMENT,
-            email TEXT UNIQUE,
-            password_hash TEXT,
-            name TEXT,
-            verified INTEGER DEFAULT 0,
-            daily_limit INTEGER DEFAULT 5,
-            last_reset TEXT,
-            last_login TEXT,
-            is_admin INTEGER DEFAULT 0,
-            is_paid INTEGER DEFAULT 0,
-            created_at TEXT)''')
-        # 验证码表
-        conn.execute('''CREATE TABLE IF NOT EXISTS verification_codes
-            (id INTEGER PRIMARY KEY AUTOINCREMENT,
-            email TEXT,
-            code TEXT,
-            expires_at TEXT,
-            used INTEGER DEFAULT 0,
-            created_at TEXT)''')
-        # 用户模板偏好表
-        conn.execute('''CREATE TABLE IF NOT EXISTS user_templates
-            (id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER,
-            template_id TEXT,
-            custom_settings TEXT,
-            is_default INTEGER DEFAULT 0,
-            created_at TEXT,
-            updated_at TEXT,
-            FOREIGN KEY(user_id) REFERENCES users(id))''')
-        conn.commit()
-        conn.close()
-        logger.info(f"Created database at {USER_DB_PATH}")
-    except Exception as e:
-        logger.error(f"Failed to create database: {e}")
-
-# 确保字段存在（ALTER TABLE）
-try:
+# 确保数据库和所有表存在（每次启动都检查）
+def ensure_tables_exist():
+    """确保所有必要的表都存在"""
     conn = sqlite3.connect(USER_DB_PATH)
     conn.row_factory = sqlite3.Row
+    
+    # 创建所有表（IF NOT EXISTS确保不会重复创建）
+    conn.execute('''CREATE TABLE IF NOT EXISTS users
+        (id INTEGER PRIMARY KEY AUTOINCREMENT,
+        email TEXT UNIQUE,
+        password_hash TEXT,
+        name TEXT,
+        verified INTEGER DEFAULT 0,
+        daily_limit INTEGER DEFAULT 5,
+        last_reset TEXT,
+        last_login TEXT,
+        is_admin INTEGER DEFAULT 0,
+        is_paid INTEGER DEFAULT 0,
+        created_at TEXT)''')
+    
+    conn.execute('''CREATE TABLE IF NOT EXISTS verification_codes
+        (id INTEGER PRIMARY KEY AUTOINCREMENT,
+        email TEXT,
+        code TEXT,
+        expires_at TEXT,
+        used INTEGER DEFAULT 0,
+        created_at TEXT)''')
+    
+    conn.execute('''CREATE TABLE IF NOT EXISTS user_templates
+        (id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER,
+        template_id TEXT,
+        custom_settings TEXT,
+        is_default INTEGER DEFAULT 0,
+        created_at TEXT,
+        updated_at TEXT,
+        FOREIGN KEY(user_id) REFERENCES users(id))''')
+    
+    conn.execute('''CREATE TABLE IF NOT EXISTS usage
+        (id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER,
+        action TEXT,
+        industry TEXT,
+        created_at TEXT)''')
+    
+    conn.execute('''CREATE TABLE IF NOT EXISTS orders
+        (id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER,
+        order_id TEXT,
+        amount REAL,
+        status TEXT,
+        created_at TEXT)''')
+    
+    conn.commit()
+    
+    # 确保字段存在（ALTER TABLE）
     cursor = conn.cursor()
     cursor.execute("PRAGMA table_info(users)")
     columns = [row[1] for row in cursor.fetchall()]
     
     if 'is_admin' not in columns:
         cursor.execute("ALTER TABLE users ADD COLUMN is_admin INTEGER DEFAULT 0")
-        logger.info("Added is_admin column")
-    
     if 'is_paid' not in columns:
         cursor.execute("ALTER TABLE users ADD COLUMN is_paid INTEGER DEFAULT 0")
-        logger.info("Added is_paid column")
-    
-    # 创建管理员账号
-    import hashlib
-    password_hash = hashlib.sha256('Hiller'.encode()).hexdigest()
-    cursor.execute("SELECT id FROM users WHERE email = 'zhwffy@hotmail.com'")
-    if cursor.fetchone():
-        cursor.execute("UPDATE users SET is_admin = 1, is_paid = 1 WHERE email = 'zhwffy@hotmail.com'")
-    else:
-        cursor.execute('''INSERT INTO users 
-            (email, name, password_hash, is_admin, is_paid, created_at)
-            VALUES (?, ?, ?, 1, 1, ?)''', 
-            ('zhwffy@hotmail.com', 'Admin', password_hash, datetime.now().isoformat()))
-        logger.info("Created admin user: zhwffy@hotmail.com")
     
     conn.commit()
+    
+    # 初始化管理员账号
+    cursor.execute("SELECT * FROM users WHERE email = ?", ('zhwffy@hotmail.com',))
+    admin = cursor.fetchone()
+    
+    if not admin:
+        # 创建管理员
+        admin_password = "Hiller"
+        admin_hash = hashlib.sha256(admin_password.encode()).hexdigest()
+        cursor.execute('''INSERT INTO users 
+            (email, password_hash, name, verified, is_admin, is_paid, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?)''',
+            ('zhwffy@hotmail.com', admin_hash, 'Admin', 1, 1, 1, datetime.now().isoformat()))
+        conn.commit()
+        logger.info("Admin account created: zhwffy@hotmail.com")
+    
     conn.close()
-except Exception as e:
-    logger.error(f"Failed to update database: {e}")
+    logger.info("Database tables verified and ready")
+
+# 启动时确保表存在
+ensure_tables_exist()
 
 # JWT配置（使用固定密钥）
 JWT_SECRET = "resumeai_jwt_secret_key_2026"  # 固定密钥，生产环境应使用环境变量
