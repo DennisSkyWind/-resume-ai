@@ -466,9 +466,49 @@
                 
                 // 加载趋势数据
                 loadTrends();
+            // 加载趋势数据
+                loadTrends();
             } catch (e) {
                 console.error('加载统计失败:', e);
             }
+        }
+        
+        async function loadTrends() {
+            try {
+                const res = await fetch(`${API}/admin/trends`, {
+                    headers: { 'Authorization': `Bearer ${adminToken}` }
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    // 渲染用户增长趋势
+                    renderTrendChart('user Growth Trend', 'user-growth-chart', data.data.user_growth);
+                    // 渲染每日使用量
+                    renderTrendChart('Daily Usage', 'daily-usage-chart', data.data.daily_usage);
+                    // 渲染活跃用户数
+                    renderTrendChart('Active Users', 'active-users-chart', data.data.active_users);
+                }
+            } catch (e) {
+                console.error('加载趋势数据失败:', e);
+            }
+        }
+        
+        function renderTrendChart(title, containerId, data) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            
+            const maxValue = Math.max(...data.map(d => d.count), 1);
+            
+            container.innerHTML = data.map(d => {
+                const height = (d.count / maxValue * 100);
+                const dateLabel = d.date.split('-')[2] + '/' + d.date.split('-')[1]; // MM/DD format
+                return `
+                    <div class="trend-bar" style="height: ${height}px;">
+                        <div class="trend-bar-value">${d.count}</div>
+                        <div class="trend-bar-label">${dateLabel}</div>
+                    </div>
+                `;
+            }).join('');
         }
         
         async function loadTrends() {
