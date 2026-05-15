@@ -1,0 +1,98 @@
+{
+  "summary": {
+    "total": 11,
+    "passed": 8,
+    "failed": 3,
+    "timestamp": "2026-05-16T07:01:52.482271"
+  },
+  "results": [
+    {
+      "test_id": "T15-0-0",
+      "name": "\u670d\u52a1\u5065\u5eb7\u68c0\u67e5",
+      "status": "PASS",
+      "message": "",
+      "duration": 0,
+      "timestamp": "2026-05-16T07:01:50.604934"
+    },
+    {
+      "test_id": "T15-1-2",
+      "name": "\u884c\u4e1a\u5217\u8868API",
+      "status": "PASS",
+      "message": "\u884c\u4e1a\u6570: 59",
+      "duration": 0.012270927429199219,
+      "timestamp": "2026-05-16T07:01:50.617979"
+    },
+    {
+      "test_id": "T15-1-1",
+      "name": "\u6ce8\u518c\u9a8c\u8bc1\u7801\u53d1\u9001",
+      "status": "PASS",
+      "message": "",
+      "duration": 1.731722116470337,
+      "timestamp": "2026-05-16T07:01:52.350232"
+    },
+    {
+      "test_id": "T15-1-1b",
+      "name": "\u7ba1\u7406\u5458\u767b\u5f55",
+      "status": "PASS",
+      "message": "",
+      "duration": 0.012274980545043945,
+      "timestamp": "2026-05-16T07:01:52.363350"
+    },
+    {
+      "test_id": "T15-1-1c",
+      "name": "\u83b7\u53d6\u7528\u6237\u4fe1\u606f",
+      "status": "FAIL",
+      "message": "\u72b6\u6001\u7801: 500",
+      "duration": 0,
+      "timestamp": "2026-05-16T07:01:52.393301"
+    },
+    {
+      "test_id": "T15-1-5",
+      "name": "\u53cd\u9988\u63d0\u4ea4API",
+      "status": "FAIL",
+      "message": "\u72b6\u6001\u7801: 500",
+      "duration": 0,
+      "timestamp": "2026-05-16T07:01:52.426724"
+    },
+    {
+      "test_id": "T15-3-2",
+      "name": "\u7ba1\u7406\u5458\u7edf\u8ba1API",
+      "status": "PASS",
+      "message": "",
+      "duration": 0.012066841125488281,
+      "timestamp": "2026-05-16T07:01:52.439320"
+    },
+    {
+      "test_id": "T15-3-2b",
+      "name": "\u7ba1\u7406\u5458\u53cd\u9988\u5217\u8868API",
+      "status": "FAIL",
+      "message": "\u72b6\u6001\u7801: 500",
+      "duration": 0,
+      "timestamp": "2026-05-16T07:01:52.455310"
+    },
+    {
+      "test_id": "T15-3-3",
+      "name": "\u7ba1\u7406\u5458AI\u914d\u7f6eAPI",
+      "status": "PASS",
+      "message": "",
+      "duration": 0.011639833450317383,
+      "timestamp": "2026-05-16T07:01:52.467387"
+    },
+    {
+      "test_id": "T15-5-1",
+      "name": "\u672a\u6388\u6743\u8bbf\u95ee\u62e6\u622a",
+      "status": "PASS",
+      "message": "",
+      "duration": 0.0065844058990478516,
+      "timestamp": "2026-05-16T07:01:52.474347"
+    },
+    {
+      "test_id": "T15-5-1b",
+      "name": "\u65e0\u6548Token\u62e6\u622a",
+      "status": "PASS",
+      "message": "",
+      "duration": 0.006381988525390625,
+      "timestamp": "2026-05-16T07:01:52.481459"
+    }
+  ]
+}

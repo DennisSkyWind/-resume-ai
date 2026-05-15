@@ -176,6 +176,13 @@ if not os.path.exists(USER_DB_PATH):
             content TEXT,
             status TEXT DEFAULT 'pending',
             created_at TEXT)''')
+        # 使用记录表
+        conn.execute('''CREATE TABLE IF NOT EXISTS usage
+            (id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
+            action TEXT,
+            industry TEXT,
+            created_at TEXT)''')
         conn.commit()
         
         # conn.close() # 优化：使用共享连接
@@ -620,7 +627,7 @@ async def login(request: LoginRequest):
     
     password_hash = hash_password(request.password)
     cursor.execute("""
-            SELECT id, email, name, daily_limit FROM users WHERE email = ? AND password_hash = ?
+            SELECT id, email, name, daily_limit, is_admin, is_paid, user_level FROM users WHERE email = ? AND password_hash = ?
         """, (request.email, password_hash))
     
     user = cursor.fetchone()
@@ -647,6 +654,9 @@ async def login(request: LoginRequest):
             "email": user["email"],
             "name": user["name"],
             "daily_limit": user["daily_limit"],
+            "is_admin": bool(user.get("is_admin", 0)),
+            "is_paid": user.get("is_paid", 0),
+            "user_level": user.get("user_level", "free"),
             "token": token,
             "token_type": "Bearer"
         }
@@ -1686,6 +1696,15 @@ async def admin_update_ai_config(request: AIConfigRequest, admin: dict = Depends
         raise HTTPException(status_code=500, detail="保存AI配置失败")
 
 # ========== 用户反馈系统 ==========
+def get_current_user_optional(authorization: Optional[str] = Header(None)):
+    """可选的用户认证（允许匿名提交反馈）"""
+    if not authorization:
+        return None
+    try:
+        return get_current_user(authorization)
+    except:
+        return None
+
 @app.post("/api/v1/feedback")
 async def submit_feedback(request: FeedbackRequest, user: Optional[dict] = Depends(get_current_user_optional)):
     """提交用户反馈"""
@@ -1743,12 +1762,6 @@ async def admin_update_feedback(feedback_id: int, status: str, admin: dict = Dep
     conn.commit()
     
     return {"success": True, "message": f"反馈状态已更新为 {status}"}
-
-def get_current_user_optional(authorization: Optional[str] = Header(None)):
-    """可选的用户认证（允许匿名提交反馈）"""
-    if not authorization:
-        return None
-    return get_current_user(authorization)
 
 if __name__ == "__main__":
     import uvicorn
