@@ -338,16 +338,24 @@
                     return;
                 }
                 
-                // 检查是否是管理员
-                if (!data.data.is_admin) {
-                    showLoginError('您不是管理员，无法访问后台');
-                    return;
-                }
-                
                 adminToken = data.data.token;
                 localStorage.setItem('adminToken', adminToken);
-                showAdminSection();
-                loadStats();
+                
+                // 通过调用管理员API验证身份（兼容旧版API）
+                try {
+                    const adminRes = await fetch(`${API}/admin/stats`, {
+                        headers: { 'Authorization': `Bearer ${adminToken}` }
+                    });
+                    if (adminRes.ok) {
+                        showAdminSection();
+                        loadStats();
+                    } else {
+                        showLoginError('您不是管理员，无法访问后台');
+                        localStorage.removeItem('adminToken');
+                    }
+                } catch (e) {
+                    showLoginError('验证失败');
+                }
             } catch (e) {
                 showLoginError('网络错误');
             }
