@@ -824,6 +824,12 @@
         .template-preview-line.short { width: 60%; }
         .template-preview-line.medium { width: 80%; }
         .template-details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 24px; }
+        .template-customization { margin-top: 24px; padding-top: 24px; border-top: 1px solid #e5e5e5; }
+        .template-customization h4 { font-size: 16px; margin-bottom: 16px; }
+        .custom-option { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+        .custom-option label { font-size: 14px; min-width: 80px; }
+        .custom-option input[type="color"] { width: 40px; height: 32px; border: 1px solid #d1d5db; border-radius: 4px; cursor: pointer; }
+        .custom-option select { padding: 6px 12px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 14px; }
         .template-detail-item { padding: 12px; background: #f9f9f9; border-radius: 8px; }
         .template-detail-label { font-size: 12px; color: #666; margin-bottom: 4px; }
         .template-detail-value { font-size: 14px; font-weight: 500; }
@@ -1041,6 +1047,12 @@
                     </div>
                     <div class="template-details-grid" id="template-details">
                         <!-- 模板详情 -->
+                    </div>
+                    <div class="template-customization" id="template-customization" style="display:none;">
+                        <h4>模板定制</h4>
+                        <div id="custom-options">
+                            <!-- 定制选项将动态生成 -->
+                        </div>
                     </div>
                 </div>
                 <div class="template-modal-footer">
@@ -2208,12 +2220,48 @@
                     // 设置当前预览的模板ID
                     document.getElementById('modal-use-btn').dataset.templateId = id;
                     
+                    // 生成定制选项
+                    const customSection = document.getElementById('template-customization');
+                    const customOptions = document.getElementById('custom-options');
+                    
+                    if (template.customizable) {
+                        customSection.style.display = 'block';
+                        let optionsHtml = '';
+                        for (const [key, opt] of Object.entries(template.customizable)) {
+                            if (opt.type === 'color') {
+                                optionsHtml += `
+                                    <div class="custom-option">
+                                        <label>${opt.label}</label>
+                                        <input type="color" id="custom-${key}" value="${opt.default}" onchange="updateCustomSetting('${key}', this.value)">
+                                    </div>
+                                `;
+                            } else if (opt.type === 'select') {
+                                optionsHtml += `
+                                    <div class="custom-option">
+                                        <label>${opt.label}</label>
+                                        <select id="custom-${key}" onchange="updateCustomSetting('${key}', this.value)">
+                                            ${opt.options.map(o => `<option value="${o}" ${o === opt.default ? 'selected' : ''}>${o}</option>`).join('')}
+                                        </select>
+                                    </div>
+                                `;
+                            }
+                        }
+                        customOptions.innerHTML = optionsHtml;
+                    } else {
+                        customSection.style.display = 'none';
+                    }
+                    
                     // 显示模态框
                     document.getElementById('template-modal').style.display = 'flex';
                 })
                 .catch(err => {
                     showToast('加载模板失败', 'error');
                 });
+        }
+        
+        let currentCustomSettings = {};
+        function updateCustomSetting(key, value) {
+            currentCustomSettings[key] = value;
         }
         
         function generateTemplatePreview(id, template) {
@@ -2302,6 +2350,7 @@
                     },
                     body: JSON.stringify({
                         template_id: id,
+                        custom_settings: JSON.stringify(currentCustomSettings),
                         is_default: true
                     })
                 });
