@@ -1,10 +1,10 @@
 {
   "project": "ResumeAI",
   "version": "2.0",
-  "total_tasks": 100,
-  "completed": 63,
+  "total_tasks": 107,
+  "completed": 64,
   "in_progress": 0,
-  "pending": 0,
+  "pending": 8,
   "current_phase": 6,
   "completion_rate": "100%",
   "vercel_deployed": true,
@@ -946,9 +946,73 @@
       "status": "pending",
       "priority": "medium",
       "created_at": "2026-05-14T21:03:52.436967"
+    },
+    {
+      "id": "T14-1-1",
+      "phase": "Phase 14",
+      "name": "\u4fee\u590dadminLogin\u672a\u5b9a\u4e49\u9519\u8bef",
+      "description": "admin.html\u91cd\u590d\u51fd\u6570\u5b9a\u4e49\u5bfc\u81f4\u767b\u5f55\u6309\u94ae\u5931\u6548",
+      "status": "completed",
+      "priority": "high",
+      "created_at": "2026-05-15T12:00:00",
+      "completed_at": "2026-05-15T12:05:00"
+    },
+    {
+      "id": "T14-1-2",
+      "phase": "Phase 14",
+      "name": "\u7ba1\u7406\u540e\u53f0AI\u6a21\u578b\u914d\u7f6e\u7f16\u8f91",
+      "description": "\u7ba1\u7406\u5458\u53ef\u4fee\u6539AI\u6a21\u578b\u53c2\u6570\uff08\u6a21\u578b\u540d\u79f0\u3001\u6e29\u5ea6\u7b49\uff09",
+      "status": "pending",
+      "priority": "medium",
+      "created_at": "2026-05-15T12:00:00"
+    },
+    {
+      "id": "T14-1-3",
+      "phase": "Phase 14",
+      "name": "\u7ba1\u7406\u540e\u53f0\u7edf\u8ba1\u56fe\u8868\u4f18\u5316",
+      "description": "\u6dfb\u52a0\u66f4\u591a\u53ef\u89c6\u5316\u56fe\u8868\uff08\u7528\u6237\u589e\u957f\u8d8b\u52bf\u3001\u6d3b\u8dc3\u5ea6\u66f2\u7ebf\uff09",
+      "status": "pending",
+      "priority": "low",
+      "created_at": "2026-05-15T12:00:00"
+    },
+    {
+      "id": "T14-2-1",
+      "phase": "Phase 14",
+      "name": "\u524d\u7aef\u52a0\u8f7d\u6027\u80fd\u4f18\u5316",
+      "description": "\u538b\u7f29CSS/JS\uff0c\u6dfb\u52a0\u8d44\u6e90\u7f13\u5b58\u7b56\u7565",
+      "status": "pending",
+      "priority": "medium",
+      "created_at": "2026-05-15T12:00:00"
+    },
+    {
+      "id": "T14-2-2",
+      "phase": "Phase 14",
+      "name": "\u56fe\u7247\u61d2\u52a0\u8f7d\u4f18\u5316",
+      "description": "\u6a21\u677f\u9884\u89c8\u56fe\u7247\u4f7f\u7528\u61d2\u52a0\u8f7d\uff0c\u51cf\u5c11\u9996\u5c4f\u52a0\u8f7d\u65f6\u95f4",
+      "status": "pending",
+      "priority": "low",
+      "created_at": "2026-05-15T12:00:00"
+    },
+    {
+      "id": "T14-3-1",
+      "phase": "Phase 14",
+      "name": "\u7528\u6237\u53cd\u9988\u6536\u96c6\u7cfb\u7edf",
+      "description": "\u6dfb\u52a0\u53cd\u9988\u5165\u53e3\uff0c\u6536\u96c6\u7528\u6237\u5efa\u8bae\u548c\u95ee\u9898\u62a5\u544a",
+      "status": "pending",
+      "priority": "medium",
+      "created_at": "2026-05-15T12:00:00"
+    },
+    {
+      "id": "T14-3-2",
+      "phase": "Phase 14",
+      "name": "\u9519\u8bef\u9875\u9762\u53cb\u597d\u63d0\u793a",
+      "description": "404/500\u9875\u9762\u663e\u793a\u53cb\u597d\u63d0\u793a\uff0c\u63d0\u4f9b\u8fd4\u56de\u9996\u9875\u6309\u94ae",
+      "status": "pending",
+      "priority": "low",
+      "created_at": "2026-05-15T12:00:00"
     }
   ],
-  "last_updated": "2026-05-14T21:03:52.436998",
+  "last_updated": "2026-05-15T12:10:00",
   "milestones": {
     "M1": {
       "name": "\u57fa\u7840\u529f\u80fd\u4e0a\u7ebf",
@@ -963,21 +1027,31 @@
     "M3": {
       "name": "\u652f\u4ed8\u7cfb\u7edf\u96c6\u6210",
       "target": "Phase 9\u5b8c\u6210",
-      "status": "pending"
+      "status": "postponed"
     },
     "M4": {
       "name": "\u9ad8\u7ea7\u529f\u80fd\u5b8c\u5584",
       "target": "Phase 10\u5b8c\u6210",
-      "status": "pending"
+      "status": "completed"
     },
     "M5": {
       "name": "\u7528\u6237\u4f53\u9a8c\u4f18\u5316",
       "target": "Phase 11\u5b8c\u6210",
-      "status": "pending"
+      "status": "completed"
     },
     "M6": {
       "name": "\u8fd0\u8425\u4f53\u7cfb\u5efa\u7acb",
       "target": "Phase 12\u5b8c\u6210",
+      "status": "completed"
+    },
+    "M7": {
+      "name": "\u7cfb\u7edf\u7a33\u5b9a\u6027\u589e\u5f3a",
+      "target": "Phase 13\u5b8c\u6210",
+      "status": "in_progress"
+    },
+    "M8": {
+      "name": "\u4f18\u5316\u4e0e\u7ef4\u62a4",
+      "target": "Phase 14\u5b8c\u6210",
       "status": "pending"
     }
   }
