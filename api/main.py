@@ -95,6 +95,55 @@ def get_data_dir():
 DATA_DIR = get_data_dir()
 USER_DB_PATH = os.path.join(DATA_DIR, "users.db")
 
+# ========== 性能优化：内存缓存 ==========
+from functools import lru_cache
+import time
+
+# 缓存配置
+CACHE_TTL_SECONDS = 300  # 缓存有效期5分钟
+
+# 简单缓存装饰器（带TTL）
+def cached_with_ttl(ttl_seconds=CACHE_TTL_SECONDS):
+    """带过期时间的缓存装饰器"""
+    cache = {}
+    
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            key = str(args) + str(kwargs)
+            now = time.time()
+            
+            if key in cache:
+                value, timestamp = cache[key]
+                if now - timestamp < ttl_seconds:
+                    return value
+            
+            result = func(*args, **kwargs)
+            cache[key] = (result, now)
+            return result
+        
+        wrapper.cache_clear = lambda: cache.clear()
+        return wrapper
+    
+    return decorator
+
+# 统计数据缓存（5分钟刷新）
+_stats_cache = {"data": None, "timestamp": 0}
+
+def get_cached_stats():
+    """获取缓存的统计数据"""
+    global _stats_cache
+    now = time.time()
+    
+    if _stats_cache["data"] and (now - _stats_cache["timestamp"] < CACHE_TTL_SECONDS):
+        return _stats_cache["data"]
+    
+    return None
+
+def set_cached_stats(data):
+    """更新统计数据缓存"""
+    global _stats_cache
+    _stats_cache = {"data": data, "timestamp": time.time()}
+
 # 确保数据库文件存在
 if not os.path.exists(USER_DB_PATH):
     try:
@@ -119,10 +168,37 @@ if not os.path.exists(USER_DB_PATH):
             used INTEGER DEFAULT 0,
             created_at TEXT)''')
         conn.commit()
-        conn.close()
+        
+        # conn.close() # 优化：使用共享连接
         logger.info(f"Created database at {USER_DB_PATH}")
     except Exception as e:
         logger.error(f"Failed to create database: {e}")
+
+# 性能优化：应用启动时创建索引
+@app.on_event("startup")
+async def create_indexes():
+    """启动时创建数据库索引以提升查询性能"""
+    conn = get_user_db()
+    cursor = conn.cursor()
+    
+    # 检查并创建索引
+    indexes = [
+        ("idx_users_email", "users(email)"),
+        ("idx_users_created_at", "users(created_at)"),
+        ("idx_usage_user_id", "usage(user_id)"),
+        ("idx_usage_created_at", "usage(created_at)"),
+        ("idx_resumes_user_id", "resumes(user_id)"),
+        ("idx_error_logs_created_at", "error_logs(created_at)"),
+    ]
+    
+    for idx_name, idx_target in indexes:
+        try:
+            cursor.execute(f"CREATE INDEX IF NOT EXISTS {idx_name} ON {idx_target}")
+        except sqlite3.OperationalError:
+            pass  # 表不存在，跳过
+    
+    conn.commit()
+    logger.info("Database indexes created/verified")
 
 # JWT配置（使用固定密钥）
 JWT_SECRET = "resumeai_jwt_secret_key_2026"  # 固定密钥，生产环境应使用环境变量
@@ -192,10 +268,33 @@ KEYWORDS_DB = load_keywords()
 
 # ========== 用户认证函数 ==========
 
+# 性能优化：数据库连接缓存和SQLite调优
+_db_connection = None
+
 def get_user_db():
-    conn = sqlite3.connect(USER_DB_PATH)
-    conn.row_factory = sqlite3.Row
-    return conn
+    """获取数据库连接（性能优化版）"""
+    global _db_connection
+    if _db_connection is None:
+        conn = sqlite3.connect(USER_DB_PATH, check_same_thread=False)
+        conn.row_factory = sqlite3.Row
+        # SQLite性能优化PRAGMA
+        conn.execute("PRAGMA journal_mode=WAL")  # 写前日志，提升并发性能
+        conn.execute("PRAGMA synchronous=NORMAL")  # 降低同步频率
+        conn.execute("PRAGMA cache_size=-64000")  # 64MB缓存
+        conn.execute("PRAGMA temp_store=MEMORY")  # 临时表存内存
+        _db_connection = conn
+    return _db_connection
+
+def close_db_connection():
+    """关闭数据库连接（服务关闭时调用）"""
+    global _db_connection
+    if _db_connection:
+        _db_connection.close()
+        _db_connection = None
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    close_db_connection()
 
 def hash_password(password: str) -> str:
     return hashlib.sha256(password.encode()).hexdigest()
@@ -283,7 +382,7 @@ async def get_current_user(authorization: Optional[str] = Header(None)):
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM users WHERE id = ?", (payload["user_id"],))
     user = cursor.fetchone()
-    conn.close()
+    # conn.close() # 优化：使用共享连接
     
     if not user:
         raise HTTPException(status_code=401, detail="用户不存在")
@@ -300,7 +399,7 @@ def check_usage_limit(user_id: int) -> bool:
     user = cursor.fetchone()
     
     if user and user["is_paid"]:
-        conn.close()
+        # conn.close() # 优化：使用共享连接
         return True  # 付费用户无限制
     
     # 检查今日使用次数
@@ -311,7 +410,7 @@ def check_usage_limit(user_id: int) -> bool:
     """, (user_id, today))
     
     result = cursor.fetchone()
-    conn.close()
+    # conn.close() # 优化：使用共享连接
     
     return result["count"] < FREE_LIMIT
 
@@ -324,7 +423,7 @@ def record_usage(user_id: int, action: str, industry: str = None):
         VALUES (?, ?, ?)
     """, (user_id, action, industry))
     conn.commit()
-    conn.close()
+    # conn.close() # 优化：使用共享连接
 
 # ========== 请求模型 ==========
 
@@ -367,7 +466,7 @@ async def send_code(request: SendCodeRequest):
         # 检查邮箱是否已注册
         cursor.execute("SELECT id FROM users WHERE email = ?", (request.email,))
         if cursor.fetchone():
-            conn.close()
+            # conn.close() # 优化：使用共享连接
             raise HTTPException(status_code=400, detail="邮箱已被注册")
         
         # 生成验证码
@@ -380,7 +479,7 @@ async def send_code(request: SendCodeRequest):
             VALUES (?, ?, ?)
         """, (request.email, code, expires_at.isoformat()))
         conn.commit()
-        conn.close()
+        # conn.close() # 优化：使用共享连接
         
         # 发送验证码
         result = send_verification_code(request.email, code)
@@ -417,7 +516,7 @@ async def register(request: RegisterRequest):
     # 检查邮箱是否已存在
     cursor.execute("SELECT id FROM users WHERE email = ?", (request.email,))
     if cursor.fetchone():
-        conn.close()
+        # conn.close() # 优化：使用共享连接
         logger.warning(f"注册失败: {request.email} - 邮箱已被注册")
         raise HTTPException(status_code=400, detail="邮箱已被注册")
     
@@ -431,7 +530,7 @@ async def register(request: RegisterRequest):
     code_record = cursor.fetchone()
     
     if not code_record:
-        conn.close()
+        # conn.close() # 优化：使用共享连接
         raise HTTPException(status_code=400, detail="验证码无效或已过期")
     
     # 标记验证码已使用
@@ -446,7 +545,7 @@ async def register(request: RegisterRequest):
     
     user_id = cursor.lastrowid
     conn.commit()
-    conn.close()
+    # conn.close() # 优化：使用共享连接
     
     # 生成token
     token = create_token(user_id, request.email)
@@ -477,7 +576,7 @@ async def login(request: LoginRequest):
     
     if not user:
         logger.warning(f"登录失败: {request.email} - 邮箱或密码错误")
-        conn.close()
+        # conn.close() # 优化：使用共享连接
         raise HTTPException(status_code=401, detail="邮箱或密码错误")
     
     # 更新登录时间
@@ -485,7 +584,7 @@ async def login(request: LoginRequest):
         UPDATE users SET last_login = ? WHERE id = ?
     """, (datetime.now().isoformat(), user["id"]))
     conn.commit()
-    conn.close()
+    # conn.close() # 优化：使用共享连接
     
     # 生成token
     token = create_token(user["id"], user["email"])
@@ -520,7 +619,7 @@ async def get_me(user: dict = Depends(get_current_user)):
     # 获取简历数量
     cursor.execute("SELECT COUNT(*) as count FROM resumes WHERE user_id = ?", (user["id"],))
     resumes = cursor.fetchone()
-    conn.close()
+    # conn.close() # 优化：使用共享连接
     
     return {
         "success": True,
@@ -557,7 +656,7 @@ async def get_usage(user: dict = Depends(get_current_user)):
     is_paid = user["is_paid"]
     remaining = "unlimited" if is_paid else max(0, FREE_LIMIT - used_today)
     
-    conn.close()
+    # conn.close() # 优化：使用共享连接
     
     return {
         "success": True,
@@ -671,7 +770,7 @@ async def analyze(request: AnalyzeRequest, user: dict = Depends(get_current_user
         VALUES (?, ?, ?, ?)
     """, (user["id"], request.resume_content, request.industry, result["overall_score"]))
     conn.commit()
-    conn.close()
+    # conn.close() # 优化：使用共享连接
     
     return {"success": True, "data": result}
 
@@ -705,7 +804,7 @@ async def get_resumes(user: dict = Depends(get_current_user)):
     """, (user["id"],))
     
     resumes = [dict(row) for row in cursor.fetchall()]
-    conn.close()
+    # conn.close() # 优化：使用共享连接
     
     return {"success": True, "data": resumes}
 
@@ -736,7 +835,7 @@ async def get_resumes_history(user: dict = Depends(get_current_user)):
     """, (user["id"],))
     
     history = [dict(row) for row in cursor.fetchall()]
-    conn.close()
+    # conn.close() # 优化：使用共享连接
     
     return {
         "success": True,
@@ -767,7 +866,7 @@ async def get_resume_detail(resume_id: int, user: dict = Depends(get_current_use
     """, (resume_id, user["id"]))
     
     resume = cursor.fetchone()
-    conn.close()
+    # conn.close() # 优化：使用共享连接
     
     if not resume:
         raise HTTPException(status_code=404, detail="简历不存在或无权访问")
@@ -1014,7 +1113,7 @@ async def debug_db():
         # 检查用户数量
         cursor.execute("SELECT COUNT(*) FROM users")
         user_count = cursor.fetchone()[0]
-        conn.close()
+        # conn.close() # 优化：使用共享连接
         return {
             "tables": tables,
             "users_columns": users_columns,
@@ -1063,7 +1162,7 @@ async def init_tables():
         users_columns = [row[1] for row in cursor.fetchall()]
         cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
         tables = [row[0] for row in cursor.fetchall()]
-        conn.close()
+        # conn.close() # 优化：使用共享连接
         
         return {
             "success": True, 
@@ -1092,7 +1191,7 @@ async def create_admin(
             # 更新为管理员
             cursor.execute("UPDATE users SET is_admin = 1 WHERE email = ?", (email,))
             conn.commit()
-            conn.close()
+            # conn.close() # 优化：使用共享连接
             return {"success": True, "message": "已将用户设置为管理员", "email": email}
         
         # 创建新管理员
@@ -1103,7 +1202,7 @@ async def create_admin(
             (email, name, password_hash, datetime.now().isoformat()))
         conn.commit()
         user_id = cursor.lastrowid
-        conn.close()
+        # conn.close() # 优化：使用共享连接
         
         # 生成token
         token = create_token(user_id, email)
@@ -1155,7 +1254,7 @@ async def debug_users():
                 "password_hash": row["password_hash"],
                 "created_at": row["created_at"]
             })
-        conn.close()
+        # conn.close() # 优化：使用共享连接
         return {"users": users, "count": len(users)}
     except Exception as e:
         return {"error": str(e)}
@@ -1168,7 +1267,7 @@ async def debug_check_password(email: str, password: str):
         cursor = conn.cursor()
         cursor.execute("SELECT password_hash FROM users WHERE email = ?", (email,))
         user = cursor.fetchone()
-        conn.close()
+        # conn.close() # 优化：使用共享连接
         
         if not user:
             return {"error": "用户不存在", "email": email}
@@ -1203,7 +1302,7 @@ async def get_admin_user(authorization: Optional[str] = Header(None)):
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM users WHERE id = ?", (payload["user_id"],))
     user = cursor.fetchone()
-    conn.close()
+    # conn.close() # 优化：使用共享连接
     
     if not user:
         raise HTTPException(status_code=401, detail="用户不存在")
@@ -1215,7 +1314,13 @@ async def get_admin_user(authorization: Optional[str] = Header(None)):
 
 @app.get("/api/v1/admin/stats")
 async def admin_stats(admin: dict = Depends(get_admin_user)):
-    """获取系统统计"""
+    """获取系统统计（带缓存优化）"""
+    
+    # 检查缓存
+    cached = get_cached_stats()
+    if cached:
+        return {"success": True, "data": cached, "cached": True}
+    
     conn = get_user_db()
     cursor = conn.cursor()
     
@@ -1240,26 +1345,41 @@ async def admin_stats(admin: dict = Depends(get_admin_user)):
     cursor.execute("SELECT COUNT(*) as count FROM resumes")
     total_resumes = cursor.fetchone()["count"]
     
-    conn.close()
+    # 等级分布统计
+    cursor.execute("""
+        SELECT 
+            CASE 
+                WHEN is_admin = 1 THEN 'admin'
+                WHEN is_paid = 1 AND user_level = 'vip' THEN 'vip'
+                WHEN is_paid = 1 AND user_level = 'pro' THEN 'pro'
+                WHEN is_paid = 1 AND user_level = 'basic' THEN 'basic'
+                ELSE 'free'
+            END as level,
+            COUNT(*) as count
+        FROM users
+        GROUP BY level
+    """)
+    level_distribution = {row["level"]: row["count"] for row in cursor.fetchall()}
+    
+    # VIP用户数（付费用户）
+    vip_users = paid_users
+    
+    stats_data = {
+        "total_users": total_users,
+        "today_usage": usage_today,
+        "total_usage": total_usage,
+        "vip_users": vip_users,
+        "level_distribution": level_distribution,
+        "email_config": get_email_config()
+    }
+    
+    # 更新缓存
+    set_cached_stats(stats_data)
     
     return {
         "success": True,
-        "data": {
-            "users": {
-                "total": total_users,
-                "paid": paid_users,
-                "free": total_users - paid_users,
-                "new_today": new_users_today
-            },
-            "usage": {
-                "total": total_usage,
-                "today": usage_today
-            },
-            "resumes": {
-                "total": total_resumes
-            },
-            "email_config": get_email_config()
-        }
+        "data": stats_data,
+        "cached": False
     }
 
 @app.get("/api/v1/admin/users")
@@ -1291,7 +1411,7 @@ async def admin_list_users(admin: dict = Depends(get_admin_user)):
             "usage_count": row["usage_count"]
         })
     
-    conn.close()
+    # conn.close() # 优化：使用共享连接
     return {"success": True, "data": users}
 
 class UpdateUserRequest(BaseModel):
@@ -1316,13 +1436,13 @@ async def admin_update_user(user_id: int, request: UpdateUserRequest, admin: dic
         params.append(1 if request.is_admin else 0)
     
     if not updates:
-        conn.close()
+        # conn.close() # 优化：使用共享连接
         raise HTTPException(status_code=400, detail="没有要更新的字段")
     
     params.append(user_id)
     cursor.execute(f"UPDATE users SET {', '.join(updates)} WHERE id = ?", params)
     conn.commit()
-    conn.close()
+    # conn.close() # 优化：使用共享连接
     
     return {"success": True, "message": "用户已更新"}
 
@@ -1354,7 +1474,7 @@ async def admin_usage_logs(admin: dict = Depends(get_admin_user)):
             "created_at": row["created_at"]
         })
     
-    conn.close()
+    # conn.close() # 优化：使用共享连接
     return {"success": True, "data": logs}
 
 class TestAIRequest(BaseModel):
