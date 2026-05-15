@@ -299,6 +299,34 @@
 
 **进度**: 68/107 (64%)，剩余4个pending任务
 
+## 2026-05-15 23:00:00 - T14-2-2 图片懒加载优化 - SKIP
+
+**任务**: 模板预览图片使用懒加载
+
+**检查结果**: 当前产品无模板预览功能，无需懒加载
+
+**状态**: skipped
+
+---
+
+## 2026-05-15 23:30:00 - T14-3-1 用户反馈收集系统完成
+
+**任务**: 添加反馈入口，收集用户建议和问题报告
+
+**后端实现**:
+- 数据库: feedback表（user_id, email, type, content, status）
+- API: POST /api/v1/feedback（提交反馈）
+- API: GET /api/v1/admin/feedback（管理员获取列表）
+- API: PUT /api/v1/admin/feedback/{id}（更新状态）
+
+**前端实现**:
+- index.html: 反馈弹窗（showFeedbackModal）
+- admin.html: 反馈面板（loadFeedback、updateFeedbackStatus）
+
+**提交**: b130003
+
+**进度**: 69/107 (65%)，剩余2个pending任务
+
 ## 2026-05-15 17:30:00 - T14-1-3 管理后台统计图表优化完成
 
 **任务**: 添加更多可视化图表（用户增长趋势、活跃度曲线）
@@ -336,3 +364,31 @@
 **提交**: 3e76b70
 
 **进度**: 68/107 (64%)，剩余4个pending任务
+
+## 2026-05-15 23:00:00 - T14-2-2 图片懒加载优化 - SKIP
+
+**任务**: 模板预览图片使用懒加载
+
+**检查结果**: 当前产品无模板预览功能，无需懒加载
+
+**状态**: skipped
+
+---
+
+## 2026-05-15 23:30:00 - T14-3-1 用户反馈收集系统完成
+
+**任务**: 添加反馈入口，收集用户建议和问题报告
+
+**后端实现**:
+- 数据库: feedback表（user_id, email, type, content, status）
+- API: POST /api/v1/feedback（提交反馈）
+- API: GET /api/v1/admin/feedback（管理员获取列表）
+- API: PUT /api/v1/admin/feedback/{id}（更新状态）
+
+**前端实现**:
+- index.html: 反馈弹窗（showFeedbackModal）
+- admin.html: 反馈面板（loadFeedback、updateFeedbackStatus）
+
+**提交**: b130003
+
+**进度**: 69/107 (65%)，剩余2个pending任务
