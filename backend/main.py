@@ -5,7 +5,7 @@ ResumeAI Backend - FastAPIwith User Authentication
 
 from fastapi import FastAPI, HTTPException, Depends, Header, File, UploadFile, Query
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import Response
+from fastapi.responses import Response, JSONResponse
 from pydantic import BaseModel
 from typing import Optional, List
 import json
@@ -29,6 +29,18 @@ logging.basicConfig(
     ]
 )
 logger = logging.getLogger(__name__)
+
+# API限流配置
+RATE_LIMIT_CONFIG = {
+    "enabled": True,
+    "requests_per_minute": 60,  # 每分钟最多60次请求
+    "requests_per_hour": 500,   # 每小时最多500次请求
+    "burst_limit": 10,          # 突发请求上限
+    "whitelist": ["127.0.0.1", "localhost"]  # 白名单IP
+}
+
+# 限流缓存（使用内存缓存）
+rate_limit_cache = {}
 
 # 导入邮箱发送模块
 from email_sender import send_verification_code, generate_code, get_email_config, EMAIL_CONFIG, send_marketing_email
@@ -343,6 +355,80 @@ def load_keywords():
 
 KEYWORDS_DB = load_keywords()
 logger.info(f"KEYWORDS_DB 初始化完成，行业数: {len(KEYWORDS_DB)}")
+
+# ========== API限流检查 ==========
+
+def check_rate_limit(client_ip: str, endpoint: str = "default") -> bool:
+    """检查API限流"""
+    if not RATE_LIMIT_CONFIG["enabled"]:
+        return True
+    
+    # 白名单IP不受限
+    if client_ip in RATE_LIMIT_CONFIG["whitelist"]:
+        return True
+    
+    current_time = datetime.now()
+    minute_key = f"{client_ip}:{endpoint}:{current_time.strftime('%Y%m%d%H%M')}"
+    hour_key = f"{client_ip}:{endpoint}:{current_time.strftime('%Y%m%d%H')}"
+    
+    # 检查每分钟限制
+    minute_count = rate_limit_cache.get(minute_key, 0)
+    if minute_count >= RATE_LIMIT_CONFIG["requests_per_minute"]:
+        logger.warning(f"Rate limit exceeded for {client_ip}: {minute_count} requests/minute")
+        return False
+    
+    # 检查每小时限制
+    hour_count = rate_limit_cache.get(hour_key, 0)
+    if hour_count >= RATE_LIMIT_CONFIG["requests_per_hour"]:
+        logger.warning(f"Rate limit exceeded for {client_ip}: {hour_count} requests/hour")
+        return False
+    
+    # 更新计数
+    rate_limit_cache[minute_key] = minute_count + 1
+    rate_limit_cache[hour_key] = hour_count + 1
+    
+    return True
+
+def get_client_ip(request) -> str:
+    """获取客户端IP"""
+    # 尝试从headers获取真实IP（适用于代理环境）
+    forwarded = request.headers.get("X-Forwarded-For")
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+    
+    real_ip = request.headers.get("X-Real-IP")
+    if real_ip:
+        return real_ip
+    
+    # 直接连接的IP
+    if hasattr(request, "client") and request.client:
+        return request.client.host
+    
+    return "unknown"
+
+from fastapi import Request
+
+@app.middleware("http")
+async def rate_limit_middleware(request: Request, call_next):
+    """限流中间件"""
+    # 只对API路径进行限流
+    if not request.url.path.startswith("/api"):
+        return await call_next(request)
+    
+    client_ip = get_client_ip(request)
+    
+    if not check_rate_limit(client_ip, request.url.path):
+        return JSONResponse(
+            status_code=429,
+            content={
+                "success": False,
+                "detail": "请求过于频繁，请稍后再试",
+                "retry_after": 60
+            }
+        )
+    
+    response = await call_next(request)
+    return response
 
 # ========== 用户认证函数 ==========
 
