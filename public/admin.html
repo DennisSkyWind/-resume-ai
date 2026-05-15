@@ -468,9 +468,46 @@
                 loadTrends();
             // 加载趋势数据
                 loadTrends();
+            // 加载趋势数据
+                loadTrends();
             } catch (e) {
                 console.error('加载统计失败:', e);
             }
+        }
+        
+        async function loadTrends() {
+            try {
+                const res = await fetch(`${API}/admin/trends`, {
+                    headers: { 'Authorization': `Bearer ${adminToken}` }
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    renderTrendChart('user-growth-chart', data.data.user_growth);
+                    renderTrendChart('daily-usage-chart', data.data.daily_usage);
+                    renderTrendChart('active-users-chart', data.data.active_users);
+                }
+            } catch (e) {
+                console.error('加载趋势数据失败:', e);
+            }
+        }
+        
+        function renderTrendChart(containerId, data) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            
+            const maxValue = Math.max(...data.map(d => d.count), 1);
+            
+            container.innerHTML = data.map(d => {
+                const height = (d.count / maxValue * 100);
+                const dateLabel = d.date.split('-')[2] + '/' + d.date.split('-')[1];
+                return `
+                    <div class="trend-bar" style="height: ${height}px;">
+                        <div class="trend-bar-value">${d.count}</div>
+                        <div class="trend-bar-label">${dateLabel}</div>
+                    </div>
+                `;
+            }).join('');
         }
         
         async function loadTrends() {
