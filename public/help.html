@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>帮助文档 - ResumeAI</title>
+    <link rel="icon" href="/favicon.ico">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; color: #1a1a1a; }
+        .container { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
+        .header { background: #1a1a1a; color: white; padding: 20px; margin-bottom: 40px; }
+        .header h1 { font-size: 24px; }
+        .header-nav { display: flex; gap: 16px; margin-top: 12px; }
+        .header-nav a { color: white; text-decoration: none; font-size: 14px; }
+        .header-nav a:hover { opacity: 0.8; }
+        h2 { font-size: 20px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #1a1a1a; }
+        h3 { font-size: 16px; margin-bottom: 12px; }
+        .section { background: white; padding: 24px; border-radius: 8px; margin-bottom: 24px; }
+        .faq-item { margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #e5e5e5; }
+        .faq-item:last-child { border-bottom: none; }
+        .faq-question { font-weight: 600; margin-bottom: 8px; cursor: pointer; }
+        .faq-answer { color: #666; line-height: 1.6; }
+        .step { display: flex; gap: 16px; margin-bottom: 20px; }
+        .step-num { width: 32px; height: 32px; background: #1a1a1a; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; }
+        .step-content { flex: 1; }
+        .step-title { font-weight: 600; margin-bottom: 4px; }
+        .step-desc { color: #666; }
+        .tip { background: #e3f2fd; padding: 16px; border-radius: 8px; margin: 16px 0; }
+        .tip-title { color: #1565c0; font-weight: 600; margin-bottom: 8px; }
+        .back-btn { display: inline-block; padding: 12px 24px; background: #1a1a1a; color: white; text-decoration: none; border-radius: 4px; margin-top: 24px; }
+        .back-btn:hover { opacity: 0.9; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>ResumeAI 帮助文档</h1>
+        <div class="header-nav">
+            <a href="/">首页</a>
+            <a href="#guide">使用指南</a>
+            <a href="#faq">常见问题</a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <!-- 使用指南 -->
+        <div id="guide" class="section">
+            <h2>使用指南</h2>
+            
+            <h3>如何分析简历</h3>
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-content">
+                    <div class="step-title">粘贴简历内容</div>
+                    <div class="step-desc">将你的简历文本复制粘贴到输入框中，支持任意格式的简历内容。</div>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-content">
+                    <div class="step-title">选择目标行业</div>
+                    <div class="step-desc">选择你求职的目标行业（如互联网、金融、教育等），系统会根据行业特点分析关键词。</div>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-content">
+                    <div class="step-title">添加职位描述（可选）</div>
+                    <div class="step-desc">粘贴目标职位的JD，系统会分析简历与职位要求的匹配度。</div>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">4</div>
+                <div class="step-content">
+                    <div class="step-title">获取分析报告</div>
+                    <div class="step-desc">点击"开始分析"，系统会生成关键词匹配度、ATS格式检测、优化建议等分析结果。</div>
+                </div>
+            </div>
+            
+            <div class="tip">
+                <div class="tip-title">💡 小贴士</div>
+                <p>建议使用完整的简历内容进行分析，包含工作经历、技能、教育背景等所有信息，可以获得更准确的分析结果。</p>
+            </div>
+            
+            <h3>如何优化简历</h3>
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-content">
+                    <div class="step-title">粘贴简历内容</div>
+                    <div class="step-desc">将需要优化的简历内容粘贴到优化页面的输入框中。</div>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-content">
+                    <div class="step-title">选择行业和语言</div>
+                    <div class="step-desc">选择目标行业和简历语言（中文/英文）。</div>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-content">
+                    <div class="step-title">获取优化建议</div>
+                    <div class="step-desc">系统会根据行业关键词和ATS格式要求，给出具体的优化建议。</div>
+                </div>
+            </div>
+            
+            <h3>如何使用简历模板</h3>
+            <p>ResumeAI提供5种专业简历模板：</p>
+            <ul style="margin:16px 0;padding-left:24px;line-height:1.8;">
+                <li><strong>经典模板</strong>：传统格式，适合金融、政府等行业</li>
+                <li><strong>现代模板</strong>：简洁设计，适合互联网、科技公司</li>
+                <li><strong>简约模板</strong>：极简风格，适合教育、科研行业</li>
+                <li><strong>创意模板</strong>：独特设计，适合广告、媒体行业</li>
+                <li><strong>专业模板</strong>：商务风格，适合管理、咨询行业</li>
+            </ul>
+            <p>选择模板后可以自定义颜色、字体等样式，并下载Word格式模板文件。</p>
+        </div>
+        
+        <!-- 常见问题 -->
+        <div id="faq" class="section">
+            <h2>常见问题</h2>
+            
+            <div class="faq-item">
+                <div class="faq-question">❓ ResumeAI是免费的吗？</div>
+                <div class="faq-answer">ResumeAI提供免费基础功能，每天可免费分析5次简历。升级会员可以获得更多使用次数和高级功能。</div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">❓ 什么是ATS格式检测？</div>
+                <div class="faq-answer">ATS（Applicant Tracking System）是企业招聘系统自动筛选简历的工具。ResumeAI会检测简历是否符合ATS格式要求，确保简历能被招聘系统正确识别。</div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">❓ JD匹配度分析有什么作用？</div>
+                <div class="faq-answer">JD匹配度分析会将你的简历与目标职位的要求进行对比，找出简历中缺失的关键技能和关键词，帮助你针对性优化简历。</div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">❓ 如何导出分析报告？</div>
+                <div class="faq-answer">分析完成后，点击"导出PDF报告"或"导出Word文档"按钮，即可下载分析报告文件。</div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">❓ 我的简历数据安全吗？</div>
+                <div class="faq-answer">ResumeAI严格保护用户隐私，简历数据仅用于分析，不会被存储或分享给第三方。分析完成后，数据会被自动清理。</div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">❓ 支持哪些语言？</div>
+                <div class="faq-answer">目前支持中文和英文简历分析，系统会自动识别简历语言并给出相应建议。</div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">❓ 如何邀请好友？</div>
+                <div class="faq-answer">点击"邀请"按钮，复制你的专属邀请链接分享给好友。好友注册后，双方各获得额外使用次数奖励。</div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">❓ 使用次数限制是什么？</div>
+                <div class="faq-answer">
+                    <p>不同等级用户的每日使用限制：</p>
+                    <ul style="margin-top:8px;padding-left:24px;">
+                        <li>免费用户：5次/天</li>
+                        <li>基础会员：20次/天</li>
+                        <li>专业会员：50次/天</li>
+                        <li>VIP会员：无限使用</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <a href="/" class="back-btn">返回首页</a>
+    </div>
+</body>
+</html>
