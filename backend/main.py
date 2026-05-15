@@ -31,7 +31,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # 导入邮箱发送模块
-from email_sender import send_verification_code, generate_code, get_email_config, EMAIL_CONFIG
+from email_sender import send_verification_code, generate_code, get_email_config, EMAIL_CONFIG, send_marketing_email
 
 # 文件解析模块
 import pdfplumber
@@ -2227,6 +2227,15 @@ class TestAIRequest(BaseModel):
     api_key: Optional[str] = None
     base_url: Optional[str] = None
 
+class MarketingEmailRequest(BaseModel):
+    email: str
+    template_type: str  # 'welcome', 'usage_reminder', 'upgrade_reminder', 'promo'
+    data: Optional[dict] = {}
+
+class BatchMarketingEmailRequest(BaseModel):
+    target: str  # 'inactive', 'all'
+    template_type: str
+
 @app.post("/api/v1/admin/test-ai")
 async def admin_test_ai(request: TestAIRequest, admin: dict = Depends(get_admin_user)):
     """测试AI连接"""
@@ -2267,6 +2276,58 @@ async def admin_test_ai(request: TestAIRequest, admin: dict = Depends(get_admin_
                 return {"success": False, "error": f"API错误: {response.status_code} - {error_msg}"}
     except Exception as e:
         return {"success": False, "error": f"连接失败: {str(e)}"}
+
+@app.post("/api/v1/admin/send-marketing-email")
+async def admin_send_marketing_email(
+    request: MarketingEmailRequest,
+    admin: dict = Depends(get_admin_user)
+):
+    """发送营销邮件"""
+    result = send_marketing_email(request.email, request.template_type, request.data)
+    return {"success": result["success"], "message": result["message"]}
+
+@app.post("/api/v1/admin/batch-marketing-email")
+async def admin_batch_marketing_email(
+    request: BatchMarketingEmailRequest,
+    admin: dict = Depends(get_admin_user)
+):
+    """批量发送营销邮件"""
+    conn = get_user_db()
+    cursor = conn.cursor()
+    
+    # 获取目标用户
+    if request.target == "inactive":
+        # 获取无使用记录的用户
+        cursor.execute("""
+            SELECT email FROM users 
+            WHERE id NOT IN (SELECT DISTINCT user_id FROM usage)
+            AND email != 'zhwffy@hotmail.com'
+            LIMIT 50
+        """)
+    elif request.target == "all":
+        cursor.execute("SELECT email FROM users WHERE email != 'zhwffy@hotmail.com' LIMIT 50")
+    else:
+        return {"success": False, "message": "未知目标群体"}
+    
+    users = cursor.fetchall()
+    conn.close()
+    
+    sent_count = 0
+    failed_count = 0
+    
+    for user in users:
+        result = send_marketing_email(user["email"], request.template_type)
+        if result["success"]:
+            sent_count += 1
+        else:
+            failed_count += 1
+    
+    return {
+        "success": True,
+        "sent_count": sent_count,
+        "failed_count": failed_count,
+        "total": len(users)
+    }
 
 @app.get("/api/v1/admin/config")
 async def admin_get_config(admin: dict = Depends(get_admin_user)):
