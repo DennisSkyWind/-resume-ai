@@ -1273,11 +1273,177 @@
         let currentUser = null;
         let currentLanguage = 'auto';  // 当前语言设置
         
+        // ========== 国际化文本 ==========
+        const i18n = {
+            zh: {
+                // 顶部
+                'ResumeAI': 'ResumeAI',
+                '简历分析': '简历分析',
+                '简历优化': '简历优化',
+                '简历模板': '简历模板',
+                '历史记录': '历史记录',
+                '升级': '升级',
+                '邀请': '邀请',
+                '退出': '退出',
+                
+                // 分析页
+                '请粘贴简历内容': '请粘贴简历内容',
+                '选择目标行业': '选择目标行业',
+                '职位描述（可选）': '职位描述（可选）',
+                '粘贴目标职位的JD...': '粘贴目标职位的JD...',
+                '开始分析': '开始分析',
+                
+                // 优化页
+                '请粘贴简历内容进行优化': '请粘贴简历内容进行优化',
+                '开始优化': '开始优化',
+                
+                // 结果
+                '分析结果': '分析结果',
+                '综合评分': '综合评分',
+                '关键词匹配': '关键词匹配',
+                'ATS格式': 'ATS格式',
+                'JD匹配度': 'JD匹配度',
+                '内容完整度': '内容完整度',
+                '已匹配关键词': '已匹配关键词',
+                '缺失关键词': '缺失关键词',
+                '优化建议': '优化建议',
+                '导出PDF报告': '导出PDF报告',
+                '导出Word文档': '导出Word文档',
+                
+                // 模板
+                '选择简历模板': '选择简历模板',
+                '预览': '预览',
+                '下载': '下载',
+                '使用': '使用',
+                '模板定制': '模板定制',
+                '主色调': '主色调',
+                '正文字号': '正文字号',
+                
+                // 其他
+                '欢迎使用 ResumeAI': '欢迎使用 ResumeAI',
+                'AI智能简历分析与优化工具': 'AI智能简历分析与优化工具',
+                '粘贴简历': '粘贴简历',
+                '将你的简历内容粘贴到输入框中': '将你的简历内容粘贴到输入框中',
+                '选择行业': '选择行业',
+                '选择你求职的目标行业，获取精准分析': '选择你求职的目标行业，获取精准分析',
+                '添加职位描述': '添加职位描述',
+                '可选：粘贴目标职位JD，获取匹配度分析': '可选：粘贴目标职位JD，获取匹配度分析',
+                '获取分析报告': '获取分析报告',
+                'AI分析关键词匹配、ATS格式、优化建议': 'AI分析关键词匹配、ATS格式、优化建议',
+                '导出简历': '导出简历',
+                '下载PDF或Word格式的优化简历': '下载PDF或Word格式的优化简历',
+                '开始使用': '开始使用',
+                '跳过引导': '跳过引导',
+                
+                // 提示
+                '登录成功': '登录成功',
+                '注册成功': '注册成功',
+                '分析完成': '分析完成',
+                '优化完成': '优化完成',
+                'PDF报告已生成': 'PDF报告已生成',
+                'Word文档已生成': 'Word文档已生成',
+                '模板已保存为默认模板': '模板已保存为默认模板',
+                '邀请链接已复制': '邀请链接已复制',
+                '开始分析你的简历吧！': '开始分析你的简历吧！'
+            },
+            en: {
+                // Header
+                'ResumeAI': 'ResumeAI',
+                '简历分析': 'Analyze',
+                '简历优化': 'Optimize',
+                '简历模板': 'Templates',
+                '历史记录': 'History',
+                '升级': 'Upgrade',
+                '邀请': 'Invite',
+                '退出': 'Logout',
+                
+                // Analyze
+                '请粘贴简历内容': 'Paste your resume content',
+                '选择目标行业': 'Select target industry',
+                '职位描述（可选）': 'Job Description (Optional)',
+                '粘贴目标职位的JD...': 'Paste target job JD...',
+                '开始分析': 'Start Analysis',
+                
+                // Optimize
+                '请粘贴简历内容进行优化': 'Paste resume to optimize',
+                '开始优化': 'Start Optimization',
+                
+                // Results
+                '分析结果': 'Analysis Results',
+                '综合评分': 'Overall Score',
+                '关键词匹配': 'Keyword Match',
+                'ATS格式': 'ATS Format',
+                'JD匹配度': 'JD Match',
+                '内容完整度': 'Content Completeness',
+                '已匹配关键词': 'Matched Keywords',
+                '缺失关键词': 'Missing Keywords',
+                '优化建议': 'Suggestions',
+                '导出PDF报告': 'Export PDF',
+                '导出Word文档': 'Export Word',
+                
+                // Templates
+                '选择简历模板': 'Select Template',
+                '预览': 'Preview',
+                '下载': 'Download',
+                '使用': 'Use',
+                '模板定制': 'Customize',
+                '主色调': 'Primary Color',
+                '正文字号': 'Font Size',
+                
+                // Guide
+                '欢迎使用 ResumeAI': 'Welcome to ResumeAI',
+                'AI智能简历分析与优化工具': 'AI Resume Analysis & Optimization',
+                '粘贴简历': 'Paste Resume',
+                '将你的简历内容粘贴到输入框中': 'Paste your resume into the input box',
+                '选择行业': 'Select Industry',
+                '选择你求职的目标行业，获取精准分析': 'Choose your target industry for precise analysis',
+                '添加职位描述': 'Add Job Description',
+                '可选：粘贴目标职位JD，获取匹配度分析': 'Optional: Paste JD for match analysis',
+                '获取分析报告': 'Get Analysis',
+                'AI分析关键词匹配、ATS格式、优化建议': 'AI analyzes keywords, ATS format, suggestions',
+                '导出简历': 'Export Resume',
+                '下载PDF或Word格式的优化简历': 'Download PDF or Word format resume',
+                '开始使用': 'Start',
+                '跳过引导': 'Skip',
+                
+                // Toasts
+                '登录成功': 'Login successful',
+                '注册成功': 'Registration successful',
+                '分析完成': 'Analysis complete',
+                '优化完成': 'Optimization complete',
+                'PDF报告已生成': 'PDF generated',
+                'Word文档已生成': 'Word generated',
+                '模板已保存为默认模板': 'Template saved',
+                '邀请链接已复制': 'Link copied',
+                '开始分析你的简历吧！': 'Start analyzing your resume!'
+            }
+        };
+        
+        // 获取翻译文本
+        function t(key) {
+            const lang = currentLanguage === 'auto' ? 'zh' : currentLanguage;
+            return i18n[lang][key] || key;
+        }
+        
         // ========== 语言切换 ==========
         function setLanguage(lang, e) {
             currentLanguage = lang;
             document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
             e.target.classList.add('active');
+            updatePageText();
+        }
+        
+        // 更新页面文本
+        function updatePageText() {
+            // 更新tabs
+            document.querySelectorAll('.tab').forEach((tab, i) => {
+                const keys = ['简历分析', '简历优化', '简历模板', '历史记录'];
+                tab.textContent = t(keys[i]);
+            });
+            
+            // 更新按钮
+            const upgradeBtn = document.getElementById('upgrade-btn');
+            if (upgradeBtn) upgradeBtn.textContent = t('升级');
         }
         
         // ========== 文件上传 ==========
