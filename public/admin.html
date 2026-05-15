@@ -341,43 +341,6 @@
                     document.getElementById('stat-vip').textContent = data.data.vip_users;
                     
                     // 等级分布
-                    // ... (保持原有代码)
-                }
-                
-                // 加载用户行为分析
-                const analyticsRes = await fetch(`${API}/admin/analytics`, {
-                    headers: { 'Authorization': `Bearer ${adminToken}` }
-                });
-                const analyticsData = await analyticsRes.json();
-                
-                if (analyticsData.success) {
-                    document.getElementById('stat-active-7d').textContent = analyticsData.data.active_users_7d;
-                    document.getElementById('stat-retention').textContent = analyticsData.data.retention_7d + '%';
-                    document.getElementById('stat-churn').textContent = analyticsData.data.churn_rate + '%';
-                    
-                    // 行业分布
-                    const industryChart = document.getElementById('industry-chart');
-                    industryChart.innerHTML = analyticsData.data.industry_distribution.map(i => `
-                        <div style="padding:8px 16px;background:#f5f5f5;border-radius:4px;">
-                            ${i.industry}: ${i.count}
-                        </div>
-                    `).join('');
-                    
-                    // 功能使用
-                    const actionChart = document.getElementById('action-chart');
-                    actionChart.innerHTML = analyticsData.data.action_distribution.map(a => `
-                        <div style="display:flex;gap:12px;margin:8px 0;">
-                            <span style="width:100px;">${a.action}</span>
-                            <span>${a.count}次</span>
-                        </div>
-                    `).join('');
-                }
-            } catch (e) {
-                console.error('加载统计失败:', e);
-            }
-        }
-                    
-                    // 等级分布
                     const chart = document.getElementById('level-chart');
                     const levels = data.data.level_distribution;
                     const total = (levels.free || 0) + (levels.basic || 0) + (levels.pro || 0) + (levels.vip || 0);
@@ -418,8 +381,37 @@
                         </div>
                     `;
                 }
+                
+                // 加载用户行为分析
+                const analyticsRes = await fetch(`${API}/admin/analytics`, {
+                    headers: { 'Authorization': `Bearer ${adminToken}` }
+                });
+                const analyticsData = await analyticsRes.json();
+                
+                if (analyticsData.success) {
+                    document.getElementById('stat-active-7d').textContent = analyticsData.data.active_users_7d;
+                    document.getElementById('stat-retention').textContent = analyticsData.data.retention_7d + '%';
+                    document.getElementById('stat-churn').textContent = analyticsData.data.churn_rate + '%';
+                    
+                    // 行业分布
+                    const industryChart = document.getElementById('industry-chart');
+                    industryChart.innerHTML = analyticsData.data.industry_distribution.map(i => `
+                        <div style="padding:8px 16px;background:#f5f5f5;border-radius:4px;">
+                            ${i.industry}: ${i.count}
+                        </div>
+                    `).join('');
+                    
+                    // 功能使用
+                    const actionChart = document.getElementById('action-chart');
+                    actionChart.innerHTML = analyticsData.data.action_distribution.map(a => `
+                        <div style="display:flex;gap:12px;margin:8px 0;">
+                            <span style="width:100px;">${a.action}</span>
+                            <span>${a.count}次</span>
+                        </div>
+                    `).join('');
+                }
             } catch (e) {
-                console.error('加载统计失败', e);
+                console.error('加载统计失败:', e);
             }
         }
         

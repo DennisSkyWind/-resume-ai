@@ -933,9 +933,10 @@
       "phase": "Phase 13",
       "name": "API\u9650\u6d41\u4fdd\u62a4",
       "description": "\u9632\u6b62\u6076\u610f\u8bf7\u6c42\uff0c\u4fdd\u62a4API",
-      "status": "pending",
+      "status": "completed",
       "priority": "medium",
-      "created_at": "2026-05-14T21:03:52.436955"
+      "created_at": "2026-05-14T21:03:52.436955",
+      "completed_at": "2026-05-15T11:07:57.135251"
     },
     {
       "id": "T13-2-2",
