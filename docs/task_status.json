@@ -2,9 +2,9 @@
   "project": "ResumeAI",
   "version": "2.0",
   "total_tasks": 107,
-  "completed": 67,
+  "completed": 68,
   "in_progress": 0,
-  "pending": 5,
+  "pending": 4,
   "current_phase": 6,
   "completion_rate": "100%",
   "vercel_deployed": true,
@@ -983,9 +983,10 @@
       "phase": "Phase 14",
       "name": "\u524d\u7aef\u52a0\u8f7d\u6027\u80fd\u4f18\u5316",
       "description": "\u538b\u7f29CSS/JS\uff0c\u6dfb\u52a0\u8d44\u6e90\u7f13\u5b58\u7b56\u7565",
-      "status": "pending",
+      "status": "completed",
       "priority": "medium",
-      "created_at": "2026-05-15T12:00:00"
+      "created_at": "2026-05-15T12:00:00",
+      "completed_at": "2026-05-15T18:00:00"
     },
     {
       "id": "T14-2-2",

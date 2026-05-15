@@ -279,6 +279,26 @@
 
 **进度**: 67/107 (63%)，剩余5个pending任务
 
+## 2026-05-15 18:00:00 - T14-2-1 前端加载性能优化完成
+
+**任务**: 压缩CSS/JS，添加资源缓存策略
+
+**优化内容**:
+- 添加preconnect/dns-prefetch预连接API域名
+- 添加Cache-Control meta标签（24小时缓存）
+- Vercel配置HTTP缓存头（stale-while-revalidate）
+- favicon.ico设置1年缓存
+
+**修改文件**:
+- public/index.html
+- public/admin.html
+- public/help.html
+- vercel.json
+
+**提交**: 3e76b70
+
+**进度**: 68/107 (64%)，剩余4个pending任务
+
 ## 2026-05-15 17:30:00 - T14-1-3 管理后台统计图表优化完成
 
 **任务**: 添加更多可视化图表（用户增长趋势、活跃度曲线）
@@ -296,3 +316,23 @@
 **提交**: 0d1740f
 
 **进度**: 67/107 (63%)，剩余5个pending任务
+
+## 2026-05-15 18:00:00 - T14-2-1 前端加载性能优化完成
+
+**任务**: 压缩CSS/JS，添加资源缓存策略
+
+**优化内容**:
+- 添加preconnect/dns-prefetch预连接API域名
+- 添加Cache-Control meta标签（24小时缓存）
+- Vercel配置HTTP缓存头（stale-while-revalidate）
+- favicon.ico设置1年缓存
+
+**修改文件**:
+- public/index.html
+- public/admin.html
+- public/help.html
+- vercel.json
+
+**提交**: 3e76b70
+
+**进度**: 68/107 (64%)，剩余4个pending任务
