@@ -579,7 +579,7 @@ async def upload_resume(file: UploadFile = File(...), user: dict = Depends(get_c
     # 检查文件类型
     filename = file.filename.lower()
     if not (filename.endswith('.pdf') or filename.endswith('.docx') or filename.endswith('.doc')):
-        raise HTTPException(status_code=400, detail="只支持PDF和Word文件（.pdf, .docx, .doc）")
+        raise HTTPException(status_code=400, detail="只支持PDF和Word文件（.pdf, .docx, .doc），请将图片或截图转换为PDF后上传")
     
     # 检查使用限制
     if not check_usage_limit(user["id"]):

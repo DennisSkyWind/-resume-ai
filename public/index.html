@@ -1506,6 +1506,27 @@
             if (!file) return;
             
             const statusEl = document.getElementById(`upload-status-${tab}`);
+            
+            // 前端验证文件类型
+            const filename = file.name.toLowerCase();
+            const validTypes = ['.pdf', '.docx', '.doc'];
+            const isValid = validTypes.some(ext => filename.endsWith(ext));
+            
+            if (!isValid) {
+                statusEl.textContent = `❌ 只支持PDF和Word文件，请上传 .pdf 或 .docx 格式`;
+                statusEl.className = 'upload-status error';
+                e.target.value = '';
+                return;
+            }
+            
+            // 验证文件大小（最大10MB）
+            if (file.size > 10 * 1024 * 1024) {
+                statusEl.textContent = '❌ 文件过大，请上传小于10MB的文件';
+                statusEl.className = 'upload-status error';
+                e.target.value = '';
+                return;
+            }
+            
             statusEl.textContent = '正在上传...';
             statusEl.className = 'upload-status';
             
