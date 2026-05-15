@@ -540,17 +540,27 @@
             align-items: center;
             justify-content: center;
             z-index: 2000;
+            animation: fadeIn 0.3s ease;
         }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .guide-content {
             background: #fff;
             padding: 40px;
             max-width: 500px;
             width: 90%;
             text-align: center;
+            border-radius: 8px;
+            animation: slideUp 0.4s ease;
         }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .guide-title {
             font-size: 24px;
             font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .guide-subtitle {
+            font-size: 14px;
+            color: #666;
             margin-bottom: 24px;
         }
         .guide-steps {
@@ -561,9 +571,16 @@
             display: flex;
             align-items: flex-start;
             gap: 16px;
-            padding: 16px 0;
+            padding: 12px 0;
             border-bottom: 1px solid #e5e5e5;
+            animation: stepFade 0.5s ease;
         }
+        .guide-step:nth-child(1) { animation-delay: 0.1s; }
+        .guide-step:nth-child(2) { animation-delay: 0.2s; }
+        .guide-step:nth-child(3) { animation-delay: 0.3s; }
+        .guide-step:nth-child(4) { animation-delay: 0.4s; }
+        .guide-step:nth-child(5) { animation-delay: 0.5s; }
+        @keyframes stepFade { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
         .guide-step:last-child { border-bottom: none; }
         .guide-step-num {
             width: 24px;
@@ -587,6 +604,20 @@
         .guide-step-desc {
             color: #666;
         }
+        .guide-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .btn-text {
+            background: transparent;
+            border: none;
+            color: #666;
+            font-size: 14px;
+            cursor: pointer;
+            padding: 8px;
+        }
+        .btn-text:hover { color: #1a1a1a; }
         
         /* Tooltip */
         .tooltip-container {
@@ -1118,6 +1149,7 @@
         <div id="guide-overlay" class="guide-overlay" style="display:none;">
             <div class="guide-content">
                 <div class="guide-title">欢迎使用 ResumeAI</div>
+                <div class="guide-subtitle">AI智能简历分析与优化工具</div>
                 <div class="guide-steps">
                     <div class="guide-step">
                         <div class="guide-step-num">1</div>
@@ -1130,18 +1162,35 @@
                         <div class="guide-step-num">2</div>
                         <div class="guide-step-text">
                             <div class="guide-step-title">选择行业</div>
-                            <div class="guide-step-desc">选择你求职的目标行业</div>
+                            <div class="guide-step-desc">选择你求职的目标行业，获取精准分析</div>
                         </div>
                     </div>
                     <div class="guide-step">
                         <div class="guide-step-num">3</div>
                         <div class="guide-step-text">
-                            <div class="guide-step-title">获取分析</div>
-                            <div class="guide-step-desc">AI将分析简历并给出优化建议</div>
+                            <div class="guide-step-title">添加职位描述</div>
+                            <div class="guide-step-desc">可选：粘贴目标职位JD，获取匹配度分析</div>
+                        </div>
+                    </div>
+                    <div class="guide-step">
+                        <div class="guide-step-num">4</div>
+                        <div class="guide-step-text">
+                            <div class="guide-step-title">获取分析报告</div>
+                            <div class="guide-step-desc">AI分析关键词匹配、ATS格式、优化建议</div>
+                        </div>
+                    </div>
+                    <div class="guide-step">
+                        <div class="guide-step-num">5</div>
+                        <div class="guide-step-text">
+                            <div class="guide-step-title">导出简历</div>
+                            <div class="guide-step-desc">下载PDF或Word格式的优化简历</div>
                         </div>
                     </div>
                 </div>
-                <button class="btn btn-primary" onclick="closeGuide()" style="width:100%;">开始使用</button>
+                <div class="guide-actions">
+                    <button class="btn btn-primary" onclick="closeGuide()">开始使用</button>
+                    <button class="btn btn-text" onclick="skipGuide()">跳过引导</button>
+                </div>
             </div>
         </div>
         
@@ -1485,6 +1534,12 @@
         }
         
         function closeGuide() {
+            document.getElementById('guide-overlay').style.display = 'none';
+            localStorage.setItem('guide_shown', 'true');
+            showToast('开始分析你的简历吧！', 'success');
+        }
+        
+        function skipGuide() {
             document.getElementById('guide-overlay').style.display = 'none';
             localStorage.setItem('guide_shown', 'true');
         }
