@@ -173,6 +173,35 @@
             <!-- 配置面板 -->
             <div id="config-panel" style="display:none;">
                 <div class="card">
+                    <div class="card-header">AI模型配置</div>
+                    <div id="ai-config-section">
+                        <div class="form-group">
+                            <label>模型名称</label>
+                            <select id="ai-model-select" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:4px;">
+                                <option value="qwen-turbo">Qwen Turbo (快速)</option>
+                                <option value="qwen-plus">Qwen Plus (标准)</option>
+                                <option value="qwen3.5-plus">Qwen 3.5 Plus (推荐)</option>
+                                <option value="qwen-max">Qwen Max (高级)</option>
+                                <option value="deepseek-chat">DeepSeek Chat</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Temperature (创造性 0-1)</label>
+                            <input type="number" id="ai-temperature" min="0" max="1" step="0.1" value="0.7" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:4px;">
+                        </div>
+                        <div class="form-group">
+                            <label>Max Tokens (输出长度 100-4000)</label>
+                            <input type="number" id="ai-max-tokens" min="100" max="4000" step="100" value="2000" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:4px;">
+                        </div>
+                        <div class="form-group">
+                            <label>Top P (多样性 0.1-1)</label>
+                            <input type="number" id="ai-top-p" min="0.1" max="1" step="0.1" value="0.9" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:4px;">
+                        </div>
+                        <button class="btn btn-primary" onclick="saveAIConfig()" style="margin-top:10px;">保存AI配置</button>
+                        <span id="ai-config-status" style="margin-left:10px;color:#28a745;"></span>
+                    </div>
+                </div>
+                <div class="card">
                     <div class="card-header">等级权益配置</div>
                     <table id="levels-table">
                         <thead>
@@ -490,6 +519,13 @@
                         </tr>
                     `).join('');
                     
+                    // AI配置填充表单
+                    const aiConfig = data.data.ai;
+                    document.getElementById('ai-model-select').value = aiConfig.model || 'qwen3.5-plus';
+                    document.getElementById('ai-temperature').value = aiConfig.temperature || 0.7;
+                    document.getElementById('ai-max-tokens').value = aiConfig.max_tokens || 2000;
+                    document.getElementById('ai-top-p').value = aiConfig.top_p || 0.9;
+                    
                     // 系统配置
                     const config = data.data;
                     document.getElementById('config-info').innerHTML = `
@@ -502,6 +538,8 @@
                             <div>
                                 <h4>AI配置</h4>
                                 <p>模型: ${config.ai.model}</p>
+                                <p>Temperature: ${config.ai.temperature}</p>
+                                <p>Max Tokens: ${config.ai.max_tokens}</p>
                                 <p>已配置: ${config.ai.configured ? '是' : '否'}</p>
                             </div>
                         </div>
@@ -509,6 +547,47 @@
                 }
             } catch (e) {
                 console.error('加载配置失败', e);
+            }
+        }
+        
+        async function saveAIConfig() {
+            const model = document.getElementById('ai-model-select').value;
+            const temperature = parseFloat(document.getElementById('ai-temperature').value);
+            const maxTokens = parseInt(document.getElementById('ai-max-tokens').value);
+            const topP = parseFloat(document.getElementById('ai-top-p').value);
+            
+            const statusEl = document.getElementById('ai-config-status');
+            statusEl.textContent = '保存中...';
+            statusEl.style.color = '#666';
+            
+            try {
+                const res = await fetch(`${API}/admin/ai-config`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${adminToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        model,
+                        temperature,
+                        max_tokens: maxTokens,
+                        top_p: topP
+                    })
+                });
+                
+                const data = await res.json();
+                
+                if (data.success) {
+                    statusEl.textContent = '✓ 保存成功';
+                    statusEl.style.color = '#28a745';
+                    loadConfig();
+                } else {
+                    statusEl.textContent = '保存失败: ' + (data.detail || '未知错误');
+                    statusEl.style.color = '#dc3545';
+                }
+            } catch (e) {
+                statusEl.textContent = '网络错误';
+                statusEl.style.color = '#dc3545';
             }
         }
         

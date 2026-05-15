@@ -246,9 +246,46 @@ except Exception as e:
     PDF_FONT_BOLD = 'Helvetica-Bold'
 
 # 阿里云Coding API配置
-DASHSCOPE_API_KEY = "sk-sp-e8d1076e8dd4461d8d1edf2542f8de68"
+DASHSCOPE_API_KEY = os.environ.get("DASHSCOPE_API_KEY", "sk-sp-e8d1076e8dd4461d8d1edf2542f8de68")
 DASHSCOPE_BASE_URL = "https://coding.dashscope.aliyuncs.com/v1"
-DASHSCOPE_MODEL = "qwen3.5-plus"
+
+# AI模型配置（可动态修改）
+AI_CONFIG_PATH = os.path.join(DATA_DIR, "ai_config.json")
+
+# 默认AI配置
+DEFAULT_AI_CONFIG = {
+    "model": "qwen3.5-plus",
+    "temperature": 0.7,
+    "max_tokens": 2000,
+    "top_p": 0.9
+}
+
+def load_ai_config():
+    """加载AI配置"""
+    try:
+        if os.path.exists(AI_CONFIG_PATH):
+            with open(AI_CONFIG_PATH, 'r', encoding='utf-8') as f:
+                config = json.load(f)
+                # 合合默认配置
+                return {**DEFAULT_AI_CONFIG, **config}
+    except Exception as e:
+        logger.warning(f"加载AI配置失败: {e}")
+    return DEFAULT_AI_CONFIG.copy()
+
+def save_ai_config(config):
+    """保存AI配置"""
+    try:
+        with open(AI_CONFIG_PATH, 'w', encoding='utf-8') as f:
+            json.dump(config, f, indent=2, ensure_ascii=False)
+        logger.info(f"AI配置已保存: {config}")
+        return True
+    except Exception as e:
+        logger.error(f"保存AI配置失败: {e}")
+        return False
+
+# 当前AI配置
+AI_CONFIG = load_ai_config()
+DASHSCOPE_MODEL = AI_CONFIG.get("model", "qwen3.5-plus")
 
 # 加载关键词库
 def load_keywords():
@@ -1537,12 +1574,56 @@ async def admin_get_config(admin: dict = Depends(get_admin_user)):
         },
         "ai": {
             "provider": "coding",
-            "model": DASHSCOPE_MODEL,
+            "model": AI_CONFIG.get("model", "qwen3.5-plus"),
+            "temperature": AI_CONFIG.get("temperature", 0.7),
+            "max_tokens": AI_CONFIG.get("max_tokens", 2000),
+            "top_p": AI_CONFIG.get("top_p", 0.9),
             "base_url": DASHSCOPE_BASE_URL,
-            "configured": bool(DASHSCOPE_API_KEY)
+            "configured": bool(DASHSCOPE_API_KEY),
+            "available_models": [
+                {"id": "qwen-turbo", "name": "Qwen Turbo (快速)"},
+                {"id": "qwen-plus", "name": "Qwen Plus (标准)"},
+                {"id": "qwen3.5-plus", "name": "Qwen 3.5 Plus (推荐)"},
+                {"id": "qwen-max", "name": "Qwen Max (高级)"},
+                {"id": "deepseek-chat", "name": "DeepSeek Chat"}
+            ]
         }
     }
     return {"success": True, "data": config}
+
+# AI配置请求模型
+class AIConfigRequest(BaseModel):
+    model: Optional[str] = None
+    temperature: Optional[float] = None
+    max_tokens: Optional[int] = None
+    top_p: Optional[float] = None
+
+@app.put("/api/v1/admin/ai-config")
+async def admin_update_ai_config(request: AIConfigRequest, admin: dict = Depends(get_admin_user)):
+    """更新AI模型配置（管理员）"""
+    global AI_CONFIG, DASHSCOPE_MODEL
+    
+    # 更新配置
+    if request.model:
+        AI_CONFIG["model"] = request.model
+        DASHSCOPE_MODEL = request.model
+    if request.temperature is not None:
+        AI_CONFIG["temperature"] = min(1.0, max(0.0, request.temperature))
+    if request.max_tokens is not None:
+        AI_CONFIG["max_tokens"] = min(4000, max(100, request.max_tokens))
+    if request.top_p is not None:
+        AI_CONFIG["top_p"] = min(1.0, max(0.1, request.top_p))
+    
+    # 保存到文件
+    if save_ai_config(AI_CONFIG):
+        logger.info(f"AI配置已更新: {AI_CONFIG}")
+        return {
+            "success": True,
+            "message": "AI配置已更新",
+            "data": AI_CONFIG
+        }
+    else:
+        raise HTTPException(status_code=500, detail="保存AI配置失败")
 
 if __name__ == "__main__":
     import uvicorn
