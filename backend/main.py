@@ -2478,6 +2478,91 @@ async def admin_batch_marketing_email(
         "total": len(users)
     }
 
+@app.post("/api/v1/admin/backup")
+async def create_backup(admin: dict = Depends(get_admin_user)):
+    """创建数据库备份"""
+    import shutil
+    import os
+    
+    backup_dir = "backups"
+    if not os.path.exists(backup_dir):
+        os.makedirs(backup_dir)
+    
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    backup_filename = f"{backup_dir}/resume_ai_backup_{timestamp}.db"
+    
+    # 备份数据库文件
+    source_db = "resume_users.db"
+    if os.path.exists(source_db):
+        shutil.copy2(source_db, backup_filename)
+        
+        return {
+            "success": True,
+            "message": "备份成功",
+            "backup_file": backup_filename,
+            "backup_time": timestamp
+        }
+    else:
+        return {"success": False, "message": "数据库文件不存在"}
+
+@app.get("/api/v1/admin/backups")
+async def list_backups(admin: dict = Depends(get_admin_user)):
+    """获取备份列表"""
+    import os
+    
+    backup_dir = "backups"
+    if not os.path.exists(backup_dir):
+        return {"success": True, "data": [], "message": "备份目录不存在"}
+    
+    backups = []
+    for filename in os.listdir(backup_dir):
+        if filename.endswith(".db"):
+            filepath = os.path.join(backup_dir, filename)
+            file_size = os.path.getsize(filepath)
+            file_time = datetime.fromtimestamp(os.path.getmtime(filepath)).isoformat()
+            
+            backups.append({
+                "filename": filename,
+                "size": file_size,
+                "created_at": file_time,
+                "path": filepath
+            })
+    
+    # 按时间倒序
+    backups.sort(key=lambda x: x["created_at"], reverse=True)
+    
+    return {"success": True, "data": backups, "count": len(backups)}
+
+@app.post("/api/v1/admin/restore/{backup_filename}")
+async def restore_backup(backup_filename: str, admin: dict = Depends(get_admin_user)):
+    """从备份恢复数据库"""
+    import shutil
+    import os
+    
+    backup_dir = "backups"
+    backup_path = os.path.join(backup_dir, backup_filename)
+    
+    if not os.path.exists(backup_path):
+        raise HTTPException(status_code=404, detail="备份文件不存在")
+    
+    # 恢复数据库
+    source_db = "resume_users.db"
+    
+    # 先备份当前数据库
+    if os.path.exists(source_db):
+        current_backup = f"{backup_dir}/pre_restore_backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}.db"
+        shutil.copy2(source_db, current_backup)
+    
+    # 恢复备份
+    shutil.copy2(backup_path, source_db)
+    
+    return {
+        "success": True,
+        "message": "恢复成功",
+        "restored_from": backup_filename,
+        "pre_restore_backup": current_backup if os.path.exists(source_db) else None
+    }
+
 @app.get("/api/v1/admin/config")
 async def admin_get_config(admin: dict = Depends(get_admin_user)):
     """获取系统配置"""
