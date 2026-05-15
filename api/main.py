@@ -1419,6 +1419,52 @@ async def admin_stats(admin: dict = Depends(get_admin_user)):
         "cached": False
     }
 
+@app.get("/api/v1/admin/trends")
+async def admin_trends(admin: dict = Depends(get_admin_user)):
+    """获取用户增长和活跃度趋势（7天数据）"""
+    conn = get_user_db()
+    cursor = conn.cursor()
+    
+    trends = {
+        "user_growth": [],
+        "daily_usage": [],
+        "active_users": []
+    }
+    
+    # 7天用户增长趋势
+    for i in range(6, -1, -1):
+        date = (datetime.now() - timedelta(days=i)).strftime("%Y-%m-%d")
+        cursor.execute("""
+            SELECT COUNT(*) as count FROM users 
+            WHERE DATE(created_at) <= ?
+        """, (date,))
+        count = cursor.fetchone()["count"]
+        trends["user_growth"].append({"date": date, "count": count})
+    
+    # 7天每日使用量
+    for i in range(6, -1, -1):
+        date = (datetime.now() - timedelta(days=i)).strftime("%Y-%m-%d")
+        cursor.execute("""
+            SELECT COUNT(*) as count FROM usage 
+            WHERE DATE(created_at) = ?
+        """, (date,))
+        count = cursor.fetchone()["count"]
+        trends["daily_usage"].append({"date": date, "count": count})
+    
+    # 7天活跃用户数
+    for i in range(6, -1, -1):
+        date = (datetime.now() - timedelta(days=i)).strftime("%Y-%m-%d")
+        cursor.execute("""
+            SELECT COUNT(DISTINCT user_id) as count FROM usage 
+            WHERE DATE(created_at) = ?
+        """, (date,))
+        count = cursor.fetchone()["count"]
+        trends["active_users"].append({"date": date, "count": count})
+    
+    # conn.close() # 优化：使用共享连接
+    
+    return {"success": True, "data": trends}
+
 @app.get("/api/v1/admin/users")
 async def admin_list_users(admin: dict = Depends(get_admin_user)):
     """获取用户列表"""

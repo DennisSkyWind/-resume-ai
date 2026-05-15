@@ -49,6 +49,13 @@
         .login-form input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 4px; font-size: 16px; }
         .login-form button { width: 100%; padding: 12px; background: #333; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
         .login-error { color: #dc3545; text-align: center; margin-top: 15px; }
+        .trend-section { margin-bottom: 20px; }
+        .trend-section h4 { margin-bottom: 12px; font-size: 14px; color: #666; }
+        .trend-bar-chart { display: flex; gap: 8px; align-items: flex-end; height: 100px; }
+        .trend-bar { flex: 1; background: linear-gradient(to top, #667eea, #764ba2); border-radius: 4px 4px 0 0; min-height: 5px; position: relative; }
+        .trend-bar:hover { opacity: 0.8; }
+        .trend-bar-label { position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%); font-size: 10px; color: #999; white-space: nowrap; }
+        .trend-bar-value { position: absolute; top: -18px; left: 50%; transform: translateX(-50%); font-size: 11px; color: #333; font-weight: 500; }
     </style>
 </head>
 <body>
@@ -122,6 +129,23 @@
                     <div style="margin-top:20px;">
                         <h4 style="margin-bottom:10px;">功能使用频率</h4>
                         <div id="action-chart"></div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">7日趋势分析</div>
+                    <div id="trends-charts">
+                        <div class="trend-section">
+                            <h4>用户增长趋势</h4>
+                            <div id="user-growth-chart" class="trend-bar-chart"></div>
+                        </div>
+                        <div class="trend-section">
+                            <h4>每日使用量</h4>
+                            <div id="daily-usage-chart" class="trend-bar-chart"></div>
+                        </div>
+                        <div class="trend-section">
+                            <h4>活跃用户数</h4>
+                            <div id="active-users-chart" class="trend-bar-chart"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -439,9 +463,52 @@
                         </div>
                     `).join('');
                 }
+                
+                // 加载趋势数据
+                loadTrends();
             } catch (e) {
                 console.error('加载统计失败:', e);
             }
+        }
+        
+        async function loadTrends() {
+            try {
+                const res = await fetch(`${API}/admin/trends`, {
+                    headers: { 'Authorization': `Bearer ${adminToken}` }
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    const trends = data.data;
+                    
+                    // 用户增长趋势
+                    renderTrendChart('user-growth-chart', trends.user_growth, '#667eea');
+                    
+                    // 每日使用量
+                    renderTrendChart('daily-usage-chart', trends.daily_usage, '#764ba2');
+                    
+                    // 活跃用户数
+                    renderTrendChart('active-users-chart', trends.active_users, '#28a745');
+                }
+            } catch (e) {
+                console.error('加载趋势失败:', e);
+            }
+        }
+        
+        function renderTrendChart(containerId, data, color) {
+            const container = document.getElementById(containerId);
+            const maxValue = Math.max(...data.map(d => d.count), 1);
+            
+            container.innerHTML = data.map(d => {
+                const height = Math.max((d.count / maxValue) * 100, 5);
+                const dayLabel = d.date.split('-').slice(1).join('/').replace('05/', '');
+                return `
+                    <div class="trend-bar" style="height:${height}px;background:${color};">
+                        <span class="trend-bar-value">${d.count}</span>
+                        <span class="trend-bar-label">${dayLabel}</span>
+                    </div>
+                `;
+            }).join('');
         }
         
         async function loadUsers() {
