@@ -853,9 +853,10 @@
       "phase": "Phase 11",
       "name": "\u591a\u8bed\u8a00\u652f\u6301\u5b8c\u5584",
       "description": "\u524d\u7aef\u754c\u9762\u652f\u6301\u4e2d\u82f1\u6587\u5207\u6362",
-      "status": "pending",
+      "status": "completed",
       "priority": "medium",
-      "created_at": "2026-05-14T21:03:52.436864"
+      "created_at": "2026-05-14T21:03:52.436864",
+      "completed_at": "2026-05-15T10:04:24.871391"
     },
     {
       "id": "T11-2-2",

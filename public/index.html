@@ -1655,14 +1655,21 @@
             const circumference = 2 * Math.PI * radius;
             const offset = circumference - (score / 100) * circumference;
             
+            // 根据分数设置颜色
+            let color = '#ef4444'; // 红色 < 60
+            if (score >= 80) color = '#10b981'; // 绿色 >= 80
+            else if (score >= 60) color = '#f59e0b'; // 黄色 60-80
+            
             return `
                 <div class="score-ring" style="width:${size}px;height:${size}px;">
                     <svg viewBox="0 0 ${size} ${size}">
                         <circle class="score-ring-bg" cx="${size/2}" cy="${size/2}" r="${radius}"/>
                         <circle class="score-ring-progress" cx="${size/2}" cy="${size/2}" r="${radius}"
-                            stroke-dasharray="${circumference}" stroke-dashoffset="${offset}"/>
+                            stroke="${color}"
+                            stroke-dasharray="${circumference}" stroke-dashoffset="${offset}"
+                            style="transition: stroke-dashoffset 1s ease, stroke 0.3s ease"/>
                     </svg>
-                    <span class="score-ring-text">${score}</span>
+                    <span class="score-ring-text" style="color:${color}">${score}</span>
                 </div>
             `;
         }
@@ -1670,14 +1677,61 @@
         // 生成评分条形图
         function createScoreBar(label, score, maxScore = 100) {
             const percentage = (score / maxScore) * 100;
+            
+            // 根据分数设置颜色
+            let color = '#ef4444';
+            if (percentage >= 80) color = '#10b981';
+            else if (percentage >= 60) color = '#f59e0b';
+            
             return `
                 <div class="score-bar-container">
                     <div class="score-bar-label">
                         <span>${label}</span>
-                        <span>${score}/${maxScore}</span>
+                        <span>${score}%</span>
                     </div>
                     <div class="score-bar">
-                        <div class="score-bar-fill" style="width:${percentage}%"></div>
+                        <div class="score-bar-fill" style="width:0%;background:${color};transition: width 1s ease, background 0.3s ease"></div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // 动画更新条形图
+        function animateScoreBars() {
+            document.querySelectorAll('.score-bar-fill').forEach(bar => {
+                const targetWidth = bar.parentElement.dataset.width || '0';
+                setTimeout(() => bar.style.width = targetWidth, 100);
+            });
+        }
+        
+        // 生成关键词统计图（饼图）
+        function createKeywordsPieChart(found, missing) {
+            const total = found + missing;
+            const foundPercent = Math.round(found / total * 100);
+            const missingPercent = 100 - foundPercent;
+            
+            return `
+                <div class="keywords-pie" style="display:flex;align-items:center;gap:24px;margin:24px 0;">
+                    <div style="position:relative;width:100px;height:100px;">
+                        <svg viewBox="0 0 100 100" style="transform:rotate(-90deg)">
+                            <circle cx="50" cy="50" r="40" fill="none" stroke="#e5e5e5" stroke-width="20"/>
+                            <circle cx="50" cy="50" r="40" fill="none" stroke="#10b981" stroke-width="20"
+                                stroke-dasharray="${foundPercent * 2.51} 251"
+                                style="transition: stroke-dasharray 1s ease"/>
+                        </svg>
+                        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:14px;font-weight:600;">
+                            ${foundPercent}%
+                        </div>
+                    </div>
+                    <div style="font-size:13px;">
+                        <div style="margin-bottom:8px;">
+                            <span style="display:inline-block;width:12px;height:12px;background:#10b981;border-radius:50%;margin-right:8px;"></span>
+                            已匹配: ${found} 个
+                        </div>
+                        <div>
+                            <span style="display:inline-block;width:12px;height:12px;background:#e5e5e5;border-radius:50%;margin-right:8px;"></span>
+                            未匹配: ${missing} 个
+                        </div>
                     </div>
                 </div>
             `;
@@ -2138,6 +2192,9 @@
                         ${data.jd_match ? createScoreBar('JD匹配度', data.jd_match.jd_match_score) : ''}
                         ${createScoreBar('内容完整度', data.content_score || Math.round((data.keyword_score + data.ats_score) / 2))}
                     </div>
+                    
+                    <!-- 关键词匹配统计饼图 -->
+                    ${createKeywordsPieChart(data.keywords_found?.length || 0, data.keywords_missing?.length || 0)}
             `;
             
             // JD匹配结果显示
