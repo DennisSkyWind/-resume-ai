@@ -1814,9 +1814,38 @@
                         <div class="keywords-title">各项评分</div>
                         ${createScoreBar('关键词匹配', data.keyword_score)}
                         ${createScoreBar('ATS格式', data.ats_score)}
+                        ${data.jd_match ? createScoreBar('JD匹配度', data.jd_match.jd_match_score) : ''}
                         ${createScoreBar('内容完整度', data.content_score || Math.round((data.keyword_score + data.ats_score) / 2))}
                     </div>
             `;
+            
+            // JD匹配结果显示
+            if (data.jd_match && data.jd_match.jd_keywords && data.jd_match.jd_keywords.length > 0) {
+                html += `
+                    <div class="keywords-section" style="background:#f8fafc;padding:16px;border-radius:8px;margin-bottom:24px;">
+                        <div class="keywords-title">JD关键词匹配</div>
+                        <div style="font-size:14px;color:#666;margin-bottom:12px;">
+                            匹配 ${data.jd_match.jd_matched_count}/${data.jd_match.jd_total} 个关键词
+                        </div>
+                        ${data.jd_match.jd_matched && data.jd_match.jd_matched.length > 0 ? `
+                            <div style="margin-bottom:12px;">
+                                <div style="font-size:13px;color:#10b981;margin-bottom:8px;">✓ 已匹配:</div>
+                                <div class="keywords-grid">
+                                    ${data.jd_match.jd_matched.map(k => `<div class="keyword-item keyword-found">${k}</div>`).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+                        ${data.jd_match.jd_missing && data.jd_match.jd_missing.length > 0 ? `
+                            <div>
+                                <div style="font-size:13px;color:#ef4444;margin-bottom:8px;">✗ 未匹配:</div>
+                                <div class="keywords-grid">
+                                    ${data.jd_match.jd_missing.map(k => `<div class="keyword-item keyword-missing">${k}</div>`).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }
             
             if (data.keywords_found && data.keywords_found.length > 0) {
                 html += `

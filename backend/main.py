@@ -1110,6 +1110,32 @@ def analyze_resume(resume: str, industry: str, language: str, jd: Optional[str] 
         
         total_weight += kw["weight"]
     
+    # JD匹配度分析
+    jd_match_result = None
+    if jd:
+        jd_keywords = extract_jd_keywords(jd)
+        jd_matched = []
+        jd_missing = []
+        jd_total = len(jd_keywords)
+        jd_matched_count = 0
+        
+        for kw in jd_keywords:
+            if re.search(kw, resume, re.IGNORECASE):
+                jd_matched.append(kw)
+                jd_matched_count += 1
+            else:
+                jd_missing.append(kw)
+        
+        jd_match_score = round(jd_matched_count / jd_total * 100, 1) if jd_total > 0 else 0
+        jd_match_result = {
+            "jd_keywords": jd_keywords,
+            "jd_matched": jd_matched,
+            "jd_missing": jd_missing,
+            "jd_match_score": jd_match_score,
+            "jd_total": jd_total,
+            "jd_matched_count": jd_matched_count
+        }
+    
     # 计算缺失关键词
     found_kw_list = [k["keyword"] for k in keywords_found]
     for kw in all_keywords:
@@ -1120,22 +1146,67 @@ def analyze_resume(resume: str, industry: str, language: str, jd: Optional[str] 
                 "suggestion": f"添加{kw['keyword']}相关经验描述"
             })
     
-    # 计算评分
+    # 计算评分（包含JD匹配度）
     keyword_score = round(matched_weight / total_weight * 100, 1) if total_weight > 0 else 0
     ats_score = check_ats(resume)
-    overall_score = round((keyword_score * 0.6 + ats_score * 0.4), 1)
+    
+    # 如果有JD，综合评分加入JD匹配度
+    if jd_match_result:
+        overall_score = round((keyword_score * 0.3 + ats_score * 0.2 + jd_match_result["jd_match_score"] * 0.5), 1)
+    else:
+        overall_score = round((keyword_score * 0.6 + ats_score * 0.4), 1)
     
     suggestions = generate_suggestions(resume, keywords_missing, industry)
+    
+    # 如果有JD缺失关键词，添加到建议
+    if jd_match_result and jd_match_result["jd_missing"]:
+        for kw in jd_match_result["jd_missing"][:5]:  # 最多显示5个
+            suggestions.append({
+                "type": "jd_missing",
+                "keyword": kw,
+                "suggestion": f"根据职位要求，建议添加'{kw}'相关经验"
+            })
     
     return {
         "overall_score": overall_score,
         "keyword_score": keyword_score,
         "ats_score": ats_score,
+        "jd_match": jd_match_result,
         "keywords_found": keywords_found,
         "keywords_missing": keywords_missing,
         "suggestions": suggestions,
         "industry_name": industry_keywords.get("name", industry)
     }
+
+def extract_jd_keywords(jd: str) -> list:
+    """从JD中提取关键词"""
+    # 常见技能关键词模式
+    skill_patterns = [
+        r'[a-zA-Z]+(?:\+[+]|#|\.js|\.py|\.ts)?',  # 技术名词如 Python, C++, React.js
+        r'(?:熟悉|精通|掌握|了解|能够|熟练)[\s的]*([^，。；\n]{2,8})',  # 中文技能描述
+        r'(\d+)\s*[年月天]',  # 经验年限
+    ]
+    
+    keywords = set()
+    
+    # 提取英文技能词
+    en_skills = re.findall(r'([A-Z][a-zA-Z]*(?:\+[+]|#|\.js|\.py|\.ts)?|[a-z]+(?:\+[+]|#))', jd)
+    keywords.update(en_skills)
+    
+    # 提取常见技能关键词
+    common_skills = [
+        "Python", "Java", "JavaScript", "C++", "Go", "Rust", "SQL", "MySQL", "PostgreSQL",
+        "React", "Vue", "Angular", "Node", "Django", "Spring", "Docker", "Kubernetes",
+        "AWS", "Azure", "GCP", "Linux", "Git", "API", "REST", "GraphQL",
+        "沟通", "协作", "分析", "设计", "开发", "测试", "运维", "管理",
+        "Excel", "PowerPoint", "Word", "Office", "数据分析", "项目管理"
+    ]
+    
+    for skill in common_skills:
+        if skill.lower() in jd.lower() or skill in jd:
+            keywords.add(skill)
+    
+    return list(keywords)[:20]  # 最多返回20个关键词
 
 def optimize_resume(resume: str, industry: str, language: str):
     """优化简历"""
