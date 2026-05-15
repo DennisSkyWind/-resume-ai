@@ -82,6 +82,7 @@
                 <button class="nav-btn active" onclick="switchAdminTab('stats')">统计</button>
                 <button class="nav-btn" onclick="switchAdminTab('users')">用户</button>
                 <button class="nav-btn" onclick="switchAdminTab('usage')">使用记录</button>
+                <button class="nav-btn" onclick="switchAdminTab('feedback')">反馈</button>
                 <button class="nav-btn" onclick="switchAdminTab('config')">配置</button>
                 <button class="nav-btn" onclick="adminLogout()">退出</button>
             </div>
@@ -205,6 +206,27 @@
                 <div class="card">
                     <div class="card-header">AI模型配置</div>
                     <div id="ai-config-section">
+            </div>
+            
+            <!-- 反馈面板 -->
+            <div id="feedback-panel" style="display:none;">
+                <div class="card">
+                    <div class="card-header">用户反馈列表</div>
+                    <table class="data-table" id="feedback-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>用户</th>
+                                <th>类型</th>
+                                <th>内容</th>
+                                <th>状态</th>
+                                <th>时间</th>
+                            </tr>
+                        </thead>
+                        <tbody id="feedback-list"></tbody>
+                    </table>
+                </div>
+            </div>
                         <div class="form-group">
                             <label>模型名称</label>
                             <select id="ai-model-select" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:4px;">
@@ -380,6 +402,9 @@
             document.getElementById('users-panel').style.display = tab === 'users' ? 'block' : 'none';
             document.getElementById('usage-panel').style.display = tab === 'usage' ? 'block' : 'none';
             document.getElementById('config-panel').style.display = tab === 'config' ? 'block' : 'none';
+            document.getElementById('feedback-panel').style.display = tab === 'feedback' ? 'block' : 'none';
+            
+            if (tab === 'feedback') loadFeedback();
             
             if (tab === 'users') loadUsers();
             if (tab === 'usage') loadUsage();
@@ -646,6 +671,48 @@
                 }
             } catch (e) {
                 document.getElementById('usage-body').innerHTML = '<tr><td colspan="4" class="error">加载失败</td></tr>';
+            }
+        }
+        
+        async function loadFeedback() {
+            try {
+                const res = await fetch(`${API}/admin/feedback`, {
+                    headers: { 'Authorization': `Bearer ${adminToken}` }
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    const tbody = document.getElementById('feedback-list');
+                    tbody.innerHTML = data.data.map(f => `
+                        <tr>
+                            <td>${f.id}</td>
+                            <td>${f.user_name || f.email || '匿名'}</td>
+                            <td>${f.type === 'suggestion' ? '建议' : f.type === 'bug' ? '问题' : '疑问'}</td>
+                            <td style="max-width:300px;overflow:hidden;text-overflow:ellipsis;">${f.content}</td>
+                            <td>
+                                <select onchange="updateFeedbackStatus(${f.id}, this.value)" style="padding:4px;">
+                                    <option value="pending" ${f.status === 'pending' ? 'selected' : ''}>待处理</option>
+                                    <option value="processing" ${f.status === 'processing' ? 'selected' : ''}>处理中</option>
+                                    <option value="resolved" ${f.status === 'resolved' ? 'selected' : ''}>已解决</option>
+                                </select>
+                            </td>
+                            <td>${new Date(f.created_at).toLocaleString()}</td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (e) {
+                document.getElementById('feedback-list').innerHTML = '<tr><td colspan="6" class="error">加载失败</td></tr>';
+            }
+        }
+        
+        async function updateFeedbackStatus(id, status) {
+            try {
+                await fetch(`${API}/admin/feedback/${id}?status=${status}`, {
+                    method: 'PUT',
+                    headers: { 'Authorization': `Bearer ${adminToken}` }
+                });
+            } catch (e) {
+                alert('更新失败');
             }
         }
         

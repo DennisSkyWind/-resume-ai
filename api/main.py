@@ -167,6 +167,15 @@ if not os.path.exists(USER_DB_PATH):
             expires_at TEXT,
             used INTEGER DEFAULT 0,
             created_at TEXT)''')
+        # 反馈表
+        conn.execute('''CREATE TABLE IF NOT EXISTS feedback
+            (id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
+            email TEXT,
+            type TEXT,
+            content TEXT,
+            status TEXT DEFAULT 'pending',
+            created_at TEXT)''')
         conn.commit()
         
         # conn.close() # 优化：使用共享连接
@@ -476,6 +485,11 @@ class RegisterRequest(BaseModel):
 class LoginRequest(BaseModel):
     email: str
     password: str
+
+class FeedbackRequest(BaseModel):
+    type: str  # suggestion, bug, question
+    content: str
+    email: Optional[str] = None
 
 class AnalyzeRequest(BaseModel):
     resume_content: str
@@ -1670,6 +1684,71 @@ async def admin_update_ai_config(request: AIConfigRequest, admin: dict = Depends
         }
     else:
         raise HTTPException(status_code=500, detail="保存AI配置失败")
+
+# ========== 用户反馈系统 ==========
+@app.post("/api/v1/feedback")
+async def submit_feedback(request: FeedbackRequest, user: Optional[dict] = Depends(get_current_user_optional)):
+    """提交用户反馈"""
+    conn = get_user_db()
+    cursor = conn.cursor()
+    
+    user_id = user.get("id") if user else None
+    email = request.email or (user.get("email") if user else "anonymous")
+    
+    cursor.execute("""
+        INSERT INTO feedback (user_id, email, type, content, status, created_at)
+        VALUES (?, ?, ?, ?, 'pending', ?)
+    """, (user_id, email, request.type, request.content, datetime.now().isoformat()))
+    conn.commit()
+    
+    return {"success": True, "message": "反馈已提交，感谢您的建议！"}
+
+@app.get("/api/v1/admin/feedback")
+async def admin_get_feedback(admin: dict = Depends(get_admin_user)):
+    """获取反馈列表（管理员）"""
+    conn = get_user_db()
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        SELECT f.id, f.user_id, f.email, f.type, f.content, f.status, f.created_at,
+               u.name as user_name
+        FROM feedback f
+        LEFT JOIN users u ON f.user_id = u.id
+        ORDER BY f.created_at DESC
+        LIMIT 100
+    """)
+    
+    feedbacks = []
+    for row in cursor.fetchall():
+        feedbacks.append({
+            "id": row[0],
+            "user_id": row[1],
+            "email": row[2],
+            "type": row[3],
+            "content": row[4],
+            "status": row[5],
+            "created_at": row[6],
+            "user_name": row[7]
+        })
+    
+    return {"success": True, "data": feedbacks}
+
+@app.put("/api/v1/admin/feedback/{feedback_id}")
+async def admin_update_feedback(feedback_id: int, status: str, admin: dict = Depends(get_admin_user)):
+    """更新反馈状态（管理员）"""
+    conn = get_user_db()
+    cursor = conn.cursor()
+    
+    cursor.execute("UPDATE feedback SET status = ? WHERE id = ?", (status, feedback_id))
+    conn.commit()
+    
+    return {"success": True, "message": f"反馈状态已更新为 {status}"}
+
+def get_current_user_optional(authorization: Optional[str] = Header(None)):
+    """可选的用户认证（允许匿名提交反馈）"""
+    if not authorization:
+        return None
+    return get_current_user(authorization)
 
 if __name__ == "__main__":
     import uvicorn
