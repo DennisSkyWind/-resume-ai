@@ -2005,6 +2005,84 @@ async def admin_stats(admin: dict = Depends(get_admin_user)):
         }
     }
 
+@app.get("/api/v1/admin/analytics")
+async def get_user_analytics(admin: dict = Depends(get_admin_user)):
+    """用户行为分析"""
+    conn = get_user_db()
+    cursor = conn.cursor()
+    
+    # 活跃用户（最近7天有使用）
+    cursor.execute("""
+        SELECT COUNT(DISTINCT user_id) as count FROM usage 
+        WHERE created_at >= DATE('now', '-7 days')
+    """)
+    active_users_7d = cursor.fetchone()["count"]
+    
+    # 活跃用户（最近30天有使用）
+    cursor.execute("""
+        SELECT COUNT(DISTINCT user_id) as count FROM usage 
+        WHERE created_at >= DATE('now', '-30 days')
+    """)
+    active_users_30d = cursor.fetchone()["count"]
+    
+    # 用户留存率（注册后7天内仍有使用）
+    cursor.execute("""
+        SELECT COUNT(*) as count FROM users 
+        WHERE DATE(created_at) >= DATE('now', '-7 days')
+        AND id IN (SELECT DISTINCT user_id FROM usage WHERE created_at >= DATE('now', '-7 days'))
+    """)
+    retained_7d = cursor.fetchone()["count"]
+    
+    cursor.execute("SELECT COUNT(*) as count FROM users WHERE DATE(created_at) >= DATE('now', '-7 days')")
+    new_7d = cursor.fetchone()["count"]
+    retention_7d = round(retained_7d / new_7d * 100, 1) if new_7d > 0 else 0
+    
+    # 行业使用分布
+    cursor.execute("SELECT industry, COUNT(*) as count FROM usage WHERE industry IS NOT NULL GROUP BY industry ORDER BY count DESC LIMIT 10")
+    industry_distribution = []
+    for row in cursor.fetchall():
+        industry_distribution.append({"industry": row["industry"], "count": row["count"]})
+    
+    # 功能使用频率
+    cursor.execute("SELECT action, COUNT(*) as count FROM usage GROUP BY action ORDER BY count DESC")
+    action_distribution = []
+    for row in cursor.fetchall():
+        action_distribution.append({"action": row["action"], "count": row["count"]})
+    
+    # 每日使用趋势（最近7天）
+    cursor.execute("""
+        SELECT DATE(created_at) as date, COUNT(*) as count 
+        FROM usage WHERE created_at >= DATE('now', '-7 days')
+        GROUP BY DATE(created_at) ORDER BY date
+    """)
+    daily_trend = []
+    for row in cursor.fetchall():
+        daily_trend.append({"date": row["date"], "count": row["count"]})
+    
+    # 用户流失率（注册后无任何使用）
+    cursor.execute("""
+        SELECT COUNT(*) as count FROM users 
+        WHERE id NOT IN (SELECT DISTINCT user_id FROM usage)
+    """)
+    inactive_users = cursor.fetchone()["count"]
+    churn_rate = round(inactive_users / total_users * 100, 1) if total_users > 0 else 0
+    
+    conn.close()
+    
+    return {
+        "success": True,
+        "data": {
+            "active_users_7d": active_users_7d,
+            "active_users_30d": active_users_30d,
+            "retention_7d": retention_7d,
+            "churn_rate": churn_rate,
+            "inactive_users": inactive_users,
+            "industry_distribution": industry_distribution,
+            "action_distribution": action_distribution,
+            "daily_trend": daily_trend
+        }
+    }
+
 @app.get("/api/v1/admin/users")
 async def admin_list_users(admin: dict = Depends(get_admin_user)):
     """获取用户列表"""
