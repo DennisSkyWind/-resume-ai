@@ -1464,6 +1464,33 @@ async def recommend_template(industry: str):
         "recommended": recommended
     }
 
+@app.get("/api/v1/templates/{template_id}/download")
+async def download_template(template_id: str):
+    """下载空白简历模板"""
+    from fastapi.responses import FileResponse
+    import os
+    
+    templates_dir = os.path.join(os.path.dirname(__file__), "templates")
+    templates_file = os.path.join(templates_dir, "templates.json")
+    
+    # 读取模板配置
+    with open(templates_file, "r", encoding="utf-8") as f:
+        templates_data = json.load(f)
+    
+    template = templates_data["templates"].get(template_id)
+    if not template:
+        raise HTTPException(status_code=404, detail="模板不存在")
+    
+    file_path = os.path.join(templates_dir, template["file"])
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="模板文件不存在")
+    
+    return FileResponse(
+        path=file_path,
+        filename=template["file"],
+        media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    )
+
 # ========== 用户模板存储API ==========
 
 class SaveTemplateRequest(BaseModel):

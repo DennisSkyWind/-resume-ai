@@ -1,0 +1,35 @@
+{
+  "templates": {
+    "classic": {
+      "name": "经典模板",
+      "description": "传统简历格式，适合大多数行业",
+      "suitable_for": ["通用", "金融", "政府"],
+      "file": "classic.docx"
+    },
+    "modern": {
+      "name": "现代模板", 
+      "description": "简洁现代设计，适合科技互联网",
+      "suitable_for": ["科技", "互联网", "设计"],
+      "file": "modern.docx"
+    },
+    "simple": {
+      "name": "简约模板",
+      "description": "极简风格，内容为主",
+      "suitable_for": ["教育", "科研", "医疗"],
+      "file": "simple.docx"
+    },
+    "creative": {
+      "name": "创意模板",
+      "description": "独特设计，展现个性",
+      "suitable_for": ["广告", "媒体", "艺术"],
+      "file": "creative.docx"
+    },
+    "professional": {
+      "name": "专业模板",
+      "description": "商务专业风格",
+      "suitable_for": ["管理", "咨询", "法律"],
+      "file": "professional.docx"
+    }
+  },
+  "default_template": "classic"
+}

@@ -2125,6 +2125,7 @@
                             <div class="template-desc">${template.description}</div>
                             <div class="template-tags">${tags}</div>
                             <div class="template-actions">
+                                <button class="btn btn-secondary" onclick="downloadTemplate('${id}', event)">下载</button>
                                 <button class="btn btn-secondary" onclick="previewTemplate('${id}', event)">预览</button>
                                 <button class="btn btn-primary" onclick="useTemplate('${id}', event)">使用</button>
                             </div>
@@ -2156,6 +2157,12 @@
             document.querySelectorAll('.template-card').forEach(c => c.classList.remove('selected'));
             event.currentTarget.classList.add('selected');
             selectedTemplate = id;
+        }
+        
+        function downloadTemplate(id, e) {
+            e.stopPropagation();
+            // 直接下载模板文件
+            window.location.href = `${API}/api/v1/templates/${id}/download`;
         }
         
         function previewTemplate(id, e) {

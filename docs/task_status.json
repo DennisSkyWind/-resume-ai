@@ -711,9 +711,10 @@
       "phase": "Phase 8",
       "name": "\u7b80\u5386\u5bfc\u51faWord\u529f\u80fd",
       "description": "\u5bfc\u51fa\u4e3a\u53ef\u7f16\u8f91\u7684Word\u6587\u6863",
-      "status": "pending",
+      "status": "completed",
       "priority": "high",
-      "created_at": "2026-05-14T21:03:52.436678"
+      "created_at": "2026-05-14T21:03:52.436678",
+      "completed_at": "2026-05-15T04:01:07.901269"
     },
     {
       "id": "T8-2-1",
