@@ -791,18 +791,21 @@
       "phase": "Phase 10",
       "name": "JD\u5339\u914d\u5ea6\u5206\u6790",
       "description": "\u5206\u6790\u7b80\u5386\u4e0e\u76ee\u6807\u804c\u4f4d\u7684\u5339\u914d\u5ea6\u8bc4\u5206",
-      "status": "pending",
+      "status": "completed",
       "priority": "high",
-      "created_at": "2026-05-14T21:03:52.436770"
+      "created_at": "2026-05-14T21:03:52.436770",
+      "completed_at": "2026-05-15T08:46:33.312005"
     },
     {
       "id": "T10-1-2",
       "phase": "Phase 10",
       "name": "\u7f3a\u5931\u5173\u952e\u8bcd\u63d0\u793a",
       "description": "\u5bf9\u6bd4JD\u6307\u51fa\u7b80\u5386\u4e2d\u7f3a\u5931\u7684\u5173\u952e\u6280\u80fd",
-      "status": "pending",
+      "status": "completed",
       "priority": "high",
-      "created_at": "2026-05-14T21:03:52.436782"
+      "created_at": "2026-05-14T21:03:52.436782",
+      "completed_at": "2026-05-15T08:46:56.614511",
+      "note": "JD\u7f3a\u5931\u5173\u952e\u8bcd\u663e\u793a\u5df2\u5728T10-1-1\u4e2d\u5b9e\u73b0"
     },
     {
       "id": "T10-2-1",

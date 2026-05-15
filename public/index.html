@@ -915,7 +915,36 @@
                     <div class="usage-text" id="usage-text"></div>
                 </div>
                 <button class="btn btn-sm btn-secondary" onclick="showUpgradeModal()" id="upgrade-btn" style="display:none;">升级</button>
+                <button class="btn btn-sm btn-secondary" onclick="showInviteModal()">邀请</button>
                 <button class="logout-btn" onclick="logout()">退出</button>
+            </div>
+            
+            <!-- 邀请弹窗 -->
+            <div id="invite-modal" class="upgrade-modal" style="display:none;">
+                <div class="upgrade-modal-content">
+                    <div class="upgrade-modal-header">
+                        <h3>邀请好友</h3>
+                        <button class="upgrade-modal-close" onclick="closeInviteModal()">&times;</button>
+                    </div>
+                    <div class="upgrade-modal-body">
+                        <p style="font-size:14px;color:#666;margin-bottom:20px;">邀请好友注册，双方各获得额外使用次数！</p>
+                        <div style="background:#f5f5f5;padding:16px;border-radius:8px;margin-bottom:20px;">
+                            <div style="font-size:13px;color:#999;margin-bottom:8px;">您的邀请码</div>
+                            <div style="font-size:24px;font-weight:bold;color:#1a1a1a;text-align:center;" id="invite-code-display">-</div>
+                        </div>
+                        <div style="font-size:13px;color:#666;margin-bottom:16px;">
+                            分享链接：<span id="invite-link-display" style="color:#2563eb;">-</span>
+                        </div>
+                        <button class="btn btn-primary" onclick="copyInviteLink()" style="width:100%;">复制邀请链接</button>
+                        <div style="margin-top:20px;padding-top:20px;border-top:1px solid #e5e5e5;">
+                            <div style="font-size:14px;color:#1a1a1a;margin-bottom:8px;">邀请统计</div>
+                            <div style="font-size:13px;color:#666;">
+                                已邀请：<span id="invite-count">0</span> 人 | 
+                                累计奖励：<span id="invite-reward">0</span> 次
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
             
             <!-- Tabs -->
@@ -1287,6 +1316,50 @@
             // TODO: 调用支付API
         }
         
+        // 邀请系统
+        async function showInviteModal() {
+            document.getElementById('invite-modal').style.display = 'flex';
+            
+            // 获取邀请码
+            try {
+                const res = await fetch(`${API}/api/v1/invite/code`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    document.getElementById('invite-code-display').textContent = data.data.invite_code;
+                    document.getElementById('invite-link-display').textContent = data.data.invite_link;
+                }
+                
+                // 获取邀请统计
+                const statsRes = await fetch(`${API}/api/v1/invite/stats`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const statsData = await statsRes.json();
+                
+                if (statsData.success) {
+                    document.getElementById('invite-count').textContent = statsData.data.invite_count;
+                    document.getElementById('invite-reward').textContent = statsData.data.total_reward;
+                }
+            } catch (e) {
+                showToast('加载邀请信息失败', 'error');
+            }
+        }
+        
+        function closeInviteModal() {
+            document.getElementById('invite-modal').style.display = 'none';
+        }
+        
+        function copyInviteLink() {
+            const link = document.getElementById('invite-link-display').textContent;
+            navigator.clipboard.writeText(link).then(() => {
+                showToast('邀请链接已复制', 'success');
+            }).catch(() => {
+                showToast('复制失败', 'error');
+            });
+        }
+        
         // 用户等级权益配置（与后端同步）
         const USER_LEVELS = {
             free: { name: '免费用户', daily_limit: 5 },
@@ -1641,10 +1714,14 @@
             }
             
             try {
+                // 从URL获取邀请码
+                const urlParams = new URLSearchParams(window.location.search);
+                const invitedBy = urlParams.get('invite') || '';
+                
                 const res = await fetch(`${API}/api/v1/register`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password, name, code })
+                    body: JSON.stringify({ email, password, name, code, invited_by: invitedBy })
                 });
                 
                 const data = await res.json();

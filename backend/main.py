@@ -181,6 +181,20 @@ def ensure_tables_exist():
         cursor.execute("ALTER TABLE users ADD COLUMN is_admin INTEGER DEFAULT 0")
     if 'is_paid' not in columns:
         cursor.execute("ALTER TABLE users ADD COLUMN is_paid INTEGER DEFAULT 0")
+    if 'invite_code' not in columns:
+        cursor.execute("ALTER TABLE users ADD COLUMN invite_code TEXT")
+    if 'invited_by' not in columns:
+        cursor.execute("ALTER TABLE users ADD COLUMN invited_by INTEGER")
+    
+    # 创建邀请记录表
+    conn.execute('''CREATE TABLE IF NOT EXISTS invitations
+        (id INTEGER PRIMARY KEY AUTOINCREMENT,
+        inviter_id INTEGER,
+        invitee_id INTEGER,
+        reward_given INTEGER DEFAULT 0,
+        created_at TEXT,
+        FOREIGN KEY(inviter_id) REFERENCES users(id),
+        FOREIGN KEY(invitee_id) REFERENCES users(id))''')
     
     conn.commit()
     
@@ -327,6 +341,12 @@ def get_user_db():
 
 def hash_password(password: str) -> str:
     return hashlib.sha256(password.encode()).hexdigest()
+
+def generate_invite_code() -> str:
+    """生成6位邀请码"""
+    import random
+    import string
+    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
 
 def check_password_strength(password: str) -> dict:
     """检查密码强度"""
@@ -479,6 +499,7 @@ class RegisterRequest(BaseModel):
     password: str
     name: Optional[str] = None
     code: str  # 验证码
+    invited_by: Optional[str] = None  # 邀请码
 
 class LoginRequest(BaseModel):
     email: str
@@ -587,12 +608,37 @@ async def register(request: RegisterRequest):
     
     # 创建用户
     password_hash = hash_password(request.password)
+    
+    # 生成用户邀请码（6位字母数字）
+    user_invite_code = generate_invite_code()
+    
+    # 处理邀请关系
+    inviter_id = None
+    if request.invited_by:
+        cursor.execute("SELECT id FROM users WHERE invite_code = ?", (request.invited_by,))
+        inviter = cursor.fetchone()
+        if inviter:
+            inviter_id = inviter["id"]
+    
     cursor.execute("""
-        INSERT INTO users (email, password_hash, name)
-        VALUES (?, ?, ?)
-    """, (request.email, password_hash, request.name))
+        INSERT INTO users (email, password_hash, name, invite_code, invited_by)
+        VALUES (?, ?, ?, ?, ?)
+    """, (request.email, password_hash, request.name, user_invite_code, inviter_id))
     
     user_id = cursor.lastrowid
+    
+    # 如果有邀请人，记录邀请关系并奖励
+    if inviter_id:
+        cursor.execute("""
+            INSERT INTO invitations (inviter_id, invitee_id, reward_given, created_at)
+            VALUES (?, ?, ?, ?)
+        """, (inviter_id, user_id, 0, datetime.now().isoformat()))
+        
+        # 给邀请人增加3次使用额度
+        cursor.execute("UPDATE users SET daily_limit = daily_limit + 3 WHERE id = ?", (inviter_id,))
+        # 给新用户增加1次使用额度
+        cursor.execute("UPDATE users SET daily_limit = daily_limit + 1 WHERE id = ?", (user_id,))
+    
     conn.commit()
     conn.close()
     
@@ -747,6 +793,63 @@ async def get_usage(user: dict = Depends(get_current_user)):
             "remaining": remaining,
             "is_paid": is_paid,
             "can_use": is_paid or used_today < FREE_LIMIT
+        }
+    }
+
+@app.get("/api/v1/invite/code")
+async def get_invite_code(user: dict = Depends(get_current_user)):
+    """获取用户邀请码"""
+    conn = get_user_db()
+    cursor = conn.cursor()
+    
+    # 获取用户邀请码
+    cursor.execute("SELECT invite_code FROM users WHERE id = ?", (user["id"],))
+    row = cursor.fetchone()
+    
+    invite_code = row["invite_code"] if row and row["invite_code"] else ""
+    
+    # 如果没有邀请码，生成一个
+    if not invite_code:
+        invite_code = generate_invite_code()
+        cursor.execute("UPDATE users SET invite_code = ? WHERE id = ?", (invite_code, user["id"]))
+        conn.commit()
+    
+    conn.close()
+    
+    return {
+        "success": True,
+        "data": {
+            "invite_code": invite_code,
+            "invite_link": f"https://resume.bearai.bond?invite={invite_code}"
+        }
+    }
+
+@app.get("/api/v1/invite/stats")
+async def get_invite_stats(user: dict = Depends(get_current_user)):
+    """获取邀请统计"""
+    conn = get_user_db()
+    cursor = conn.cursor()
+    
+    # 获取邀请人数
+    cursor.execute("""
+        SELECT COUNT(*) as count FROM invitations WHERE inviter_id = ?
+    """, (user["id"],))
+    invite_count = cursor.fetchone()["count"]
+    
+    # 获取已奖励次数
+    cursor.execute("""
+        SELECT SUM(reward_given) as total FROM invitations WHERE inviter_id = ?
+    """, (user["id"],))
+    total_reward = cursor.fetchone()["total"] or 0
+    
+    conn.close()
+    
+    return {
+        "success": True,
+        "data": {
+            "invite_count": invite_count,
+            "total_reward": total_reward * 3,  # 每次邀请奖励3次
+            "reward_per_invite": 3
         }
     }
 
