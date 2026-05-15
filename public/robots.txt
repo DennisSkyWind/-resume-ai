@@ -1,0 +1,11 @@
+﻿# ResumeAI robots.txt
+User-agent: *
+Allow: /
+Disallow: /admin.html
+Disallow: /api/
+
+# Sitemap
+Sitemap: https://resume.bearai.bond/sitemap.xml
+
+# Crawl-delay (optional)
+Crawl-delay: 10

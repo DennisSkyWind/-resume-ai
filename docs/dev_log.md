@@ -200,3 +200,14 @@
 **测试**: API返回200，PDF格式正确
 
 **进度**: 75/100 (75%)
+
+## 2026-05-15 10:31:11 - T12-1-2 邀请邮件营销功能完成
+
+**功能**: 营销邮件发送功能（欢迎邮件、使用提醒、升级提醒、促销邮件）
+**API**: 
+- POST /api/v1/admin/send-marketing-email
+- POST /api/v1/admin/batch-marketing-email
+**模板类型**: welcome, usage_reminder, upgrade_reminder, promo
+**批量发送**: 支持inactive（无使用用户）和all（所有用户）目标群体
+
+**提交**: 13c0f48

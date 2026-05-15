@@ -883,9 +883,10 @@
       "phase": "Phase 12",
       "name": "\u90ae\u4ef6\u8425\u9500\u529f\u80fd",
       "description": "\u5b9a\u671f\u53d1\u9001\u4f7f\u7528\u63d0\u9192\u3001\u4fc3\u9500\u90ae\u4ef6",
-      "status": "pending",
+      "status": "completed",
       "priority": "low",
-      "created_at": "2026-05-14T21:03:52.436898"
+      "created_at": "2026-05-14T21:03:52.436898",
+      "completed_at": "2026-05-15T10:31:11.367722"
     },
     {
       "id": "T12-2-1",
