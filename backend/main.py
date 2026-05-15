@@ -196,6 +196,18 @@ def ensure_tables_exist():
         FOREIGN KEY(inviter_id) REFERENCES users(id),
         FOREIGN KEY(invitee_id) REFERENCES users(id))''')
     
+    conn.execute('''CREATE TABLE IF NOT EXISTS error_logs
+        (id INTEGER PRIMARY KEY AUTOINCREMENT,
+        error_type TEXT,
+        error_message TEXT,
+        error_stack TEXT,
+        user_id INTEGER,
+        request_path TEXT,
+        request_method TEXT,
+        severity TEXT DEFAULT 'error',
+        resolved INTEGER DEFAULT 0,
+        created_at TEXT)''')
+    
     conn.commit()
     
     # 初始化管理员账号
@@ -2080,6 +2092,143 @@ async def get_user_analytics(admin: dict = Depends(get_admin_user)):
             "industry_distribution": industry_distribution,
             "action_distribution": action_distribution,
             "daily_trend": daily_trend
+        }
+    }
+
+def log_error(error_type: str, error_message: str, error_stack: str = None, 
+             user_id: int = None, request_path: str = None, request_method: str = None,
+             severity: str = "error"):
+    """记录错误日志"""
+    conn = get_user_db()
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        INSERT INTO error_logs (error_type, error_message, error_stack, user_id, 
+                                request_path, request_method, severity, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    """, (error_type, error_message, error_stack, user_id, request_path, 
+          request_method, severity, datetime.now().isoformat()))
+    
+    conn.commit()
+    conn.close()
+    
+    logger.error(f"[{severity}] {error_type}: {error_message}")
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request, exc):
+    """全局异常处理"""
+    import traceback
+    
+    log_error(
+        error_type=type(exc).__name__,
+        error_message=str(exc),
+        error_stack=traceback.format_exc(),
+        request_path=str(request.url.path),
+        request_method=request.method,
+        severity="critical"
+    )
+    
+    return JSONResponse(
+        status_code=500,
+        content={"success": False, "detail": "服务器内部错误，请稍后重试"}
+    )
+
+@app.get("/api/v1/admin/error-logs")
+async def get_error_logs(
+    limit: int = 50,
+    severity: Optional[str] = None,
+    resolved: Optional[int] = None,
+    admin: dict = Depends(get_admin_user)
+):
+    """获取错误日志"""
+    conn = get_user_db()
+    cursor = conn.cursor()
+    
+    query = "SELECT * FROM error_logs WHERE 1=1"
+    params = []
+    
+    if severity:
+        query += " AND severity = ?"
+        params.append(severity)
+    
+    if resolved is not None:
+        query += " AND resolved = ?"
+        params.append(resolved)
+    
+    query += " ORDER BY created_at DESC LIMIT ?"
+    params.append(limit)
+    
+    cursor.execute(query, params)
+    
+    logs = []
+    for row in cursor.fetchall():
+        logs.append({
+            "id": row["id"],
+            "error_type": row["error_type"],
+            "error_message": row["error_message"],
+            "error_stack": row["error_stack"],
+            "user_id": row["user_id"],
+            "request_path": row["request_path"],
+            "request_method": row["request_method"],
+            "severity": row["severity"],
+            "resolved": row["resolved"],
+            "created_at": row["created_at"]
+        })
+    
+    conn.close()
+    
+    return {"success": True, "data": logs, "count": len(logs)}
+
+@app.post("/api/v1/admin/error-logs/{log_id}/resolve")
+async def resolve_error_log(log_id: int, admin: dict = Depends(get_admin_user)):
+    """标记错误已解决"""
+    conn = get_user_db()
+    cursor = conn.cursor()
+    
+    cursor.execute("UPDATE error_logs SET resolved = 1 WHERE id = ?", (log_id,))
+    conn.commit()
+    conn.close()
+    
+    return {"success": True, "message": "错误已标记为已解决"}
+
+@app.get("/api/v1/admin/error-stats")
+async def get_error_stats(admin: dict = Depends(get_admin_user)):
+    """错误统计"""
+    conn = get_user_db()
+    cursor = conn.cursor()
+    
+    # 今日错误数
+    cursor.execute("""
+        SELECT COUNT(*) as count FROM error_logs 
+        WHERE DATE(created_at) = DATE('now')
+    """)
+    today_errors = cursor.fetchone()["count"]
+    
+    # 未解决错误数
+    cursor.execute("SELECT COUNT(*) as count FROM error_logs WHERE resolved = 0")
+    unresolved = cursor.fetchone()["count"]
+    
+    # 错误类型分布
+    cursor.execute("SELECT error_type, COUNT(*) as count FROM error_logs GROUP BY error_type ORDER BY count DESC LIMIT 10")
+    type_distribution = []
+    for row in cursor.fetchall():
+        type_distribution.append({"type": row["error_type"], "count": row["count"]})
+    
+    # 严重程度分布
+    cursor.execute("SELECT severity, COUNT(*) as count FROM error_logs GROUP BY severity")
+    severity_distribution = {}
+    for row in cursor.fetchall():
+        severity_distribution[row["severity"]] = row["count"]
+    
+    conn.close()
+    
+    return {
+        "success": True,
+        "data": {
+            "today_errors": today_errors,
+            "unresolved": unresolved,
+            "type_distribution": type_distribution,
+            "severity_distribution": severity_distribution
         }
     }
 
