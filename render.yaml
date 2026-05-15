@@ -4,8 +4,8 @@ services:
     runtime: python
     region: singapore
     autoDeploy: true  # 自动检测GitHub推送并部署
-    buildCommand: pip install -r backend/requirements.txt
-    startCommand: cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT
+    buildCommand: pip install -r api/requirements.txt
+    startCommand: cd api && uvicorn main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: JWT_SECRET
         value: resumeai_jwt_secret_key_2026
