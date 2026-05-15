@@ -377,6 +377,29 @@
             textarea { min-height: 120px; font-size: 14px; }
             .score-display { flex-direction: column; }
             .keywords-grid { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); }
+            
+            /* 升级弹窗移动端 */
+            .upgrade-content { max-width: 95%; padding: 16px; }
+            .upgrade-plans { grid-template-columns: 1fr; gap: 12px; }
+            .plan-card { padding: 12px; }
+            
+            /* 模板卡片移动端 */
+            .templates-grid { grid-template-columns: 1fr; }
+            .template-modal-content { max-width: 95%; }
+            
+            /* 邀请弹窗移动端 */
+            .upgrade-modal-content { max-width: 95%; padding: 16px; }
+            
+            /* 用户信息移动端 */
+            .user-details { flex-direction: column; gap: 8px; }
+            .level-badge { font-size: 12px; }
+        }
+        
+        /* 触摸设备优化 */
+        @media (hover: none) {
+            .btn:hover { opacity: 1; }
+            .tab:hover { background: transparent; }
+            .keyword-item:hover { transform: none; }
         }
         
         /* Keywords */

@@ -812,18 +812,21 @@
       "phase": "Phase 10",
       "name": "\u9080\u8bf7\u597d\u53cb\u7cfb\u7edf",
       "description": "\u7528\u6237\u9080\u8bf7\u597d\u53cb\u6ce8\u518c\u83b7\u5f97\u989d\u5916\u4f7f\u7528\u6b21\u6570",
-      "status": "pending",
+      "status": "completed",
       "priority": "medium",
-      "created_at": "2026-05-14T21:03:52.436793"
+      "created_at": "2026-05-14T21:03:52.436793",
+      "completed_at": "2026-05-15T08:50:42.583271"
     },
     {
       "id": "T10-2-2",
       "phase": "Phase 10",
       "name": "\u9080\u8bf7\u7801\u751f\u6210\u4e0e\u9a8c\u8bc1",
       "description": "\u6bcf\u4e2a\u7528\u6237\u6709\u4e13\u5c5e\u9080\u8bf7\u7801",
-      "status": "pending",
+      "status": "completed",
       "priority": "medium",
-      "created_at": "2026-05-14T21:03:52.436804"
+      "created_at": "2026-05-14T21:03:52.436804",
+      "completed_at": "2026-05-15T08:50:52.560495",
+      "note": "\u9080\u8bf7\u7801\u751f\u6210\u4e0e\u9a8c\u8bc1\u5df2\u5728T10-2-1\u4e2d\u5b9e\u73b0"
     },
     {
       "id": "T11-1-1",
