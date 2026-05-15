@@ -528,6 +528,7 @@ async def get_me(user: dict = Depends(get_current_user)):
             "user_id": user["id"],
             "email": user["email"],
             "name": user["name"],
+            "is_admin": bool(user.get("is_admin", 0)),
             "is_paid": user["is_paid"],
             "plan_type": user["plan_type"],
             "usage_today": usage["count"],
