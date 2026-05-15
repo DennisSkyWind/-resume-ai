@@ -217,7 +217,7 @@ async def create_indexes():
     logger.info("Database indexes created/verified")
 
 # JWT配置（使用固定密钥）
-JWT_SECRET = "resumeai_jwt_secret_key_2026"  # 固定密钥，生产环境应使用环境变量
+JWT_SECRET = os.environ.get("JWT_SECRET", "resumeai_jwt_secret_key_2026")  # 优先使用环境变量
 JWT_ALGORITHM = "HS256"
 JWT_EXPIRE_HOURS = 168  # 7天有效期
 

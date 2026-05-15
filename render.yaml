@@ -8,7 +8,7 @@ services:
     startCommand: cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: JWT_SECRET
-        value: resumeai_jwt_secret_key_2026_prod
+        value: resumeai_jwt_secret_key_2026
       - key: JWT_EXPIRE_HOURS
         value: "168"
       - key: FREE_LIMIT
