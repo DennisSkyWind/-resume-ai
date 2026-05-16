@@ -789,9 +789,9 @@ async def login(request: LoginRequest):
             "email": user["email"],
             "name": user["name"],
             "daily_limit": user["daily_limit"],
-            "is_admin": bool(user.get("is_admin", 0)),
-            "is_paid": user.get("is_paid", 0),
-            "user_level": user.get("user_level", "free"),
+            "is_admin": bool(user["is_admin"] if "is_admin" in user.keys() else 0),
+            "is_paid": user["is_paid"] if "is_paid" in user.keys() else 0,
+            "user_level": user["user_level"] if "user_level" in user.keys() else "free",
             "token": token,
             "token_type": "Bearer"
         }
@@ -804,8 +804,8 @@ async def get_me(user: dict = Depends(get_current_user)):
     cursor = conn.cursor()
     
     # 获取用户等级信息
-    user_level = user.get("user_level", "free")
-    level_expires_at = user.get("level_expires_at")
+    user_level = user["user_level"] if "user_level" in user.keys() else "free"
+    level_expires_at = user["level_expires_at"] if "level_expires_at" in user.keys() else None
     
     # 检查等级是否过期
     is_expired = False
@@ -859,7 +859,7 @@ async def get_me(user: dict = Depends(get_current_user)):
             "usage_percentage": usage_percentage,
             "level_expires_at": level_expires_at,
             "is_expired": is_expired,
-            "is_admin": bool(user.get("is_admin", 0)),
+            "is_admin": bool(user["is_admin"] if "is_admin" in user.keys() else 0),
             "resumes_count": resumes_count
         }
     }
@@ -1496,7 +1496,7 @@ async def health_check():
         "auth_enabled": True,
         "data_dir": DATA_DIR,
         "db_path": USER_DB_PATH,
-        "version": "2026-05-16-v3"  # 版本标记（登录返回is_admin修复）
+        "version": "2026-05-16-v4"  # 版本标记（修复sqlite3.Row.get()错误）
     }
 
 @app.get("/debug/db")
