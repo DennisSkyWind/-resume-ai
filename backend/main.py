@@ -1534,7 +1534,7 @@ async def health_check():
         "auth_enabled": True,
         "data_dir": DATA_DIR,
         "db_path": USER_DB_PATH,
-        "version": "2026-05-16-v6"  # 版本标记（修复admin API空数据库错误）
+        "version": "2026-05-16-v7"  # 版本标记（添加admin/trends API）
     }
 
 @app.get("/debug/db")
@@ -2208,6 +2208,55 @@ async def admin_update_feedback(feedback_id: int, status: str, admin: dict = Dep
     conn.commit()
     
     return {"success": True, "message": f"反馈状态已更新为 {status}"}
+
+@app.get("/api/v1/admin/trends")
+async def admin_trends(admin: dict = Depends(get_admin_user)):
+    """获取用户增长和活跃度趋势（7天数据）"""
+    conn = get_user_db()
+    cursor = conn.cursor()
+    
+    trends = {
+        "user_growth": [],
+        "daily_usage": [],
+        "active_users": []
+    }
+    
+    # 7天用户增长趋势
+    for i in range(6, -1, -1):
+        date = (datetime.now() - timedelta(days=i)).strftime("%Y-%m-%d")
+        cursor.execute("""
+            SELECT COUNT(*) as count FROM users 
+            WHERE DATE(created_at) <= ?
+        """, (date,))
+        row = cursor.fetchone()
+        count = row["count"] if row else 0
+        trends["user_growth"].append({"date": date, "count": count})
+    
+    # 7天每日使用量
+    for i in range(6, -1, -1):
+        date = (datetime.now() - timedelta(days=i)).strftime("%Y-%m-%d")
+        cursor.execute("""
+            SELECT COUNT(*) as count FROM usage 
+            WHERE DATE(created_at) = ?
+        """, (date,))
+        row = cursor.fetchone()
+        count = row["count"] if row else 0
+        trends["daily_usage"].append({"date": date, "count": count})
+    
+    # 7天活跃用户数
+    for i in range(6, -1, -1):
+        date = (datetime.now() - timedelta(days=i)).strftime("%Y-%m-%d")
+        cursor.execute("""
+            SELECT COUNT(DISTINCT user_id) as count FROM usage 
+            WHERE DATE(created_at) = ?
+        """, (date,))
+        row = cursor.fetchone()
+        count = row["count"] if row else 0
+        trends["active_users"].append({"date": date, "count": count})
+    
+    conn.close()
+    
+    return {"success": True, "data": trends}
 
 @app.get("/api/v1/admin/analytics")
 async def get_user_analytics(admin: dict = Depends(get_admin_user)):
