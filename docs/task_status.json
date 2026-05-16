@@ -2,7 +2,7 @@
   "project": "ResumeAI",
   "version": "2.0",
   "total_tasks": 123,
-  "completed": 105,
+  "completed": 111,
   "skipped": 1,
   "in_progress": 0,
   "pending": 16,
@@ -1075,54 +1075,60 @@
       "phase": "Phase 15",
       "name": "新用户注册流程测试",
       "description": "测试完整注册流程用户体验",
-      "status": "pending",
+      "status": "completed",
       "priority": "high",
-      "test_type": "flow"
+      "test_type": "flow",
+      "completed_at": "2026-05-16T18:30:35.401607"
     },
     {
       "id": "T15-2-2",
       "phase": "Phase 15",
       "name": "简历分析完整流程测试",
       "description": "测试从上传到导出的完整流程",
-      "status": "pending",
+      "status": "completed",
       "priority": "high",
-      "test_type": "flow"
+      "test_type": "flow",
+      "completed_at": "2026-05-16T18:31:49.940401"
     },
     {
       "id": "T15-2-3",
       "phase": "Phase 15",
       "name": "简历优化完整流程测试",
       "description": "测试优化和模板导出流程",
-      "status": "pending",
+      "status": "completed",
       "priority": "high",
-      "test_type": "flow"
+      "test_type": "flow",
+      "completed_at": "2026-05-16T18:32:00.175065"
     },
     {
       "id": "T15-2-4",
       "phase": "Phase 15",
       "name": "使用次数限制测试",
       "description": "测试Free用户每日限制机制",
-      "status": "pending",
+      "status": "completed",
       "priority": "medium",
-      "test_type": "flow"
+      "test_type": "flow",
+      "completed_at": "2026-05-16T18:32:00.175172"
     },
     {
       "id": "T15-3-1",
       "phase": "Phase 15",
       "name": "管理员登录测试",
       "description": "测试管理员账号登录和权限",
-      "status": "pending",
+      "status": "completed",
       "priority": "high",
-      "test_type": "admin"
+      "test_type": "admin",
+      "completed_at": "2026-05-16T19:30:58.771664"
     },
     {
       "id": "T15-3-2",
       "phase": "Phase 15",
       "name": "统计数据测试",
       "description": "测试统计数据准确性和图表显示",
-      "status": "pending",
+      "status": "completed",
       "priority": "medium",
-      "test_type": "admin"
+      "test_type": "admin",
+      "completed_at": "2026-05-16T19:31:26.122020"
     },
     {
       "id": "T15-3-3",
