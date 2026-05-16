@@ -2,7 +2,7 @@
   "project": "ResumeAI",
   "version": "2.0",
   "total_tasks": 123,
-  "completed": 100,
+  "completed": 101,
   "skipped": 1,
   "in_progress": 0,
   "pending": 16,
@@ -1025,9 +1025,10 @@
       "phase": "Phase 15",
       "name": "用户认证API测试",
       "description": "测试注册、登录、Token验证流程",
-      "status": "pending",
+      "status": "completed",
       "priority": "high",
-      "test_type": "api"
+      "test_type": "api",
+      "completed_at": "2026-05-16T13:31:27.309736"
     },
     {
       "id": "T15-1-2",
