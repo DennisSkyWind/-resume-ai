@@ -506,3 +506,21 @@
 
 **进度**: 102/123 (83%)
 
+
+## 2026-05-16 15:35:00 - 反馈API功能添加
+
+**任务**: T15-1-5 反馈系统API测试 - 发现backend缺少反馈API
+
+**修复内容**:
+- 新增feedback表结构
+- 新增FeedbackRequest模型
+- 新增/api/v1/feedback提交接口
+- 新增/api/v1/admin/feedback管理接口
+- 新增get_current_user_optional可选认证函数
+
+**提交**: 6e53d80
+
+**状态**: 等待Render部署后测试
+
+**进度**: 104/123 (84%)
+
