@@ -11,9 +11,9 @@ import os
 import sys
 from datetime import datetime
 
-# 配置
-API_BASE = "http://localhost:8001/api/v1"
-ADMIN_API = "http://localhost:8001/api/v1/admin"
+# 配置 - 使用云端API测试
+API_BASE = "https://resume-ai-9tvi.onrender.com/api/v1"
+ADMIN_API = "https://resume-ai-9tvi.onrender.com/api/v1/admin"
 RESULTS_DIR = "/home/ubuntu/.openclaw/workspace/resume-ai/docs/test_results"
 
 # 测试账号
