@@ -2,7 +2,7 @@
   "project": "ResumeAI",
   "version": "2.0",
   "total_tasks": 123,
-  "completed": 114,
+  "completed": 116,
   "skipped": 1,
   "in_progress": 0,
   "pending": 16,
@@ -1165,18 +1165,20 @@
       "phase": "Phase 15",
       "name": "认证安全测试",
       "description": "测试Token过期、未授权访问拦截",
-      "status": "pending",
+      "status": "completed",
       "priority": "high",
-      "test_type": "security"
+      "test_type": "security",
+      "completed_at": "2026-05-16T21:01:34.139828"
     },
     {
       "id": "T15-5-2",
       "phase": "Phase 15",
       "name": "文件上传安全测试",
       "description": "测试文件类型验证和恶意文件拦截",
-      "status": "pending",
+      "status": "completed",
       "priority": "high",
-      "test_type": "security"
+      "test_type": "security",
+      "completed_at": "2026-05-16T21:01:34.139894"
     }
   ],
   "last_updated": "2026-05-15T12:10:00",
