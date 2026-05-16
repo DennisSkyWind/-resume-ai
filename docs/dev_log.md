@@ -496,3 +496,13 @@
 
 **进度**: 101/123 (82%)
 
+
+## 2026-05-16 14:01:00 - T15-1-2 简历分析API测试 ✅
+
+**执行结果**: 已完成
+- API参数: resume_content (非resume_text)
+- 行业ID: it_developer (非it)
+- 返回: success=True, score=26.0 ✅
+
+**进度**: 102/123 (83%)
+
