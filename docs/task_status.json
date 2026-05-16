@@ -2,7 +2,7 @@
   "project": "ResumeAI",
   "version": "2.0",
   "total_tasks": 123,
-  "completed": 102,
+  "completed": 105,
   "skipped": 1,
   "in_progress": 0,
   "pending": 16,
@@ -1045,27 +1045,30 @@
       "phase": "Phase 15",
       "name": "简历优化API测试",
       "description": "测试优化建议生成、模板输出",
-      "status": "pending",
+      "status": "completed",
       "priority": "high",
-      "test_type": "api"
+      "test_type": "api",
+      "completed_at": "2026-05-16T15:30:16.826142"
     },
     {
       "id": "T15-1-4",
       "phase": "Phase 15",
       "name": "导出功能测试",
       "description": "测试PDF/Word导出格式和完整性",
-      "status": "pending",
+      "status": "completed",
       "priority": "medium",
-      "test_type": "api"
+      "test_type": "api",
+      "completed_at": "2026-05-16T16:00:13.346104"
     },
     {
       "id": "T15-1-5",
       "phase": "Phase 15",
       "name": "反馈系统API测试",
       "description": "测试反馈提交和管理员管理功能",
-      "status": "pending",
+      "status": "completed",
       "priority": "medium",
-      "test_type": "api"
+      "test_type": "api",
+      "completed_at": "2026-05-16T17:31:37.125971"
     },
     {
       "id": "T15-2-1",
