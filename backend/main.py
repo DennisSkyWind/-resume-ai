@@ -1534,7 +1534,7 @@ async def health_check():
         "auth_enabled": True,
         "data_dir": DATA_DIR,
         "db_path": USER_DB_PATH,
-        "version": "2026-05-16-v5"  # 版本标记（添加反馈API功能）
+        "version": "2026-05-16-v6"  # 版本标记（修复admin API空数据库错误）
     }
 
 @app.get("/debug/db")
@@ -2099,13 +2099,16 @@ async def admin_stats(admin: dict = Depends(get_admin_user)):
     
     # 用户统计
     cursor.execute("SELECT COUNT(*) as count FROM users")
-    total_users = cursor.fetchone()["count"]
+    row = cursor.fetchone()
+    total_users = row["count"] if row else 0
     
     cursor.execute("SELECT COUNT(*) as count FROM users WHERE is_paid = 1")
-    paid_users = cursor.fetchone()["count"]
+    row = cursor.fetchone()
+    paid_users = row["count"] if row else 0
     
     cursor.execute("SELECT COUNT(*) as count FROM users WHERE DATE(created_at) = DATE('now')")
-    new_users_today = cursor.fetchone()["count"]
+    row = cursor.fetchone()
+    new_users_today = row["count"] if row else 0
     
     # 等级分布
     cursor.execute("SELECT user_level, COUNT(*) as count FROM users GROUP BY user_level")
@@ -2115,18 +2118,22 @@ async def admin_stats(admin: dict = Depends(get_admin_user)):
     
     # VIP用户数
     cursor.execute("SELECT COUNT(*) as count FROM users WHERE user_level = 'vip'")
-    vip_users = cursor.fetchone()["count"]
+    row = cursor.fetchone()
+    vip_users = row["count"] if row else 0
     
     # 使用统计
     cursor.execute("SELECT COUNT(*) as count FROM usage")
-    total_usage = cursor.fetchone()["count"]
+    row = cursor.fetchone()
+    total_usage = row["count"] if row else 0
     
     cursor.execute("SELECT COUNT(*) as count FROM usage WHERE DATE(created_at) = DATE('now')")
-    usage_today = cursor.fetchone()["count"]
+    row = cursor.fetchone()
+    usage_today = row["count"] if row else 0
     
     # 简历统计
     cursor.execute("SELECT COUNT(*) as count FROM resumes")
-    total_resumes = cursor.fetchone()["count"]
+    row = cursor.fetchone()
+    total_resumes = row["count"] if row else 0
     
     conn.close()
     
@@ -2213,14 +2220,16 @@ async def get_user_analytics(admin: dict = Depends(get_admin_user)):
         SELECT COUNT(DISTINCT user_id) as count FROM usage 
         WHERE created_at >= DATE('now', '-7 days')
     """)
-    active_users_7d = cursor.fetchone()["count"]
+    row = cursor.fetchone()
+    active_users_7d = row["count"] if row else 0
     
     # 活跃用户（最近30天有使用）
     cursor.execute("""
         SELECT COUNT(DISTINCT user_id) as count FROM usage 
         WHERE created_at >= DATE('now', '-30 days')
     """)
-    active_users_30d = cursor.fetchone()["count"]
+    row = cursor.fetchone()
+    active_users_30d = row["count"] if row else 0
     
     # 用户留存率（注册后7天内仍有使用）
     cursor.execute("""
@@ -2228,10 +2237,12 @@ async def get_user_analytics(admin: dict = Depends(get_admin_user)):
         WHERE DATE(created_at) >= DATE('now', '-7 days')
         AND id IN (SELECT DISTINCT user_id FROM usage WHERE created_at >= DATE('now', '-7 days'))
     """)
-    retained_7d = cursor.fetchone()["count"]
+    row = cursor.fetchone()
+    retained_7d = row["count"] if row else 0
     
     cursor.execute("SELECT COUNT(*) as count FROM users WHERE DATE(created_at) >= DATE('now', '-7 days')")
-    new_7d = cursor.fetchone()["count"]
+    row = cursor.fetchone()
+    new_7d = row["count"] if row else 0
     retention_7d = round(retained_7d / new_7d * 100, 1) if new_7d > 0 else 0
     
     # 行业使用分布
@@ -2261,7 +2272,13 @@ async def get_user_analytics(admin: dict = Depends(get_admin_user)):
         SELECT COUNT(*) as count FROM users 
         WHERE id NOT IN (SELECT DISTINCT user_id FROM usage)
     """)
-    inactive_users = cursor.fetchone()["count"]
+    row = cursor.fetchone()
+    inactive_users = row["count"] if row else 0
+    
+    # 获取总用户数
+    cursor.execute("SELECT COUNT(*) as count FROM users")
+    row = cursor.fetchone()
+    total_users = row["count"] if row else 0
     churn_rate = round(inactive_users / total_users * 100, 1) if total_users > 0 else 0
     
     conn.close()
