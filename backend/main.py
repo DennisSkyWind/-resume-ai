@@ -220,6 +220,16 @@ def ensure_tables_exist():
         resolved INTEGER DEFAULT 0,
         created_at TEXT)''')
     
+    # 创建反馈表
+    conn.execute('''CREATE TABLE IF NOT EXISTS feedback
+        (id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER,
+        email TEXT,
+        type TEXT,
+        content TEXT,
+        status TEXT DEFAULT 'pending',
+        created_at TEXT)''')
+    
     conn.commit()
     
     # 初始化管理员账号
@@ -536,6 +546,28 @@ async def get_current_user(authorization: Optional[str] = Header(None)):
     
     return dict(user)
 
+async def get_current_user_optional(authorization: Optional[str] = Header(None)):
+    """可选的用户认证（不强制要求登录）"""
+    if not authorization:
+        return None
+    
+    token = authorization.replace("Bearer ", "") if authorization.startswith("Bearer ") else authorization
+    payload = verify_token(token)
+    
+    if not payload:
+        return None
+    
+    conn = get_user_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM users WHERE id = ?", (payload["user_id"],))
+    user = cursor.fetchone()
+    conn.close()
+    
+    if not user:
+        return None
+    
+    return dict(user)
+
 def get_user_level_info(user_id: int) -> dict:
     """获取用户等级信息"""
     conn = get_user_db()
@@ -602,6 +634,12 @@ class RegisterRequest(BaseModel):
 class LoginRequest(BaseModel):
     email: str
     password: str
+
+class FeedbackRequest(BaseModel):
+    type: str
+    content: str
+    email: Optional[str] = None
+    page: Optional[str] = None
 
 class AnalyzeRequest(BaseModel):
     resume_content: str
@@ -1496,7 +1534,7 @@ async def health_check():
         "auth_enabled": True,
         "data_dir": DATA_DIR,
         "db_path": USER_DB_PATH,
-        "version": "2026-05-16-v4"  # 版本标记（修复sqlite3.Row.get()错误）
+        "version": "2026-05-16-v5"  # 版本标记（添加反馈API功能）
     }
 
 @app.get("/debug/db")
@@ -2105,6 +2143,64 @@ async def admin_stats(admin: dict = Depends(get_admin_user)):
             "level_distribution": level_distribution
         }
     }
+
+@app.post("/api/v1/feedback")
+async def submit_feedback(request: FeedbackRequest, user: Optional[dict] = Depends(get_current_user_optional)):
+    """提交用户反馈"""
+    conn = get_user_db()
+    cursor = conn.cursor()
+    
+    user_id = user["id"] if user else None
+    email = request.email or (user["email"] if user else "anonymous")
+    
+    cursor.execute("""
+        INSERT INTO feedback (user_id, email, type, content, status, created_at)
+        VALUES (?, ?, ?, ?, 'pending', ?)
+    """, (user_id, email, request.type, request.content, datetime.now().isoformat()))
+    conn.commit()
+    
+    return {"success": True, "message": "反馈已提交，感谢您的建议！"}
+
+@app.get("/api/v1/admin/feedback")
+async def admin_get_feedback(admin: dict = Depends(get_admin_user)):
+    """获取反馈列表（管理员）"""
+    conn = get_user_db()
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        SELECT f.id, f.user_id, f.email, f.type, f.content, f.status, f.created_at,
+               u.name as user_name
+        FROM feedback f
+        LEFT JOIN users u ON f.user_id = u.id
+        ORDER BY f.created_at DESC
+        LIMIT 100
+    """)
+    
+    feedbacks = []
+    for row in cursor.fetchall():
+        feedbacks.append({
+            "id": row[0],
+            "user_id": row[1],
+            "email": row[2],
+            "type": row[3],
+            "content": row[4],
+            "status": row[5],
+            "created_at": row[6],
+            "user_name": row[7]
+        })
+    
+    return {"success": True, "data": feedbacks}
+
+@app.put("/api/v1/admin/feedback/{feedback_id}")
+async def admin_update_feedback(feedback_id: int, status: str, admin: dict = Depends(get_admin_user)):
+    """更新反馈状态（管理员）"""
+    conn = get_user_db()
+    cursor = conn.cursor()
+    
+    cursor.execute("UPDATE feedback SET status = ? WHERE id = ?", (status, feedback_id))
+    conn.commit()
+    
+    return {"success": True, "message": f"反馈状态已更新为 {status}"}
 
 @app.get("/api/v1/admin/analytics")
 async def get_user_analytics(admin: dict = Depends(get_admin_user)):
