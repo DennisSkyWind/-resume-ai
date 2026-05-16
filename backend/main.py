@@ -1496,7 +1496,7 @@ async def health_check():
         "auth_enabled": True,
         "data_dir": DATA_DIR,
         "db_path": USER_DB_PATH,
-        "version": "2026-05-13-v2"  # 版本标记
+        "version": "2026-05-16-v3"  # 版本标记（登录返回is_admin修复）
     }
 
 @app.get("/debug/db")
