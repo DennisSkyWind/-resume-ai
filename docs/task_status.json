@@ -2,7 +2,7 @@
   "project": "ResumeAI",
   "version": "2.0",
   "total_tasks": 123,
-  "completed": 111,
+  "completed": 114,
   "skipped": 1,
   "in_progress": 0,
   "pending": 16,
@@ -1135,27 +1135,30 @@
       "phase": "Phase 15",
       "name": "AI配置编辑测试",
       "description": "测试模型切换和参数调整",
-      "status": "pending",
+      "status": "completed",
       "priority": "medium",
-      "test_type": "admin"
+      "test_type": "admin",
+      "completed_at": "2026-05-16T20:01:50.146224"
     },
     {
       "id": "T15-4-1",
       "phase": "Phase 15",
       "name": "API响应时间测试",
       "description": "测量各API响应时间，目标<2秒",
-      "status": "pending",
+      "status": "completed",
       "priority": "medium",
-      "test_type": "performance"
+      "test_type": "performance",
+      "completed_at": "2026-05-16T20:01:50.146294"
     },
     {
       "id": "T15-4-2",
       "phase": "Phase 15",
       "name": "文件处理性能测试",
       "description": "测试大文件上传和处理稳定性",
-      "status": "pending",
+      "status": "completed",
       "priority": "medium",
-      "test_type": "performance"
+      "test_type": "performance",
+      "completed_at": "2026-05-16T20:01:50.146318"
     },
     {
       "id": "T15-5-1",
