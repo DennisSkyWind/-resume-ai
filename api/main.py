@@ -422,29 +422,21 @@ KEYWORDS_DB = load_keywords()
 
 # ========== 用户认证函数 ==========
 
-# 性能优化：数据库连接缓存和SQLite调优
-_db_connection = None
-
+# Vercel serverless环境下每次请求创建新连接
 def get_user_db():
-    """获取数据库连接（性能优化版）"""
-    global _db_connection
-    if _db_connection is None:
-        conn = sqlite3.connect(USER_DB_PATH, check_same_thread=False)
-        conn.row_factory = sqlite3.Row
-        # SQLite性能优化PRAGMA
-        conn.execute("PRAGMA journal_mode=WAL")  # 写前日志，提升并发性能
-        conn.execute("PRAGMA synchronous=NORMAL")  # 降低同步频率
-        conn.execute("PRAGMA cache_size=-64000")  # 64MB缓存
-        conn.execute("PRAGMA temp_store=MEMORY")  # 临时表存内存
-        _db_connection = conn
-    return _db_connection
-
-def close_db_connection():
-    """关闭数据库连接（服务关闭时调用）"""
-    global _db_connection
-    if _db_connection:
-        _db_connection.close()
-        _db_connection = None
+    """获取数据库连接（Vercel兼容版）"""
+    # Vercel serverless每次请求都是新实例，不能用全局连接
+    conn = sqlite3.connect(USER_DB_PATH, check_same_thread=False)
+    conn.row_factory = sqlite3.Row
+    # Vercel /tmp目录不支持WAL，使用默认模式
+    if os.environ.get("VERCEL") != "1":
+        try:
+            conn.execute("PRAGMA journal_mode=WAL")
+            conn.execute("PRAGMA synchronous=NORMAL")
+            conn.execute("PRAGMA cache_size=-64000")
+        except:
+            pass
+    return conn
 
 # Vercel serverless不支持shutdown事件，移除
 
