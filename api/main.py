@@ -167,15 +167,61 @@ if not os.path.exists(USER_DB_PATH):
             expires_at TEXT,
             used INTEGER DEFAULT 0,
             created_at TEXT)''')
-        # 反馈表
+        # 通知表
+        conn.execute('''CREATE TABLE IF NOT EXISTS notifications
+            (id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            title TEXT NOT NULL,
+            message TEXT,
+            type TEXT DEFAULT 'info',
+            related_id INTEGER,
+            related_type TEXT,
+            is_read INTEGER DEFAULT 0,
+            created_at TEXT)''')
+        
+        # 反馈表（增强版）
         conn.execute('''CREATE TABLE IF NOT EXISTS feedback
             (id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id INTEGER,
             email TEXT,
             type TEXT,
+            title TEXT,
             content TEXT,
+            priority TEXT DEFAULT 'medium',
+            tags TEXT,
+            screenshot_url TEXT,
             status TEXT DEFAULT 'pending',
+            admin_reply TEXT,
+            reply_at TEXT,
+            rating INTEGER,
+            rating_comment TEXT,
             created_at TEXT)''')
+        
+        # 反馈表字段迁移（确保旧表有新字段）
+        try:
+            conn.execute("ALTER TABLE feedback ADD COLUMN title TEXT")
+        except: pass
+        try:
+            conn.execute("ALTER TABLE feedback ADD COLUMN priority TEXT DEFAULT 'medium'")
+        except: pass
+        try:
+            conn.execute("ALTER TABLE feedback ADD COLUMN tags TEXT")
+        except: pass
+        try:
+            conn.execute("ALTER TABLE feedback ADD COLUMN screenshot_url TEXT")
+        except: pass
+        try:
+            conn.execute("ALTER TABLE feedback ADD COLUMN admin_reply TEXT")
+        except: pass
+        try:
+            conn.execute("ALTER TABLE feedback ADD COLUMN reply_at TEXT")
+        except: pass
+        try:
+            conn.execute("ALTER TABLE feedback ADD COLUMN rating INTEGER")
+        except: pass
+        try:
+            conn.execute("ALTER TABLE feedback ADD COLUMN rating_comment TEXT")
+        except: pass
         # 使用记录表
         conn.execute('''CREATE TABLE IF NOT EXISTS usage
             (id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -1707,61 +1753,250 @@ def get_current_user_optional(authorization: Optional[str] = Header(None)):
 
 @app.post("/api/v1/feedback")
 async def submit_feedback(request: FeedbackRequest, user: Optional[dict] = Depends(get_current_user_optional)):
-    """提交用户反馈"""
+    """提交用户反馈（增强版）"""
     conn = get_user_db()
     cursor = conn.cursor()
     
     user_id = user.get("id") if user else None
     email = request.email or (user.get("email") if user else "anonymous")
     
+    # 使用增强字段
+    title = getattr(request, 'title', None) or request.content[:50] if request.content else None
+    priority = getattr(request, 'priority', 'medium')
+    tags = getattr(request, 'tags', None)
+    screenshot_url = getattr(request, 'screenshot_url', None)
+    
     cursor.execute("""
-        INSERT INTO feedback (user_id, email, type, content, status, created_at)
-        VALUES (?, ?, ?, ?, 'pending', ?)
-    """, (user_id, email, request.type, request.content, datetime.now().isoformat()))
+        INSERT INTO feedback (user_id, email, type, title, content, priority, tags, screenshot_url, status, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?)
+    """, (user_id, email, request.type, title, request.content, priority, tags, screenshot_url, datetime.now().isoformat()))
     conn.commit()
     
     return {"success": True, "message": "反馈已提交，感谢您的建议！"}
 
-@app.get("/api/v1/admin/feedback")
-async def admin_get_feedback(admin: dict = Depends(get_admin_user)):
-    """获取反馈列表（管理员）"""
+# ==================== 用户反馈列表 ====================
+
+@app.get("/api/v1/feedback/my")
+async def get_my_feedback(user: dict = Depends(get_current_user)):
+    """获取用户自己的反馈列表"""
     conn = get_user_db()
     cursor = conn.cursor()
     
     cursor.execute("""
-        SELECT f.id, f.user_id, f.email, f.type, f.content, f.status, f.created_at,
-               u.name as user_name
-        FROM feedback f
-        LEFT JOIN users u ON f.user_id = u.id
-        ORDER BY f.created_at DESC
-        LIMIT 100
-    """)
+        SELECT * FROM feedback WHERE user_id = ? ORDER BY created_at DESC LIMIT 50
+    """, (user["id"],))
     
-    feedbacks = []
-    for row in cursor.fetchall():
-        feedbacks.append({
-            "id": row[0],
-            "user_id": row[1],
-            "email": row[2],
-            "type": row[3],
-            "content": row[4],
-            "status": row[5],
-            "created_at": row[6],
-            "user_name": row[7]
-        })
-    
+    feedbacks = [dict(row) for row in cursor.fetchall()]
     return {"success": True, "data": feedbacks}
 
-@app.put("/api/v1/admin/feedback/{feedback_id}")
-async def admin_update_feedback(feedback_id: int, status: str, admin: dict = Depends(get_admin_user)):
-    """更新反馈状态（管理员）"""
+@app.get("/api/v1/feedback/{feedback_id}")
+async def get_feedback_detail(feedback_id: int, user: dict = Depends(get_current_user)):
+    """获取反馈详情"""
     conn = get_user_db()
     cursor = conn.cursor()
     
-    cursor.execute("UPDATE feedback SET status = ? WHERE id = ?", (status, feedback_id))
+    cursor.execute("SELECT * FROM feedback WHERE id = ? AND user_id = ?", (feedback_id, user["id"]))
+    feedback = cursor.fetchone()
+    
+    if not feedback:
+        return {"success": False, "message": "反馈不存在或无权访问"}
+    
+    return {"success": True, "data": dict(feedback)}
+
+# ==================== 通知系统 ====================
+
+@app.get("/api/v1/notifications")
+async def get_notifications(user: dict = Depends(get_current_user)):
+    """获取用户通知列表"""
+    conn = get_user_db()
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        SELECT * FROM notifications WHERE user_id = ? ORDER BY created_at DESC LIMIT 50
+    """, (user["id"],))
+    
+    notifications = [dict(row) for row in cursor.fetchall()]
+    
+    # 未读数量
+    cursor.execute("SELECT COUNT(*) as count FROM notifications WHERE user_id = ? AND is_read = 0", (user["id"],))
+    unread = cursor.fetchone()["count"]
+    
+    return {"success": True, "data": notifications, "unread": unread}
+
+@app.post("/api/v1/notifications/{notif_id}/read")
+async def mark_notification_read(notif_id: int, user: dict = Depends(get_current_user)):
+    """标记通知为已读"""
+    conn = get_user_db()
+    cursor = conn.cursor()
+    
+    cursor.execute("UPDATE notifications SET is_read = 1 WHERE id = ? AND user_id = ?", (notif_id, user["id"]))
     conn.commit()
     
-    return {"success": True, "message": f"反馈状态已更新为 {status}"}
+    return {"success": True, "message": "已标记为已读"}
+
+@app.post("/api/v1/notifications/read-all")
+async def mark_all_notifications_read(user: dict = Depends(get_current_user)):
+    """标记所有通知为已读"""
+    conn = get_user_db()
+    cursor = conn.cursor()
+    
+    cursor.execute("UPDATE notifications SET is_read = 1 WHERE user_id = ?", (user["id"],))
+    conn.commit()
+    
+    return {"success": True, "message": "全部已标记为已读"}
+
+# ==================== 满意度评分 ====================
+
+@app.post("/api/v1/feedback/{feedback_id}/rate")
+async def rate_feedback(feedback_id: int, request: Request, user: dict = Depends(get_current_user)):
+    """用户对已解决的反馈进行评分"""
+    data = await request.json()
+    rating = data.get("rating")
+    comment = data.get("comment", "")
+    
+    if not rating or rating < 1 or rating > 5:
+        return {"success": False, "message": "评分必须在1-5之间"}
+    
+    conn = get_user_db()
+    cursor = conn.cursor()
+    
+    # 验证反馈归属
+    cursor.execute("SELECT * FROM feedback WHERE id = ? AND user_id = ?", (feedback_id, user["id"]))
+    feedback = cursor.fetchone()
+    
+    if not feedback:
+        return {"success": False, "message": "反馈不存在或无权评分"}
+    
+    if feedback["status"] != "resolved":
+        return {"success": False, "message": "只能对已解决的反馈评分"}
+    
+    # 更新评分
+    cursor.execute("UPDATE feedback SET rating = ?, rating_comment = ? WHERE id = ?", (rating, comment, feedback_id))
+    conn.commit()
+    
+    return {"success": True, "message": "感谢您的评分！"}
+
+# ==================== 管理后台 ====================
+
+@app.get("/api/v1/admin/feedback")
+async def admin_get_feedback(admin: dict = Depends(get_admin_user)):
+    """获取反馈列表（管理员增强版）"""
+    conn = get_user_db()
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        SELECT f.*, u.name as user_name
+        FROM feedback f
+        LEFT JOIN users u ON f.user_id = u.id
+        ORDER BY 
+            CASE f.priority WHEN 'urgent' THEN 1 WHEN 'high' THEN 2 WHEN 'medium' THEN 3 ELSE 4 END,
+            f.created_at DESC
+        LIMIT 100
+    """)
+    
+    feedbacks = [dict(row) for row in cursor.fetchall()]
+    return {"success": True, "data": feedbacks}
+
+@app.get("/api/v1/admin/feedback/stats")
+async def admin_feedback_stats(admin: dict = Depends(get_admin_user)):
+    """反馈统计（管理后台仪表盘）"""
+    conn = get_user_db()
+    cursor = conn.cursor()
+    
+    cursor.execute("SELECT COUNT(*) as count FROM feedback")
+    total = cursor.fetchone()["count"]
+    
+    cursor.execute("SELECT COUNT(*) as count FROM feedback WHERE status = 'pending'")
+    pending = cursor.fetchone()["count"]
+    
+    cursor.execute("SELECT COUNT(*) as count FROM feedback WHERE status = 'in_progress'")
+    in_progress = cursor.fetchone()["count"]
+    
+    cursor.execute("SELECT COUNT(*) as count FROM feedback WHERE status = 'resolved'")
+    resolved = cursor.fetchone()["count"]
+    
+    cursor.execute("SELECT COUNT(*) as count FROM feedback WHERE status = 'closed'")
+    closed = cursor.fetchone()["count"]
+    
+    cursor.execute("SELECT COUNT(*) as count FROM feedback WHERE priority = 'urgent' AND status != 'resolved' AND status != 'closed'")
+    urgent_count = cursor.fetchone()["count"]
+    
+    cursor.execute("SELECT AVG(rating) as avg FROM feedback WHERE rating IS NOT NULL")
+    avg_rating = cursor.fetchone()["avg"] or 0
+    
+    return {
+        "success": True,
+        "data": {
+            "total": total,
+            "pending": pending,
+            "in_progress": in_progress,
+            "resolved": resolved,
+            "closed": closed,
+            "urgent_count": urgent_count,
+            "avg_rating": round(avg_rating, 1) if avg_rating else 0
+        }
+    }
+
+def create_notification(user_id: int, title: str, message: str, notif_type: str = "info", related_id: int = None, related_type: str = None):
+    """创建通知的辅助函数"""
+    conn = get_user_db()
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        INSERT INTO notifications (user_id, title, message, type, related_id, related_type, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    """, (user_id, title, message, notif_type, related_id, related_type, datetime.now().isoformat()))
+    
+    conn.commit()
+
+@app.put("/api/v1/admin/feedback/{feedback_id}")
+async def admin_update_feedback(feedback_id: int, status: str = None, reply: str = None, admin: dict = Depends(get_admin_user)):
+    """更新反馈（管理员，支持回复+通知）"""
+    conn = get_user_db()
+    cursor = conn.cursor()
+    
+    cursor.execute("SELECT * FROM feedback WHERE id = ?", (feedback_id,))
+    feedback = cursor.fetchone()
+    if not feedback:
+        return {"success": False, "message": "反馈不存在"}
+    
+    old_status = feedback["status"]
+    
+    if status:
+        cursor.execute("UPDATE feedback SET status = ? WHERE id = ?", (status, feedback_id))
+        
+        # 状态变化通知
+        status_text = {"pending": "待处理", "in_progress": "处理中", "resolved": "已解决", "closed": "已关闭"}
+        if feedback["user_id"] and status != old_status:
+            create_notification(
+                user_id=feedback["user_id"],
+                title=f"反馈状态更新 #{feedback_id}",
+                message=f"您的反馈「{feedback['title'] or '无标题'}」状态已更新为：{status_text.get(status, status)}",
+                notif_type="feedback",
+                related_id=feedback_id,
+                related_type="feedback"
+            )
+    
+    if reply:
+        cursor.execute("""
+            UPDATE feedback SET admin_reply = ?, reply_at = ?, status = 'in_progress'
+            WHERE id = ?
+        """, (reply, datetime.now().isoformat(), feedback_id))
+        
+        # 回复通知
+        if feedback["user_id"]:
+            create_notification(
+                user_id=feedback["user_id"],
+                title=f"您收到管理员回复 #{feedback_id}",
+                message=f"管理员回复了您的反馈「{feedback['title'] or '无标题'}」",
+                notif_type="feedback_reply",
+                related_id=feedback_id,
+                related_type="feedback"
+            )
+    
+    conn.commit()
+    
+    return {"success": True, "message": "反馈已更新"}
 
 if __name__ == "__main__":
     import uvicorn
