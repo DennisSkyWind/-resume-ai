@@ -1446,6 +1446,9 @@ def analyze_resume(resume: str, industry: str, language: str, jd: Optional[str] 
     # 关键词密度分析（新增）
     keyword_density_result = analyze_keyword_density(resume, keywords_found, all_keywords)
     
+    # 量化指标分析（新增）
+    quantified_metrics_result = analyze_quantified_metrics(resume)
+    
     # 如果有JD，综合评分加入JD匹配度
     if jd_match_result:
         overall_score = round((keyword_score * 0.3 + ats_score * 0.2 + jd_match_result["jd_match_score"] * 0.5), 1)
@@ -1453,6 +1456,10 @@ def analyze_resume(resume: str, industry: str, language: str, jd: Optional[str] 
         overall_score = round((keyword_score * 0.6 + ats_score * 0.4), 1)
     
     suggestions = generate_suggestions(resume, keywords_missing, industry)
+    
+    # 添加量化指标建议
+    if quantified_metrics_result["suggestions"]:
+        suggestions.extend(quantified_metrics_result["suggestions"])
     
     # 如果有JD缺失关键词，添加到建议
     if jd_match_result and jd_match_result["jd_missing"]:
@@ -1467,8 +1474,9 @@ def analyze_resume(resume: str, industry: str, language: str, jd: Optional[str] 
         "overall_score": overall_score,
         "keyword_score": keyword_score,
         "ats_score": ats_score,
-        "ats_details": ats_result,  # 新增：完整的ATS检测结果
-        "keyword_density": keyword_density_result,  # 新增：关键词密度分析
+        "ats_details": ats_result,
+        "keyword_density": keyword_density_result,
+        "metrics_analysis": quantified_metrics_result,  # 新增：量化指标分析
         "jd_match": jd_match_result,
         "keywords_found": keywords_found,
         "keywords_missing": keywords_missing,
@@ -1792,6 +1800,97 @@ def analyze_keyword_density(resume: str, keywords_found: list, all_keywords: lis
         "total_keywords": len(keywords_found),
         "total_chars": total_chars,
         "recommendation": "建议关键词密度保持在2-5%，均匀分布在各段落"
+    }
+
+def analyze_quantified_metrics(resume: str) -> dict:
+    """量化指标检测与分析"""
+    # 量化指标模式（数字+单位）
+    patterns = {
+        "百分比": r'\d+(?:\.\d+)?%',
+        "金额": r'\d+(?:\.\d+)?(?:万|千万|亿|元|块)',
+        "人数": r'\d+(?:\.\d+)?(?:人|名|位|个)',
+        "时间": r'\d+(?:\.\d+)?(?:年|月|天|小时|分钟|次)',
+        "数量": r'\d+(?:\.\d+)?(?:个|件|条|篇|份|户|客户|订单)'
+    }
+    
+    # 更复杂的量化模式（动词+数字+单位）
+    action_patterns = [
+        r'(提升|增长|增加|提高|上升)\s*[^\d]*\d+(?:\.\d+)?%',
+        r'(节省|减少|降低|下降|节约)\s*[^\d]*\d+(?:\.\d+)?(?:万|千万|亿|元|%)',
+        r'(完成|达成|实现|达到)\s*[^\d]*\d+(?:\.\d+)?(?:万|千万|亿|%|个|件)',
+        r'(管理|带领|负责|领导)\s*[^\d]*\d+(?:\.\d+)?(?:人|名|位)',
+        r'(处理|服务|接待|响应)\s*[^\d]*\d+(?:\.\d+)?(?:个|件|户|客户|订单)'
+    ]
+    
+    metrics_found = []
+    total_metrics = 0
+    
+    # 按类型检测
+    for metric_type, pattern in patterns.items():
+        matches = re.findall(pattern, resume)
+        if matches:
+            for match in matches[:5]:  # 每类最多5个
+                metrics_found.append({
+                    "type": metric_type,
+                    "value": match,
+                    "context": ""  # 可以后续提取上下文
+                })
+            total_metrics += len(matches)
+    
+    # 检测动词+数值模式（更专业）
+    action_metrics = []
+    for pattern in action_patterns:
+        matches = re.findall(pattern, resume)
+        for match in matches:
+            action_metrics.append(match)
+    
+    # 评分和建议
+    score = 0
+    warnings = []
+    suggestions = []
+    
+    if total_metrics >= 5:
+        score = 100
+    elif total_metrics >= 3:
+        score = 80
+        warnings.append("量化数据较少，建议增加更多具体成果数据")
+    elif total_metrics >= 1:
+        score = 50
+        warnings.append("仅检测到少量量化数据，建议补充更多成果指标")
+    else:
+        score = 0
+        warnings.append("缺少量化成果数据，强烈建议添加具体数字指标")
+    
+    # 检测工作经历段落是否缺少量化
+    work_sections = re.findall(r'(?:工作经历|工作经验|任职|就职)[^\n]*\n(?:[^\n]+\n){1,5}', resume)
+    for i, section in enumerate(work_sections):
+        if not re.search(r'\d+', section):
+            warnings.append(f"工作经历第{i+1}段缺少量化数据，建议添加具体成果")
+            suggestions.append({
+                "type": "add_metric",
+                "section": f"工作经历第{i+1}段",
+                "example": "例如：销售额增长30%、节省成本10万元、管理团队15人"
+            })
+    
+    # 量化示例模板
+    metric_templates = [
+        "销售额增长XX%",
+        "节省成本XX万元",
+        "管理团队XX人",
+        "处理XX个客户/订单",
+        "提升效率XX%",
+        "完成XX个项目"
+    ]
+    
+    return {
+        "score": score,
+        "total_metrics": total_metrics,
+        "metrics_found": metrics_found[:15],  # 最多返回15个
+        "action_metrics": action_metrics[:5],  # 动词+数值模式
+        "warnings": warnings,
+        "suggestions": suggestions,
+        "templates": metric_templates,
+        "recommendation": "简历中至少应包含3-5个量化成果数据，展示具体业绩"
     }
 
 # ========== 其他API ==========
