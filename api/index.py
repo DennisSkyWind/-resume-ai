@@ -2,8 +2,11 @@
 import sys
 import os
 import traceback
+import json
 
-# 错误处理包装器
+# 设置环境
+os.environ["VERCEL"] = "1"
+
 def handler(event, context):
     try:
         # 动态导入main
@@ -15,8 +18,9 @@ def handler(event, context):
         return mangum_handler(event, context)
     except Exception as e:
         error_msg = f"Error: {str(e)}\nTraceback: {traceback.format_exc()}"
+        print(error_msg)  # 输出到Vercel日志
         return {
             "statusCode": 500,
-            "body": error_msg,
-            "headers": {"Content-Type": "text/plain"}
+            "body": json.dumps({"error": str(e), "traceback": traceback.format_exc()}),
+            "headers": {"Content-Type": "application/json"}
         }
