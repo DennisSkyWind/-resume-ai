@@ -1443,6 +1443,9 @@ def analyze_resume(resume: str, industry: str, language: str, jd: Optional[str] 
     ats_result = check_ats(resume)
     ats_score = ats_result["score"]
     
+    # 关键词密度分析（新增）
+    keyword_density_result = analyze_keyword_density(resume, keywords_found, all_keywords)
+    
     # 如果有JD，综合评分加入JD匹配度
     if jd_match_result:
         overall_score = round((keyword_score * 0.3 + ats_score * 0.2 + jd_match_result["jd_match_score"] * 0.5), 1)
@@ -1465,6 +1468,7 @@ def analyze_resume(resume: str, industry: str, language: str, jd: Optional[str] 
         "keyword_score": keyword_score,
         "ats_score": ats_score,
         "ats_details": ats_result,  # 新增：完整的ATS检测结果
+        "keyword_density": keyword_density_result,  # 新增：关键词密度分析
         "jd_match": jd_match_result,
         "keywords_found": keywords_found,
         "keywords_missing": keywords_missing,
@@ -1707,6 +1711,88 @@ def generate_suggestions(resume: str, missing_keywords: list, industry: str):
             })
     
     return suggestions
+
+def analyze_keyword_density(resume: str, keywords_found: list, all_keywords: list) -> dict:
+    """关键词密度分析"""
+    # 计算总字数
+    total_chars = len(resume)
+    if total_chars == 0:
+        return {"density": 0, "distribution": "empty", "warnings": []}
+    
+    # 计算关键词总字数
+    keyword_chars = 0
+    keyword_positions = []  # 记录关键词位置
+    
+    for kw in keywords_found:
+        kw_text = kw["keyword"]
+        kw_len = len(kw_text)
+        keyword_chars += kw_len
+        
+        # 查找关键词位置
+        pos = resume.find(kw_text)
+        if pos != -1:
+            keyword_positions.append({
+                "keyword": kw_text,
+                "position": pos,
+                "section": pos // (total_chars // 5) if total_chars > 0 else 0  # 分5段
+            })
+    
+    # 计算密度百分比
+    density = round(keyword_chars / total_chars * 100, 2) if total_chars > 0 else 0
+    
+    # 判断密度是否合理（推荐2-5%）
+    density_status = "normal"
+    density_warnings = []
+    
+    if density < 2:
+        density_status = "low"
+        density_warnings.append("关键词密度过低（<2%），建议增加行业关键词")
+    elif density > 8:
+        density_status = "high"
+        density_warnings.append("关键词密度过高（>8%），可能存在堆砌风险")
+    elif density > 5:
+        density_status = "slightly_high"
+        density_warnings.append("关键词密度偏高，注意避免堆砌")
+    
+    # 分析关键词分布（是否分散在各段落）
+    if keyword_positions:
+        # 将简历分成5段
+        sections = [0, 0, 0, 0, 0]
+        for kp in keyword_positions:
+            section_idx = min(kp["section"], 4)
+            sections[section_idx] += 1
+        
+        # 计算分布均匀度
+        total_kw = len(keyword_positions)
+        distribution_status = "balanced"
+        
+        if total_kw > 0:
+            max_section = max(sections)
+            min_section = min(sections)
+            
+            # 如果某个段落关键词过多
+            if max_section > total_kw * 0.5:
+                distribution_status = "concentrated"
+                density_warnings.append(f"关键词集中在第{sections.index(max_section)+1}部分，建议分散到各段落")
+            # 如果某些段落没有关键词
+            elif min_section == 0 and total_kw >= 3:
+                empty_sections = [i for i, s in enumerate(sections) if s == 0]
+                distribution_status = "unbalanced"
+                density_warnings.append(f"第{[i+1 for i in empty_sections]}部分缺少关键词，建议补充")
+    else:
+        distribution_status = "no_keywords"
+        density_warnings.append("未检测到行业关键词")
+    
+    return {
+        "density": density,
+        "density_status": density_status,
+        "distribution": distribution_status,
+        "keyword_positions": keyword_positions[:10],  # 只返回前10个
+        "warnings": density_warnings,
+        "total_keywords": len(keywords_found),
+        "total_chars": total_chars,
+        "recommendation": "建议关键词密度保持在2-5%，均匀分布在各段落"
+    }
 
 # ========== 其他API ==========
 
