@@ -1440,7 +1440,8 @@ def analyze_resume(resume: str, industry: str, language: str, jd: Optional[str] 
     
     # 计算评分（包含JD匹配度）
     keyword_score = round(matched_weight / total_weight * 100, 1) if total_weight > 0 else 0
-    ats_score = check_ats(resume)
+    ats_result = check_ats(resume)
+    ats_score = ats_result["score"]
     
     # 如果有JD，综合评分加入JD匹配度
     if jd_match_result:
@@ -1463,6 +1464,7 @@ def analyze_resume(resume: str, industry: str, language: str, jd: Optional[str] 
         "overall_score": overall_score,
         "keyword_score": keyword_score,
         "ats_score": ats_score,
+        "ats_details": ats_result,  # 新增：完整的ATS检测结果
         "jd_match": jd_match_result,
         "keywords_found": keywords_found,
         "keywords_missing": keywords_missing,
@@ -1516,20 +1518,173 @@ def optimize_resume(resume: str, industry: str, language: str):
         "analysis": analysis
     }
 
-def check_ats(resume: str):
-    """ATS兼容性检测"""
-    score = 100
+def check_ats(resume: str) -> dict:
+    """ATS兼容性检测 - 扩展版（12项检测）"""
+    checks = []
+    total_score = 100
     
-    if len(resume) < 200:
-        score -= 20
-    if len(resume) > 5000:
-        score -= 10
-    if not re.search(r'\d{11}', resume) and not re.search(r'[\w\.-]+@[\w\.-]+\.\w+', resume):
-        score -= 15
-    if re.search(r'[◆●■□▲►]', resume):
-        score -= 5
+    # 1. 简历长度检测
+    length = len(resume)
+    if length < 200:
+        checks.append({"name": "简历长度", "status": "warning", "message": f"简历过短（{length}字），建议至少300字以上", "score": 80})
+        total_score -= 20
+    elif length > 5000:
+        checks.append({"name": "简历长度", "status": "warning", "message": f"简历过长（{length}字），建议控制在5000字以内", "score": 90})
+        total_score -= 10
+    else:
+        checks.append({"name": "简历长度", "status": "pass", "message": f"简历长度适中（{length}字）", "score": 100})
     
-    return max(0, score)
+    # 2. 电话号码检测
+    phone_pattern = r'(1[3-9]\d{9}|0\d{2,3}-?\d{7,8}|\d{3,4}-?\d{3,4}-?\d{4})'
+    has_phone = re.search(phone_pattern, resume)
+    if has_phone:
+        checks.append({"name": "电话号码", "status": "pass", "message": "检测到电话号码", "score": 100})
+    else:
+        checks.append({"name": "电话号码", "status": "error", "message": "缺少电话号码", "score": 0})
+        total_score -= 15
+    
+    # 3. 邮箱检测
+    email_pattern = r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'
+    has_email = re.search(email_pattern, resume)
+    if has_email:
+        checks.append({"name": "电子邮箱", "status": "pass", "message": "检测到邮箱地址", "score": 100})
+    else:
+        checks.append({"name": "电子邮箱", "status": "error", "message": "缺少邮箱地址", "score": 0})
+        total_score -= 15
+    
+    # 4. 段落结构检测（按换行符分割）
+    paragraphs = [p.strip() for p in resume.split('\n\n') if p.strip()]
+    if len(paragraphs) >= 3:
+        checks.append({"name": "段落结构", "status": "pass", "message": f"有{len(paragraphs)}个清晰段落", "score": 100})
+    elif len(paragraphs) >= 2:
+        checks.append({"name": "段落结构", "status": "warning", "message": f"仅{len(paragraphs)}个段落，建议增加段落划分", "score": 70})
+        total_score -= 10
+    else:
+        checks.append({"name": "段落结构", "status": "error", "message": "缺少段落划分，建议按工作经历/技能等分段", "score": 0})
+        total_score -= 20
+    
+    # 5. 日期格式统一性检测
+    date_patterns = [
+        r'\d{4}年\d{1,2}月',           # 2023年5月
+        r'\d{4}\.\d{1,2}',             # 2023.05
+        r'\d{4}/\d{1,2}',              # 2023/05
+        r'\d{1,2}/\d{4}',              # 05/2023
+        r'(至今|present|now)',         # 至今
+    ]
+    dates_found = []
+    for pattern in date_patterns:
+        matches = re.findall(pattern, resume, re.IGNORECASE)
+        dates_found.extend(matches)
+    
+    if len(dates_found) >= 2:
+        # 检查格式是否一致（简化检测）
+        has_chinese = any('年' in d or '月' in d or '至今' in d for d in dates_found)
+        has_dot = any('.' in d for d in dates_found)
+        if not (has_chinese and has_dot):  # 格式统一
+            checks.append({"name": "日期格式", "status": "pass", "message": f"检测到{len(dates_found)}处日期，格式统一", "score": 100})
+        else:
+            checks.append({"name": "日期格式", "status": "warning", "message": "日期格式不统一，建议统一使用一种格式", "score": 70})
+            total_score -= 5
+    elif len(dates_found) == 1:
+        checks.append({"name": "日期格式", "status": "warning", "message": "仅检测到1处日期，建议补充工作时间", "score": 60})
+        total_score -= 10
+    else:
+        checks.append({"name": "日期格式", "status": "error", "message": "缺少日期信息，建议添加工作时间", "score": 0})
+        total_score -= 15
+    
+    # 6. 特殊符号检测（ATS不友好）
+    special_chars = r'[◆●■□▲►★☆※◎○◇△▽⊙⊕]'
+    has_special = re.search(special_chars, resume)
+    if has_special:
+        special_found = re.findall(special_chars, resume)
+        checks.append({"name": "特殊符号", "status": "warning", "message": f"包含{len(special_found)}个特殊符号（ATS可能无法识别）", "score": 80})
+        total_score -= 5
+    else:
+        checks.append({"name": "特殊符号", "status": "pass", "message": "无特殊符号，ATS友好", "score": 100})
+    
+    # 7. 量化指标检测
+    metrics_pattern = r'(提升|增长|增加|节省|减少|完成|达成)[^\d]*(\d+[%万千万亿]|[\d.]+[%万千万亿])'
+    has_metrics = re.search(metrics_pattern, resume)
+    if has_metrics:
+        metrics_count = len(re.findall(metrics_pattern, resume))
+        checks.append({"name": "量化成果", "status": "pass", "message": f"检测到{metrics_count}处量化成果数据", "score": 100})
+    else:
+        # 简化检测：只看数字+单位
+        simple_metrics = re.findall(r'\d+[%万千万亿]', resume)
+        if len(simple_metrics) >= 2:
+            checks.append({"name": "量化成果", "status": "pass", "message": f"检测到{len(simple_metrics)}处数据指标", "score": 90})
+        else:
+            checks.append({"name": "量化成果", "status": "warning", "message": "缺少量化成果，建议添加具体数据（如：销售额增长30%）", "score": 50})
+            total_score -= 10
+    
+    # 8. 行动动词检测
+    action_verbs = ['负责', '完成', '实现', '优化', '开发', '管理', '协调', '策划', '执行', '分析', '提升', '建立', '主导', '推动', '达成', '获得', '荣获', '创造', '改善', '节约']
+    verbs_found = [v for v in action_verbs if v in resume]
+    if len(verbs_found) >= 5:
+        checks.append({"name": "行动动词", "status": "pass", "message": f"使用{len(verbs_found)}个行动动词，表达积极", "score": 100})
+    elif len(verbs_found) >= 3:
+        checks.append({"name": "行动动词", "status": "warning", "message": f"仅{len(verbs_found)}个行动动词，建议增加", "score": 70})
+        total_score -= 5
+    else:
+        checks.append({"name": "行动动词", "status": "error", "message": "缺少行动动词，建议使用如：负责、完成、优化等", "score": 0})
+        total_score -= 10
+    
+    # 9. 技能关键词检测（常见技能词）
+    skill_keywords = ['熟练', '精通', '掌握', '熟悉', '擅长', '具备', '了解', '运用']
+    skills_found = [s for s in skill_keywords if s in resume]
+    if len(skills_found) >= 3:
+        checks.append({"name": "技能描述", "status": "pass", "message": f"包含{len(skills_found)}处技能描述词", "score": 100})
+    elif len(skills_found) >= 1:
+        checks.append({"name": "技能描述", "status": "warning", "message": f"仅{len(skills_found)}处技能描述，建议补充", "score": 70})
+        total_score -= 5
+    else:
+        checks.append({"name": "技能描述", "status": "error", "message": "缺少技能熟练度描述词", "score": 0})
+        total_score -= 10
+    
+    # 10. 工作经历检测（关键词）
+    work_keywords = ['工作', '任职', '就职', '就职于', '岗位', '职位', '公司', '企业']
+    work_found = [w for w in work_keywords if w in resume]
+    if len(work_found) >= 2:
+        checks.append({"name": "工作经历", "status": "pass", "message": f"检测到工作经历相关内容", "score": 100})
+    elif len(work_found) >= 1:
+        checks.append({"name": "工作经历", "status": "warning", "message": "工作经历描述较少，建议补充", "score": 70})
+        total_score -= 5
+    else:
+        checks.append({"name": "工作经历", "status": "error", "message": "缺少工作经历描述", "score": 0})
+        total_score -= 15
+    
+    # 11. 教育经历检测
+    edu_keywords = ['大学', '学院', '学校', '学历', '专业', '本科', '硕士', '博士', '大专', '毕业']
+    edu_found = [e for e in edu_keywords if e in resume]
+    if len(edu_found) >= 2:
+        checks.append({"name": "教育经历", "status": "pass", "message": f"检测到教育经历相关内容", "score": 100})
+    elif len(edu_found) >= 1:
+        checks.append({"name": "教育经历", "status": "warning", "message": "教育经历描述较少，建议补充", "score": 70})
+        total_score -= 5
+    else:
+        checks.append({"name": "教育经历", "status": "error", "message": "缺少教育经历描述", "score": 0})
+        total_score -= 10
+    
+    # 12. 简历标题/职位意向检测
+    title_keywords = ['求职', '应聘', '意向', '目标职位', '期望', '应聘职位']
+    has_title = any(t in resume[:200] for t in title_keywords)  # 检查前200字
+    if has_title:
+        checks.append({"name": "求职意向", "status": "pass", "message": "检测到求职意向/目标职位", "score": 100})
+    else:
+        checks.append({"name": "求职意向", "status": "warning", "message": "建议在开头添加求职意向", "score": 60})
+        total_score -= 5
+    
+    # 计算最终分数（保底0分）
+    final_score = max(0, min(100, total_score))
+    
+    return {
+        "score": final_score,
+        "checks": checks,
+        "total_checks": 12,
+        "passed": len([c for c in checks if c["status"] == "pass"]),
+        "warnings": len([c for c in checks if c["status"] == "warning"]),
+        "errors": len([c for c in checks if c["status"] == "error"])
+    }
 
 def generate_suggestions(resume: str, missing_keywords: list, industry: str):
     """生成优化建议"""

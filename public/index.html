@@ -3000,6 +3000,31 @@
                         ${createScoreBar('内容完整度', data.content_score || Math.round((data.keyword_score + data.ats_score) / 2))}
                     </div>
                     
+                    <!-- ATS检测详情 -->
+                    ${data.ats_details ? `
+                    <div class="keywords-section" style="background:#f0fdf4;padding:20px;border-radius:12px;margin-bottom:24px;">
+                        <div class="keywords-title" style="display:flex;align-items:center;gap:8px;">
+                            <span>📋 ATS兼容检测详情</span>
+                            <span style="background:${data.ats_details.score >= 80 ? '#10b981' : data.ats_details.score >= 60 ? '#f59e0b' : '#ef4444'};color:#fff;padding:4px 12px;border-radius:12px;font-size:14px;font-weight:600;">${data.ats_details.score}分</span>
+                        </div>
+                        <div style="font-size:13px;color:#666;margin-bottom:16px;">
+                            通过 ${data.ats_details.passed} 项 · 警告 ${data.ats_details.warnings} 项 · 错误 ${data.ats_details.errors} 项
+                        </div>
+                        <div style="display:grid;gap:12px;">
+                            ${data.ats_details.checks.map(check => `
+                                <div style="display:flex;align-items:center;gap:12px;padding:12px;background:#fff;border-radius:8px;border:1px solid #e5e7eb;">
+                                    <span style="font-size:20px;">${check.status === 'pass' ? '✅' : check.status === 'warning' ? '⚠️' : '❌'}</span>
+                                    <div style="flex:1;">
+                                        <div style="font-weight:600;font-size:14px;color:#1f2937;">${check.name}</div>
+                                        <div style="font-size:13px;color:#6b7280;">${check.message}</div>
+                                    </div>
+                                    <div style="font-size:14px;font-weight:600;color:${check.score >= 80 ? '#10b981' : check.score >= 50 ? '#f59e0b' : '#ef4444'};">${check.score}分</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    ` : ''}
+                    
                     <!-- 关键词匹配统计饼图 -->
                     ${createKeywordsPieChart(data.keywords_found?.length || 0, data.keywords_missing?.length || 0)}
             `;
