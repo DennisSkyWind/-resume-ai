@@ -1,0 +1,324 @@
+{
+  "project": "ResumeAI",
+  "plan_name": "产品优化计划 - 用户体验提升",
+  "created_at": "2026-05-19T22:45:00",
+  "source": "用户视角测试发现的改进点",
+  "total_tasks": 18,
+  "completed": 0,
+  "in_progress": 0,
+  "pending": 18,
+  "current_phase": 1,
+  "phases": [
+    {
+      "phase": 1,
+      "name": "API稳定性与性能",
+      "priority": "urgent",
+      "tasks": ["O1-1", "O1-2", "O1-3"]
+    },
+    {
+      "phase": 2,
+      "name": "ATS检测增强",
+      "priority": "high",
+      "tasks": ["O2-1", "O2-2", "O2-3", "O2-4"]
+    },
+    {
+      "phase": 3,
+      "name": "优化建议智能化",
+      "priority": "high",
+      "tasks": ["O3-1", "O3-2", "O3-3"]
+    },
+    {
+      "phase": 4,
+      "name": "行业关键词细分",
+      "priority": "medium",
+      "tasks": ["O4-1", "O4-2", "O4-3"]
+    },
+    {
+      "phase": 5,
+      "name": "评分权重可配置",
+      "priority": "medium",
+      "tasks": ["O5-1", "O5-2"]
+    },
+    {
+      "phase": 6,
+      "name": "示例案例库",
+      "priority": "medium",
+      "tasks": ["O6-1", "O6-2", "O6-3"]
+    }
+  ],
+  "tasks": [
+    {
+      "id": "O1-1",
+      "name": "API健康检查增强 - 添加错误重试和降级策略",
+      "phase": 1,
+      "status": "pending",
+      "priority": "urgent",
+      "eta": "30min",
+      "description": "添加API调用重试机制（3次），失败时显示友好提示而非500错误",
+      "details": [
+        "前端添加try-catch包裹所有API调用",
+        "添加重试逻辑（fetch失败后延迟重试）",
+        "错误时显示'服务暂时不可用，请稍后再试'",
+        "记录错误日志到localStorage便于排查"
+      ]
+    },
+    {
+      "id": "O1-2",
+      "name": "Render后端冷启动优化",
+      "phase": 1,
+      "status": "pending",
+      "priority": "urgent",
+      "eta": "20min",
+      "description": "Render免费层冷启动慢，优化前端超时和加载提示",
+      "details": [
+        "前端API超时从30秒增加到60秒",
+        "添加'正在加载...'动画提示",
+        "首次请求预热（页面加载时ping health API）"
+      ]
+    },
+    {
+      "id": "O1-3",
+      "name": "API响应缓存策略",
+      "phase": 1,
+      "status": "pending",
+      "priority": "high",
+      "eta": "45min",
+      "description": "减少重复请求，提升响应速度",
+      "details": [
+        "行业列表API本地缓存（1小时有效）",
+        "用户信息localStorage缓存",
+        "分析结果临时缓存（刷新不丢失）"
+      ]
+    },
+    {
+      "id": "O2-1",
+      "name": "ATS检测扩展 - 格式结构检测",
+      "phase": 2,
+      "status": "pending",
+      "priority": "high",
+      "eta": "1h",
+      "description": "当前仅4项检测，扩展到12项专业检测",
+      "details": [
+        "段落结构检测（是否有清晰的段落划分）",
+        "字体格式一致性检测",
+        "日期格式统一性检测",
+        "联系方式完整性检测（电话、邮箱、地址）"
+      ]
+    },
+    {
+      "id": "O2-2",
+      "name": "ATS检测扩展 - 关键词密度分析",
+      "phase": 2,
+      "status": "pending",
+      "priority": "high",
+      "eta": "45min",
+      "description": "分析关键词分布是否合理",
+      "details": [
+        "计算关键词密度百分比",
+        "检测关键词是否分散在各段落",
+        "提示关键词堆砌风险",
+        "推荐合理密度范围（2-5%）"
+      ]
+    },
+    {
+      "id": "O2-3",
+      "name": "ATS检测扩展 - 量化指标检测",
+      "phase": 2,
+      "status": "pending",
+      "priority": "high",
+      "eta": "30min",
+      "description": "检测简历是否包含量化成果",
+      "details": [
+        "检测数字+单位模式（如'提升30%'、'节省10万'）",
+        "统计量化指标数量",
+        "提示需要量化的工作经历",
+        "示例：'销售额增长XX%'、'团队规模XX人'"
+      ]
+    },
+    {
+      "id": "O2-4",
+      "name": "ATS检测扩展 - 完整性评分",
+      "phase": 2,
+      "status": "pending",
+      "priority": "medium",
+      "eta": "30min",
+      "description": "综合ATS评分可视化",
+      "details": [
+        "ATS评分雷达图展示",
+        "各项检测得分明细",
+        "改进优先级排序",
+        "一键生成ATS优化报告"
+      ]
+    },
+    {
+      "id": "O3-1",
+      "name": "优化建议 - 示例句子生成",
+      "phase": 3,
+      "status": "pending",
+      "priority": "high",
+      "eta": "1h",
+      "description": "不仅提示'添加关键词'，还给出示例句子",
+      "details": [
+        "AI生成包含关键词的示例句子",
+        "示例句子风格匹配行业特点",
+        "用户可直接复制使用",
+        "多个示例供选择"
+      ]
+    },
+    {
+      "id": "O3-2",
+      "name": "优化建议 - 位置建议",
+      "phase": 3,
+      "status": "pending",
+      "priority": "high",
+      "eta": "45min",
+      "description": "提示关键词应该放在简历哪个位置",
+      "details": [
+        "分析简历结构（工作经历、技能、项目等）",
+        "推荐关键词最佳位置",
+        "高亮显示可插入位置",
+        "一键插入建议"
+      ]
+    },
+    {
+      "id": "O3-3",
+      "name": "优化建议 - 同义词推荐",
+      "phase": 3,
+      "status": "pending",
+      "priority": "medium",
+      "eta": "30min",
+      "description": "提供关键词同义词，丰富表达",
+      "details": [
+        "关键词同义词库",
+        "AI生成相关表达方式",
+        "避免重复使用同一词汇",
+        "行业术语变体推荐"
+      ]
+    },
+    {
+      "id": "O4-1",
+      "name": "行业细分 - 子行业分类",
+      "phase": 4,
+      "status": "pending",
+      "priority": "medium",
+      "eta": "2h",
+      "description": "行业关键词库细分",
+      "details": [
+        "销售细分为：零售销售、B2B销售、渠道销售、大客户销售",
+        "财务细分为：会计、审计、财务分析、税务",
+        "行政细分为：前台、人事助理、行政主管、办公室经理",
+        "关键词匹配子行业"
+      ]
+    },
+    {
+      "id": "O4-2",
+      "name": "行业细分 - 自定义关键词",
+      "phase": 4,
+      "status": "pending",
+      "priority": "medium",
+      "eta": "1h",
+      "description": "用户可添加自定义关键词",
+      "details": [
+        "输入框添加自定义关键词",
+        "自定义关键词权重设置",
+        "保存用户关键词偏好",
+        "下次自动加载用户关键词"
+      ]
+    },
+    {
+      "id": "O4-3",
+      "name": "行业细分 - 关键词库扩展",
+      "phase": 4,
+      "status": "pending",
+      "priority": "medium",
+      "eta": "3h",
+      "description": "扩展关键词库覆盖更多行业",
+      "details": [
+        "新增：新媒体运营、直播主播、跨境电商",
+        "新增：医疗销售、医药代表、医疗器械",
+        "新增：物业管理、房地产销售、中介",
+        "每个行业关键词≥50个"
+      ]
+    },
+    {
+      "id": "O5-1",
+      "name": "评分权重 - 用户可调整",
+      "phase": 5,
+      "status": "pending",
+      "priority": "medium",
+      "eta": "1h",
+      "description": "用户可自定义评分权重",
+      "details": [
+        "滑块调整关键词权重（40-80%）",
+        "滑块调整ATS权重（20-60%）",
+        "JD匹配时可单独调整",
+        "保存用户权重偏好"
+      ]
+    },
+    {
+      "id": "O5-2",
+      "name": "评分权重 - 智能推荐",
+      "phase": 5,
+      "status": "pending",
+      "priority": "low",
+      "eta": "45min",
+      "description": "根据行业推荐最佳权重",
+      "details": [
+        "销售类推荐高关键词权重",
+        "技术类推荐高ATS权重",
+        "管理类均衡权重",
+        "AI根据简历内容自动调整"
+      ]
+    },
+    {
+      "id": "O6-1",
+      "name": "示例案例 - 优秀简历库",
+      "phase": 6,
+      "status": "pending",
+      "priority": "medium",
+      "eta": "2h",
+      "description": "提供各行业优秀简历示例",
+      "details": [
+        "收集10个行业优秀简历模板",
+        "标注关键成功要素",
+        "用户可对比学习",
+        "一键应用模板结构"
+      ]
+    },
+    {
+      "id": "O6-2",
+      "name": "示例案例 - 修改前后对比",
+      "phase": 6,
+      "status": "pending",
+      "priority": "medium",
+      "eta": "1h",
+      "description": "展示优化前后对比效果",
+      "details": [
+        "修改前简历评分50",
+        "修改后简历评分85",
+        "高亮显示修改点",
+        "用户可学习优化思路"
+      ]
+    },
+    {
+      "id": "O6-3",
+      "name": "示例案例 - AI分析解读",
+      "phase": 6,
+      "status": "pending",
+      "priority": "low",
+      "eta": "45min",
+      "description": "对示例简历进行AI分析解读",
+      "details": [
+        "为什么这份简历优秀",
+        "关键优化点解读",
+        "行业特点分析",
+        "面试官视角点评"
+      ]
+    }
+  ],
+  "notes": [
+    "优先执行Phase 1（API稳定性），影响用户体验",
+    "Phase 2-3 提升产品核心竞争力",
+    "Phase 4-6 为增强功能，按需执行"
+  ]
+}
