@@ -208,23 +208,86 @@
                     <div id="ai-config-section">
             </div>
             
-            <!-- 反馈面板 -->
+            <!-- 反馈面板（增强版） -->
             <div id="feedback-panel" style="display:none;">
+                <!-- 统计卡片 -->
+                <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:20px;">
+                    <div class="card" style="text-align:center;padding:20px;">
+                        <div style="font-size:24px;font-weight:600;color:#1a1a1a;" id="feedback-total">-</div>
+                        <div style="color:#666;font-size:13px;">总计</div>
+                    </div>
+                    <div class="card" style="text-align:center;padding:20px;">
+                        <div style="font-size:24px;font-weight:600;color:#ffc107;" id="feedback-pending">-</div>
+                        <div style="color:#666;font-size:13px;">待处理</div>
+                    </div>
+                    <div class="card" style="text-align:center;padding:20px;">
+                        <div style="font-size:24px;font-weight:600;color:#17a2b8;" id="feedback-progress">-</div>
+                        <div style="color:#666;font-size:13px;">处理中</div>
+                    </div>
+                    <div class="card" style="text-align:center;padding:20px;">
+                        <div style="font-size:24px;font-weight:600;color:#28a745;" id="feedback-resolved">-</div>
+                        <div style="color:#666;font-size:13px;">已解决</div>
+                    </div>
+                    <div class="card" style="text-align:center;padding:20px;">
+                        <div style="font-size:24px;font-weight:600;color:#ff6b6b;" id="feedback-urgent">-</div>
+                        <div style="color:#666;font-size:13px;">紧急</div>
+                    </div>
+                </div>
+                
+                <!-- 筛选器 -->
+                <div style="margin-bottom:16px;display:flex;gap:12px;">
+                    <select id="feedback-filter-status" onchange="loadFeedback()" style="padding:8px;border:1px solid #ddd;border-radius:4px;">
+                        <option value="">全部状态</option>
+                        <option value="pending">待处理</option>
+                        <option value="in_progress">处理中</option>
+                        <option value="resolved">已解决</option>
+                        <option value="closed">已关闭</option>
+                    </select>
+                    <select id="feedback-filter-priority" onchange="loadFeedback()" style="padding:8px;border:1px solid #ddd;border-radius:4px;">
+                        <option value="">全部优先级</option>
+                        <option value="urgent">🔴 紧急</option>
+                        <option value="high">🟠 高</option>
+                        <option value="medium">🟡 中</option>
+                        <option value="low">🟢 低</option>
+                    </select>
+                    <select id="feedback-filter-type" onchange="loadFeedback()" style="padding:8px;border:1px solid #ddd;border-radius:4px;">
+                        <option value="">全部类型</option>
+                        <option value="bug">🐛 Bug</option>
+                        <option value="suggestion">💡 建议</option>
+                        <option value="question">❓ 问题</option>
+                    </select>
+                    <input type="text" id="feedback-search" placeholder="搜索..." onkeyup="loadFeedback()" style="padding:8px;border:1px solid #ddd;border-radius:4px;width:200px;">
+                </div>
+                
                 <div class="card">
                     <div class="card-header">用户反馈列表</div>
                     <table class="data-table" id="feedback-table">
                         <thead>
                             <tr>
                                 <th>ID</th>
-                                <th>用户</th>
+                                <th>优先级</th>
                                 <th>类型</th>
-                                <th>内容</th>
+                                <th>标题/内容</th>
+                                <th>用户</th>
                                 <th>状态</th>
                                 <th>时间</th>
+                                <th>操作</th>
                             </tr>
                         </thead>
                         <tbody id="feedback-list"></tbody>
                     </table>
+                </div>
+                
+                <!-- 回复弹窗 -->
+                <div id="reply-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;">
+                    <div style="background:#fff;padding:24px;border-radius:8px;max-width:500px;width:90%;">
+                        <h3 style="margin-bottom:16px;">回复反馈 #<span id="reply-feedback-id"></span></h3>
+                        <textarea id="reply-content" style="width:100%;height:120px;padding:12px;border:1px solid #ddd;border-radius:4px;resize:none;" placeholder="输入回复内容..."></textarea>
+                        <div style="margin-top:16px;display:flex;gap:12px;">
+                            <button onclick="submitReply()" class="btn btn-primary">发送回复</button>
+                            <button onclick="closeReplyModal()" class="btn btn-secondary">取消</button>
+                        </div>
+                    </div>
                 </div>
             </div>
                         <div class="form-group">
@@ -683,42 +746,132 @@
         }
         
         async function loadFeedback() {
+            // 先加载统计
             try {
-                const res = await fetch(`${API}/admin/feedback`, {
+                const statsRes = await fetch(`${API}/api/v1/admin/feedback/stats`, {
+                    headers: { 'Authorization': `Bearer ${adminToken}` }
+                });
+                const statsData = await statsRes.json();
+                if (statsData.success) {
+                    document.getElementById('feedback-total').textContent = statsData.data.total;
+                    document.getElementById('feedback-pending').textContent = statsData.data.pending;
+                    document.getElementById('feedback-progress').textContent = statsData.data.in_progress;
+                    document.getElementById('feedback-resolved').textContent = statsData.data.resolved;
+                    document.getElementById('feedback-urgent').textContent = statsData.data.urgent_count;
+                }
+            } catch (e) {}
+            
+            // 加载反馈列表
+            try {
+                const res = await fetch(`${API}/api/v1/admin/feedback`, {
                     headers: { 'Authorization': `Bearer ${adminToken}` }
                 });
                 const data = await res.json();
                 
+                // 优先级图标
+                const priorityIcons = { 'urgent': '🔴', 'high': '🟠', 'medium': '🟡', 'low': '🟢' };
+                
+                // 类型图标
+                const typeIcons = { 'bug': '🐛 Bug', 'suggestion': '💡 建议', 'question': '❓ 问题', 'other': '💬 其他' };
+                
+                // 状态颜色
+                const statusColors = { 'pending': '#ffc107', 'in_progress': '#17a2b8', 'resolved': '#28a745', 'closed': '#6c757d' };
+                const statusText = { 'pending': '待处理', 'in_progress': '处理中', 'resolved': '已解决', 'closed': '已关闭' };
+                
                 if (data.success) {
+                    // 应用筛选
+                    let filtered = data.data;
+                    const statusFilter = document.getElementById('feedback-filter-status')?.value;
+                    const priorityFilter = document.getElementById('feedback-filter-priority')?.value;
+                    const typeFilter = document.getElementById('feedback-filter-type')?.value;
+                    const search = document.getElementById('feedback-search')?.value?.toLowerCase();
+                    
+                    if (statusFilter) filtered = filtered.filter(f => f.status === statusFilter);
+                    if (priorityFilter) filtered = filtered.filter(f => f.priority === priorityFilter);
+                    if (typeFilter) filtered = filtered.filter(f => f.type === typeFilter);
+                    if (search) filtered = filtered.filter(f => (f.title || f.content).toLowerCase().includes(search));
+                    
                     const tbody = document.getElementById('feedback-list');
-                    tbody.innerHTML = data.data.map(f => `
+                    tbody.innerHTML = filtered.map(f => `
                         <tr>
-                            <td>${f.id}</td>
+                            <td><strong>#${f.id}</strong></td>
+                            <td>${priorityIcons[f.priority] || '🟡'}</td>
+                            <td>${typeIcons[f.type] || f.type}</td>
+                            <td style="max-width:300px;">
+                                <div style="font-weight:500;">${f.title || '无标题'}</div>
+                                <div style="color:#666;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${f.content.substring(0,50)}...</div>
+                                ${f.screenshot_url ? '<span style="color:#999;font-size:11px;">📎 有截图</span>' : ''}
+                            </td>
                             <td>${f.user_name || f.email || '匿名'}</td>
-                            <td>${f.type === 'suggestion' ? '建议' : f.type === 'bug' ? '问题' : '疑问'}</td>
-                            <td style="max-width:300px;overflow:hidden;text-overflow:ellipsis;">${f.content}</td>
                             <td>
-                                <select onchange="updateFeedbackStatus(${f.id}, this.value)" style="padding:4px;">
+                                <span style="background:${statusColors[f.status]};color:#fff;padding:4px 8px;border-radius:4px;font-size:12px;">
+                                    ${statusText[f.status] || f.status}
+                                </span>
+                            </td>
+                            <td style="font-size:12px;color:#666;">${new Date(f.created_at).toLocaleDateString()}</td>
+                            <td>
+                                <button class="btn btn-sm btn-primary" onclick="showReplyModal(${f.id})">回复</button>
+                                <select onchange="updateFeedbackStatus(${f.id}, this.value)" style="padding:4px;margin-left:4px;">
                                     <option value="pending" ${f.status === 'pending' ? 'selected' : ''}>待处理</option>
-                                    <option value="processing" ${f.status === 'processing' ? 'selected' : ''}>处理中</option>
+                                    <option value="in_progress" ${f.status === 'in_progress' ? 'selected' : ''}>处理中</option>
                                     <option value="resolved" ${f.status === 'resolved' ? 'selected' : ''}>已解决</option>
+                                    <option value="closed" ${f.status === 'closed' ? 'selected' : ''}>关闭</option>
                                 </select>
                             </td>
-                            <td>${new Date(f.created_at).toLocaleString()}</td>
                         </tr>
                     `).join('');
+                    
+                    if (!filtered.length) {
+                        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#999;">无符合条件的反馈</td></tr>';
+                    }
                 }
             } catch (e) {
-                document.getElementById('feedback-list').innerHTML = '<tr><td colspan="6" class="error">加载失败</td></tr>';
+                document.getElementById('feedback-list').innerHTML = '<tr><td colspan="8" class="error">加载失败</td></tr>';
+            }
+        }
+        
+        // 回复相关
+        let currentReplyId = null;
+        
+        function showReplyModal(id) {
+            currentReplyId = id;
+            document.getElementById('reply-feedback-id').textContent = id;
+            document.getElementById('reply-content').value = '';
+            document.getElementById('reply-modal').style.display = 'flex';
+        }
+        
+        function closeReplyModal() {
+            document.getElementById('reply-modal').style.display = 'none';
+            currentReplyId = null;
+        }
+        
+        async function submitReply() {
+            const content = document.getElementById('reply-content').value.trim();
+            if (!content) {
+                alert('请输入回复内容');
+                return;
+            }
+            
+            try {
+                await fetch(`${API}/api/v1/admin/feedback/${currentReplyId}?reply=${encodeURIComponent(content)}`, {
+                    method: 'PUT',
+                    headers: { 'Authorization': `Bearer ${adminToken}` }
+                });
+                closeReplyModal();
+                loadFeedback();
+                alert('回复已发送');
+            } catch (e) {
+                alert('回复失败');
             }
         }
         
         async function updateFeedbackStatus(id, status) {
             try {
-                await fetch(`${API}/admin/feedback/${id}?status=${status}`, {
+                await fetch(`${API}/api/v1/admin/feedback/${id}?status=${status}`, {
                     method: 'PUT',
                     headers: { 'Authorization': `Bearer ${adminToken}` }
                 });
+                loadFeedback();
             } catch (e) {
                 alert('更新失败');
             }

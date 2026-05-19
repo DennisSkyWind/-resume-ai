@@ -1039,23 +1039,6 @@
                     <div class="usage-progress" id="usage-progress"></div>
                     <div class="usage-text" id="usage-text"></div>
                 </div>
-                <!-- 通知图标 -->
-                <div style="position:relative;">
-                    <button class="btn btn-sm btn-secondary" onclick="toggleNotifications()" id="notif-btn" title="通知">
-                        🔔
-                        <span id="notif-badge" style="position:absolute;top:-5px;right:-5px;background:#ff4757;color:#fff;font-size:10px;padding:2px 5px;border-radius:10px;display:none;">0</span>
-                    </button>
-                    <!-- 通知下拉 -->
-                    <div id="notif-dropdown" style="display:none;position:absolute;top:35px;right:0;width:300px;max-height:400px;overflow-y:auto;background:#fff;border:1px solid #ddd;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);z-index:100;">
-                        <div style="padding:12px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center;">
-                            <strong>通知</strong>
-                            <a href="#" onclick="markAllRead();return false;" style="font-size:12px;color:#666;">全部已读</a>
-                        </div>
-                        <div id="notif-list" style="padding:8px;">
-                            <div style="text-align:center;color:#999;padding:20px;">加载中...</div>
-                        </div>
-                    </div>
-                </div>
                 <button class="btn btn-sm btn-secondary" onclick="showUpgradeModal()" id="upgrade-btn" style="display:none;">升级</button>
                 <button class="btn btn-sm btn-secondary" onclick="showInviteModal()">邀请</button>
                 <button class="logout-btn" onclick="logout()">退出</button>
@@ -1284,112 +1267,25 @@
         
         <!-- Footer -->
         <div class="footer">
-            ResumeAI · 简历优化工具 · 
-            <a href="#" onclick="showFeedbackModal()" style="color:#666;text-decoration:none;">📝 反馈建议</a> · 
-            <a href="#" onclick="showMyFeedbackModal()" style="color:#666;text-decoration:none;">📋 我的反馈</a>
+            ResumeAI · 简历优化工具 · <a href="#" onclick="showFeedbackModal()" style="color:#666;text-decoration:none;">反馈建议</a>
         </div>
     </div>
     
-    <!-- 反馈弹窗（增强版） -->
+    <!-- 反馈弹窗 -->
     <div id="feedback-modal" class="modal-overlay" style="display:none;">
-        <div class="modal-content" style="max-width:500px;">
-            <div class="modal-title">📝 反馈建议</div>
+        <div class="modal-content" style="max-width:400px;">
+            <div class="modal-title">反馈建议</div>
             <div class="modal-body">
-                <!-- 反馈类型 -->
-                <div style="margin-bottom:15px;">
-                    <label style="font-size:13px;color:#666;margin-bottom:5px;display:block;">类型</label>
-                    <select id="feedback-type" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:4px;">
-                        <option value="bug">🐛 问题报告</option>
-                        <option value="suggestion">💡 功能建议</option>
-                        <option value="question">❓ 使用疑问</option>
-                        <option value="other">💬 其他</option>
-                    </select>
-                </div>
-                
-                <!-- 优先级 -->
-                <div style="margin-bottom:15px;">
-                    <label style="font-size:13px;color:#666;margin-bottom:5px;display:block;">优先级</label>
-                    <select id="feedback-priority" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:4px;">
-                        <option value="low">🟢 低 - 一般问题</option>
-                        <option value="medium" selected>🟡 中 - 需要关注</option>
-                        <option value="high">🟠 高 - 重要问题</option>
-                        <option value="urgent">🔴 紧急 - 严重影响使用</option>
-                    </select>
-                </div>
-                
-                <!-- 标题 -->
-                <div style="margin-bottom:15px;">
-                    <label style="font-size:13px;color:#666;margin-bottom:5px;display:block;">标题 <span style="color:#999;">(简要描述问题)</span></label>
-                    <input type="text" id="feedback-title" placeholder="例如：分析报错、希望添加XX功能..." 
-                           style="width:100%;padding:10px;border:1px solid #ddd;border-radius:4px;">
-                </div>
-                
-                <!-- 详细描述 -->
-                <div style="margin-bottom:15px;">
-                    <label style="font-size:13px;color:#666;margin-bottom:5px;display:block;">详细描述</label>
-                    <textarea id="feedback-content" placeholder="请详细描述您的建议或问题..." 
-                              style="width:100%;height:120px;padding:10px;border:1px solid #ddd;border-radius:4px;resize:none;"></textarea>
-                </div>
-                
-                <!-- 截图上传 -->
-                <div style="margin-bottom:15px;">
-                    <label style="font-size:13px;color:#666;margin-bottom:5px;display:block;">截图 <span style="color:#999;">(可选，支持粘贴或拖拽)</span></label>
-                    <div id="feedback-screenshot-area" style="border:2px dashed #ddd;border-radius:8px;padding:20px;text-align:center;cursor:pointer;transition:all 0.2s;"
-                         onclick="document.getElementById('feedback-screenshot-input').click()">
-                        <input type="file" id="feedback-screenshot-input" accept="image/*" style="display:none" onchange="handleScreenshotUpload(event)">
-                        <div id="screenshot-placeholder">
-                            <span style="color:#999;">📎 点击上传或粘贴截图（Ctrl+V）</span>
-                        </div>
-                        <div id="screenshot-preview" style="display:none;">
-                            <img id="screenshot-img" style="max-width:100%;max-height:150px;border-radius:4px;">
-                            <button onclick="clearScreenshot()" style="margin-top:8px;padding:4px 12px;background:#ff6b6b;color:#fff;border:none;border-radius:4px;cursor:pointer;">删除</button>
-                        </div>
-                    </div>
-                </div>
+                <select id="feedback-type" style="width:100%;padding:10px;margin-bottom:15px;border:1px solid #ddd;border-radius:4px;">
+                    <option value="suggestion">功能建议</option>
+                    <option value="bug">问题报告</option>
+                    <option value="question">使用疑问</option>
+                </select>
+                <textarea id="feedback-content" placeholder="请描述您的建议或问题..." style="width:100%;height:150px;padding:10px;border:1px solid #ddd;border-radius:4px;resize:none;"></textarea>
             </div>
             <div class="modal-actions">
                 <button onclick="closeFeedbackModal()" class="btn-secondary">取消</button>
-                <button onclick="submitFeedback()" class="btn-primary">提交反馈</button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- 我的反馈列表弹窗 -->
-    <div id="my-feedback-modal" class="modal-overlay" style="display:none;">
-        <div class="modal-content" style="max-width:600px;max-height:80vh;overflow-y:auto;">
-            <div class="modal-title">📋 我的反馈</div>
-            <div class="modal-body">
-                <div id="my-feedback-list" style="min-height:100px;">
-                    <div style="text-align:center;color:#999;padding:40px;">加载中...</div>
-                </div>
-            </div>
-            <div class="modal-actions">
-                <button onclick="closeMyFeedbackModal()" class="btn-secondary">关闭</button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- 反馈详情弹窗（含满意度评分） -->
-    <div id="feedback-detail-modal" class="modal-overlay" style="display:none;">
-        <div class="modal-content" style="max-width:600px;max-height:80vh;overflow-y:auto;">
-            <div class="modal-title" id="feedback-detail-title">反馈详情</div>
-            <div class="modal-body" id="feedback-detail-body">
-            </div>
-            <!-- 满意度评分区域（仅已解决时显示） -->
-            <div id="rating-area" style="display:none;padding:16px;background:#f5f5f5;border-radius:8px;margin:16px;">
-                <div style="font-weight:500;margin-bottom:8px;">⭐ 满意度评分</div>
-                <div style="display:flex;gap:8px;margin-bottom:10px;">
-                    <button onclick="setRating(1)" class="rating-star" id="star1" style="font-size:24px;background:none;border:none;cursor:pointer;">☆</button>
-                    <button onclick="setRating(2)" class="rating-star" id="star2" style="font-size:24px;background:none;border:none;cursor:pointer;">☆</button>
-                    <button onclick="setRating(3)" class="rating-star" id="star3" style="font-size:24px;background:none;border:none;cursor:pointer;">☆</button>
-                    <button onclick="setRating(4)" class="rating-star" id="star4" style="font-size:24px;background:none;border:none;cursor:pointer;">☆</button>
-                    <button onclick="setRating(5)" class="rating-star" id="star5" style="font-size:24px;background:none;border:none;cursor:pointer;">☆</button>
-                </div>
-                <input type="text" id="rating-comment" placeholder="评价备注（可选）" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:4px;">
-                <button onclick="submitRating()" class="btn btn-primary" style="margin-top:10px;width:100%;">提交评分</button>
-            </div>
-            <div class="modal-actions">
-                <button onclick="closeFeedbackDetailModal()" class="btn-secondary">关闭</button>
+                <button onclick="submitFeedback()" class="btn-primary">提交</button>
             </div>
         </div>
     </div>
@@ -1763,70 +1659,18 @@
             document.getElementById('upgrade-modal').style.display = 'none';
         }
         
-        // 反馈系统（增强版）
-        let feedbackScreenshot = null;  // 存储截图
-        
+        // 反馈系统
         function showFeedbackModal() {
             document.getElementById('feedback-modal').style.display = 'flex';
-            feedbackScreenshot = null;
-            document.getElementById('screenshot-placeholder').style.display = 'block';
-            document.getElementById('screenshot-preview').style.display = 'none';
         }
         
         function closeFeedbackModal() {
             document.getElementById('feedback-modal').style.display = 'none';
             document.getElementById('feedback-content').value = '';
-            document.getElementById('feedback-title').value = '';
-            feedbackScreenshot = null;
-        }
-        
-        // 截图上传处理
-        function handleScreenshotUpload(event) {
-            const file = event.target.files[0];
-            if (file && file.type.startsWith('image/')) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    feedbackScreenshot = e.target.result;
-                    document.getElementById('screenshot-img').src = feedbackScreenshot;
-                    document.getElementById('screenshot-placeholder').style.display = 'none';
-                    document.getElementById('screenshot-preview').style.display = 'block';
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-        
-        // 粘贴截图（Ctrl+V）
-        document.addEventListener('paste', (e) => {
-            if (document.getElementById('feedback-modal').style.display === 'flex') {
-                const items = e.clipboardData.items;
-                for (let item of items) {
-                    if (item.type.startsWith('image/')) {
-                        const file = item.getAsFile();
-                        const reader = new FileReader();
-                        reader.onload = (e) => {
-                            feedbackScreenshot = e.target.result;
-                            document.getElementById('screenshot-img').src = feedbackScreenshot;
-                            document.getElementById('screenshot-placeholder').style.display = 'none';
-                            document.getElementById('screenshot-preview').style.display = 'block';
-                        };
-                        reader.readAsDataURL(file);
-                        break;
-                    }
-                }
-            }
-        });
-        
-        function clearScreenshot() {
-            feedbackScreenshot = null;
-            document.getElementById('screenshot-placeholder').style.display = 'block';
-            document.getElementById('screenshot-preview').style.display = 'none';
-            document.getElementById('feedback-screenshot-input').value = '';
         }
         
         async function submitFeedback() {
             const type = document.getElementById('feedback-type').value;
-            const priority = document.getElementById('feedback-priority').value;
-            const title = document.getElementById('feedback-title').value.trim();
             const content = document.getElementById('feedback-content').value.trim();
             
             if (!content) {
@@ -1843,282 +1687,19 @@
                 const res = await fetch(`${API}/api/v1/feedback`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', ...headers },
-                    body: JSON.stringify({
-                        type,
-                        priority,
-                        title,
-                        content,
-                        screenshot: feedbackScreenshot
-                    })
+                    body: JSON.stringify({ type, content })
                 });
                 
                 const data = await res.json();
                 if (data.success) {
-                    showToast('感谢您的反馈！我们会尽快处理');
+                    showToast('感谢您的反馈！');
                     closeFeedbackModal();
-                    
-                    // 显示反馈ID
-                    if (data.feedback_id) {
-                        console.log(`反馈已提交，编号: #${data.feedback_id}`);
-                    }
                 } else {
                     showToast('提交失败，请稍后再试');
                 }
             } catch (e) {
                 showToast('网络错误，请稍后再试');
             }
-        }
-        
-        // 我的反馈列表
-        async function showMyFeedbackModal() {
-            document.getElementById('my-feedback-modal').style.display = 'flex';
-            
-            try {
-                const res = await fetch(`${API}/api/v1/feedback/my`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const data = await res.json();
-                
-                const listEl = document.getElementById('my-feedback-list');
-                
-                if (!data.success || !data.data.length) {
-                    listEl.innerHTML = '<div style="text-align:center;color:#999;padding:40px;">暂无反馈记录</div>';
-                    return;
-                }
-                
-                // 状态颜色映射
-                const statusMap = {
-                    'pending': { color: '#ffc107', text: '待处理' },
-                    'in_progress': { color: '#17a2b8', text: '处理中' },
-                    'resolved': { color: '#28a745', text: '已解决' },
-                    'closed': { color: '#6c757d', text: '已关闭' }
-                };
-                
-                // 优先级颜色映射
-                const priorityMap = {
-                    'low': '🟢',
-                    'medium': '🟡',
-                    'high': '🟠',
-                    'urgent': '🔴'
-                };
-                
-                listEl.innerHTML = data.data.map(f => `
-                    <div style="padding:12px;border:1px solid #eee;border-radius:8px;margin-bottom:10px;cursor:pointer;" onclick="showFeedbackDetail(${f.id})">
-                        <div style="display:flex;justify-content:space-between;align-items:center;">
-                            <div>
-                                <span style="font-weight:600;">#${f.id}</span>
-                                <span style="margin-left:8px;">${priorityMap[f.priority] || '🟡'}</span>
-                                <span style="margin-left:8px;color:#666;">${f.type}</span>
-                            </div>
-                            <span style="background:${statusMap[f.status]?.color};color:#fff;padding:2px 8px;border-radius:4px;font-size:12px;">
-                                ${statusMap[f.status]?.text || f.status}
-                            </span>
-                        </div>
-                        <div style="margin-top:8px;font-size:14px;">${f.title || f.content}</div>
-                        <div style="margin-top:6px;color:#999;font-size:12px;">
-                            ${new Date(f.created_at).toLocaleDateString()}
-                            ${f.admin_reply ? ' · 💬 有回复' : ''}
-                        </div>
-                    </div>
-                `).join('');
-            } catch (e) {
-                document.getElementById('my-feedback-list').innerHTML = '<div style="text-align:center;color:#ff6b6b;padding:40px;">加载失败</div>';
-            }
-        }
-        
-        function closeMyFeedbackModal() {
-            document.getElementById('my-feedback-modal').style.display = 'none';
-        }
-        
-        // 反馈详情
-        async function showFeedbackDetail(id) {
-            document.getElementById('feedback-detail-modal').style.display = 'flex';
-            document.getElementById('feedback-detail-title').textContent = `反馈详情 #${id}`;
-            document.getElementById('feedback-detail-body').innerHTML = '<div style="text-align:center;color:#999;padding:40px;">加载中...</div>';
-            
-            try {
-                const res = await fetch(`${API}/api/v1/feedback/${id}`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const data = await res.json();
-                
-                if (!data.success) {
-                    document.getElementById('feedback-detail-body').innerHTML = '<div style="color:#ff6b6b;">加载失败</div>';
-                    return;
-                }
-                
-                const f = data.data;
-                currentFeedbackId = id;
-                const statusMap = {
-                    'pending': { color: '#ffc107', text: '待处理' },
-                    'in_progress': { color: '#17a2b8', text: '处理中' },
-                    'resolved': { color: '#28a745', text: '已解决' },
-                    'closed': { color: '#6c757d', text: '已关闭' }
-                };
-                
-                // 显示评分区域（仅已解决且未评分）
-                const ratingArea = document.getElementById('rating-area');
-                if (f.status === 'resolved' && !f.rating) {
-                    ratingArea.style.display = 'block';
-                    currentRating = 0;
-                    updateStars(0);
-                    document.getElementById('rating-comment').value = '';
-                } else if (f.rating) {
-                    ratingArea.innerHTML = `<div style="text-align:center;"><span style="font-size:20px;">${'★'.repeat(f.rating)}${'☆'.repeat(5-f.rating)}</span> <span style="color:#666;">已评分</span></div>`;
-                    ratingArea.style.display = 'block';
-                } else {
-                    ratingArea.style.display = 'none';
-                }
-                
-                document.getElementById('feedback-detail-body').innerHTML = `
-                    <div style="margin-bottom:16px;">
-                        <span style="background:${statusMap[f.status]?.color};color:#fff;padding:4px 12px;border-radius:4px;">
-                            ${statusMap[f.status]?.text}
-                        </span>
-                        <span style="margin-left:12px;color:#999;font-size:13px;">${new Date(f.created_at).toLocaleString()}</span>
-                    </div>
-                    
-                    ${f.title ? `<h4 style="margin:16px 0 8px;">${f.title}</h4>` : ''}
-                    <div style="background:#f8f9fa;padding:12px;border-radius:8px;line-height:1.6;">
-                        ${f.content}
-                    </div>
-                    
-                    ${f.screenshot_url ? `
-                        <div style="margin-top:16px;">
-                            <div style="color:#666;font-size:13px;margin-bottom:8px;">📎 截图</div>
-                            <img src="${f.screenshot_url}" style="max-width:100%;border-radius:8px;">
-                        </div>
-                    ` : ''}
-                    
-                    ${f.admin_reply ? `
-                        <div style="margin-top:20px;border-top:1px solid #eee;padding-top:16px;">
-                            <div style="color:#666;font-size:13px;margin-bottom:8px;">💬 管理员回复 <span style="color:#999;">${f.reply_at ? new Date(f.reply_at).toLocaleString() : ''}</span></div>
-                            <div style="background:#e3f2fd;padding:12px;border-radius:8px;line-height:1.6;">
-                                ${f.admin_reply}
-                            </div>
-                        </div>
-                    ` : ''}
-                `;
-            } catch (e) {
-                document.getElementById('feedback-detail-body').innerHTML = '<div style="color:#ff6b6b;">加载失败</div>';
-            }
-        }
-        
-        // 满意度评分
-        let currentFeedbackId = null;
-        let currentRating = 0;
-        
-        function setRating(r) {
-            currentRating = r;
-            updateStars(r);
-        }
-        
-        function updateStars(r) {
-            for (let i = 1; i <= 5; i++) {
-                document.getElementById('star' + i).textContent = i <= r ? '★' : '☆';
-                document.getElementById('star' + i).style.color = i <= r ? '#ffc107' : '#ccc';
-            }
-        }
-        
-        async function submitRating() {
-            if (currentRating === 0) {
-                showToast('请选择评分');
-                return;
-            }
-            
-            try {
-                const comment = document.getElementById('rating-comment').value.trim();
-                await fetch(`${API}/api/v1/feedback/${currentFeedbackId}/rate`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ rating: currentRating, comment })
-                });
-                
-                showToast('感谢您的评分！');
-                closeFeedbackDetailModal();
-                showMyFeedbackModal(); // 刷新列表
-            } catch (e) {
-                showToast('评分失败');
-            }
-        }
-        
-        // 通知系统
-        async function loadNotifications() {
-            try {
-                const res = await fetch(`${API}/api/v1/notifications`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const data = await res.json();
-                
-                // 更新未读badge
-                const badge = document.getElementById('notif-badge');
-                if (data.unread > 0) {
-                    badge.textContent = data.unread;
-                    badge.style.display = 'inline';
-                } else {
-                    badge.style.display = 'none';
-                }
-                
-                // 渲染列表
-                const list = document.getElementById('notif-list');
-                if (!data.data.length) {
-                    list.innerHTML = '<div style="text-align:center;color:#999;padding:20px;">暂无通知</div>';
-                } else {
-                    list.innerHTML = data.data.map(n => `
-                        <div style="padding:12px;border-bottom:1px solid #eee;${n.is_read ? 'background:#fafafa;' : ''}" onclick="readNotification(${n.id}, ${n.related_id})">
-                            <div style="font-weight:${n.is_read ? '400' : '600'};">${n.title}</div>
-                            <div style="color:#666;font-size:12px;margin-top:4px;">${n.message}</div>
-                            <div style="color:#999;font-size:11px;margin-top:4px;">${new Date(n.created_at).toLocaleDateString()}</div>
-                        </div>
-                    `).join('');
-                }
-            } catch (e) {
-                console.error('通知加载失败');
-            }
-        }
-        
-        function toggleNotifications() {
-            const dropdown = document.getElementById('notif-dropdown');
-            if (dropdown.style.display === 'none') {
-                dropdown.style.display = 'block';
-                loadNotifications();
-            } else {
-                dropdown.style.display = 'none';
-            }
-        }
-        
-        async function readNotification(id, relatedId) {
-            try {
-                await fetch(`${API}/api/v1/notifications/${id}/read`, {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                
-                loadNotifications(); // 刷新
-                
-                // 如果是反馈相关，打开详情
-                if (relatedId) {
-                    showFeedbackDetail(relatedId);
-                }
-            } catch (e) {}
-        }
-        
-        async function markAllRead() {
-            try {
-                await fetch(`${API}/api/v1/notifications/read-all`, {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                loadNotifications();
-                showToast('全部已标记为已读');
-            } catch (e) {}
-        }
-        
-        function closeFeedbackDetailModal() {
-            document.getElementById('feedback-detail-modal').style.display = 'none';
         }
         
         function selectPlan(level) {

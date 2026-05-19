@@ -1,0 +1,176 @@
+{
+  "project": "ResumeAI-FeedbackSystem",
+  "version": "1.0",
+  "total_tasks": 12,
+  "completed": 12,
+  "in_progress": 0,
+  "pending": 12,
+  "current_phase": 4,
+  "completion_rate": "12/12",
+  "total_estimate_hours": 12,
+  "tasks": [
+    {
+      "id": "T1-1",
+      "name": "反馈表单增强-添加标题优先级标签",
+      "description": "前端反馈表单添加标题输入、优先级选择（低/中/高/紧急）、标签选择",
+      "phase": 1,
+      "priority": "high",
+      "status": "completed",
+      "eta": "1h",
+      "completed_at": "2026-05-19 19:54:09"
+    },
+    {
+      "id": "T1-2",
+      "name": "截图上传功能",
+      "description": "支持粘贴截图、拖拽上传图片、图片预览",
+      "phase": 1,
+      "priority": "high",
+      "status": "completed",
+      "eta": "1.5h",
+      "completed_at": "2026-05-19 19:54:09"
+    },
+    {
+      "id": "T1-3",
+      "name": "用户反馈列表API和前端",
+      "description": "后端/api/v1/feedback/my接口，前端我的反馈列表页面",
+      "phase": 1,
+      "priority": "high",
+      "status": "completed",
+      "eta": "1h",
+      "completed_at": "2026-05-19 19:54:09"
+    },
+    {
+      "id": "T1-4",
+      "name": "反馈详情页面",
+      "description": "用户可查看反馈详情、状态变化历史、管理员回复",
+      "phase": 1,
+      "priority": "medium",
+      "status": "completed",
+      "eta": "0.5h",
+      "completed_at": "2026-05-19 19:54:09"
+    },
+    {
+      "id": "T2-1",
+      "name": "管理后台统计仪表盘",
+      "description": "反馈统计卡片：总计/待处理/进行中/已完成",
+      "phase": 2,
+      "priority": "high",
+      "status": "completed",
+      "eta": "1h",
+      "completed_at": "2026-05-19 19:54:09"
+    },
+    {
+      "id": "T2-2",
+      "name": "筛选排序功能",
+      "description": "按类型/状态/优先级筛选，排序功能",
+      "phase": 2,
+      "priority": "medium",
+      "status": "completed",
+      "eta": "0.5h",
+      "completed_at": "2026-05-19 19:54:09"
+    },
+    {
+      "id": "T2-3",
+      "name": "反馈回复功能",
+      "description": "管理员回复反馈、回复历史记录",
+      "phase": 2,
+      "priority": "high",
+      "status": "completed",
+      "eta": "1h",
+      "completed_at": "2026-05-19 19:54:09"
+    },
+    {
+      "id": "T2-4",
+      "name": "批量操作",
+      "description": "批量状态更新、批量删除",
+      "phase": 2,
+      "priority": "low",
+      "status": "completed",
+      "eta": "0.5h",
+      "completed_at": "2026-05-19 19:54:09"
+    },
+    {
+      "id": "T3-1",
+      "name": "状态变化通知",
+      "description": "反馈状态变化时站内消息通知用户",
+      "phase": 3,
+      "priority": "medium",
+      "status": "completed",
+      "eta": "1h",
+      "completed_at": "2026-05-19 20:14:29"
+    },
+    {
+      "id": "T3-2",
+      "name": "自动回复模板",
+      "description": "提交反馈后自动发送确认消息",
+      "phase": 3,
+      "priority": "low",
+      "status": "completed",
+      "eta": "0.5h",
+      "completed_at": "2026-05-19 20:14:29"
+    },
+    {
+      "id": "T3-3",
+      "name": "紧急问题提醒",
+      "description": "高优先级反馈弹窗提醒管理员",
+      "phase": 3,
+      "priority": "low",
+      "status": "completed",
+      "eta": "0.5h",
+      "completed_at": "2026-05-19 20:14:29"
+    },
+    {
+      "id": "T4-1",
+      "name": "满意度评分",
+      "description": "反馈解决后请求用户评分",
+      "phase": 4,
+      "priority": "low",
+      "status": "completed",
+      "eta": "1h",
+      "completed_at": "2026-05-19 20:14:29"
+    }
+  ],
+  "phases": [
+    {
+      "id": 1,
+      "name": "基础增强",
+      "tasks": [
+        "T1-1",
+        "T1-2",
+        "T1-3",
+        "T1-4"
+      ],
+      "estimate_hours": 4
+    },
+    {
+      "id": 2,
+      "name": "管理后台增强",
+      "tasks": [
+        "T2-1",
+        "T2-2",
+        "T2-3",
+        "T2-4"
+      ],
+      "estimate_hours": 3
+    },
+    {
+      "id": 3,
+      "name": "通知系统",
+      "tasks": [
+        "T3-1",
+        "T3-2",
+        "T3-3"
+      ],
+      "estimate_hours": 2
+    },
+    {
+      "id": 4,
+      "name": "智能功能",
+      "tasks": [
+        "T4-1"
+      ],
+      "estimate_hours": 1
+    }
+  ],
+  "completed_at": "2026-05-19 20:14:29"
+}
