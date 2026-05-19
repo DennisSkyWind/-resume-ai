@@ -1,10 +1,9 @@
-# Minimal Vercel Python function test
+# Vercel 最小测试API
+import json
 
 def handler(event, context):
     return {
         "statusCode": 200,
-        "body": '{"message": "Hello from ResumeAI!"}',
-        "headers": {
-            "Content-Type": "application/json"
-        }
+        "body": json.dumps({"success": True, "message": "Hello from Vercel!", "event": str(event)[:200]}),
+        "headers": {"Content-Type": "application/json"}
     }
