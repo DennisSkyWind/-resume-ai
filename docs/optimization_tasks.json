@@ -4,9 +4,9 @@
   "created_at": "2026-05-19T22:45:00",
   "source": "用户视角测试发现的改进点",
   "total_tasks": 18,
-  "completed": 0,
+  "completed": 2,
   "in_progress": 0,
-  "pending": 18,
+  "pending": 16,
   "current_phase": 1,
   "phases": [
     {
@@ -51,29 +51,31 @@
       "id": "O1-1",
       "name": "API健康检查增强 - 添加错误重试和降级策略",
       "phase": 1,
-      "status": "pending",
+      "status": "completed",
       "priority": "urgent",
       "eta": "30min",
+      "completed_at": "2026-05-19T23:15:00",
       "description": "添加API调用重试机制（3次），失败时显示友好提示而非500错误",
       "details": [
-        "前端添加try-catch包裹所有API调用",
-        "添加重试逻辑（fetch失败后延迟重试）",
-        "错误时显示'服务暂时不可用，请稍后再试'",
-        "记录错误日志到localStorage便于排查"
+        "✅ 前端添加safeFetch函数包裹所有API调用",
+        "✅ 添加重试逻辑（fetch失败后延迟重试，最多3次）",
+        "✅ 错误时显示'服务响应超时/网络连接失败'等友好提示",
+        "✅ 记录错误日志到localStorage(api_error_logs)"
       ]
     },
     {
       "id": "O1-2",
       "name": "Render后端冷启动优化",
       "phase": 1,
-      "status": "pending",
+      "status": "completed",
       "priority": "urgent",
       "eta": "20min",
+      "completed_at": "2026-05-19T23:15:00",
       "description": "Render免费层冷启动慢，优化前端超时和加载提示",
       "details": [
-        "前端API超时从30秒增加到60秒",
-        "添加'正在加载...'动画提示",
-        "首次请求预热（页面加载时ping health API）"
+        "✅ API超时从30秒增加到60秒（API_TIMEOUT=60000）",
+        "✅ 添加showLoading/hideLoading全局动画提示",
+        "✅ 页面加载时warmupAPI预热（ping /health）"
       ]
     },
     {

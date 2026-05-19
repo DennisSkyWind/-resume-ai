@@ -2549,6 +2549,93 @@
         function showMainContent() {
             document.getElementById('auth-section').style.display = 'none';
             document.getElementById('main-content').style.display = 'block';
+            // 动态加载行业列表
+            loadIndustries();
+        }
+        
+        // ========== API缓存策略 ==========
+        const CACHE_EXPIRY = {
+            industries: 3600000, // 行业列表缓存1小时
+            userInfo: 300000,   // 用户信息缓存5分钟
+            analysis: 1800000   // 分析结果缓存30分钟
+        };
+        
+        // 获取缓存
+        function getCache(key) {
+            const cached = localStorage.getItem(`cache_${key}`);
+            if (!cached) return null;
+            
+            const { data, timestamp } = JSON.parse(cached);
+            const expiry = CACHE_EXPIRY[key] || 300000;
+            
+            if (Date.now() - timestamp > expiry) {
+                localStorage.removeItem(`cache_${key}`);
+                return null;
+            }
+            
+            return data;
+        }
+        
+        // 设置缓存
+        function setCache(key, data) {
+            localStorage.setItem(`cache_${key}`, JSON.stringify({
+                data,
+                timestamp: Date.now()
+            }));
+        }
+        
+        // 加载行业列表（带缓存）
+        async function loadIndustries() {
+            // 先尝试从缓存获取
+            const cached = getCache('industries');
+            if (cached) {
+                console.log('[Cache] 行业列表从缓存加载:', cached.length);
+                populateIndustrySelect(cached);
+                return;
+            }
+            
+            try {
+                const res = await safeFetch(`${API}/api/v1/industries`);
+                const data = await res.json();
+                
+                if (data.success && data.data) {
+                    const industries = data.data;
+                    setCache('industries', industries);
+                    populateIndustrySelect(industries);
+                    console.log('[API] 行业列表从API加载:', industries.length);
+                }
+            } catch (e) {
+                console.error('[API] 加载行业列表失败:', e);
+                // 失败时使用默认行业
+                populateIndustrySelect([
+                    { id: 'sales', name: '销售/市场' },
+                    { id: 'finance', name: '财务/会计' },
+                    { id: 'administrative', name: '行政/人事' },
+                    { id: 'customer_service', name: '客服/服务' },
+                    { id: 'education', name: '教育/培训' }
+                ]);
+            }
+        }
+        
+        // 填充行业选择框
+        function populateIndustrySelect(industries) {
+            const selects = ['industry', 'optimize-industry'];
+            
+            selects.forEach(selectId => {
+                const select = document.getElementById(selectId);
+                if (!select) return;
+                
+                // 清空现有选项（保留第一个空选项）
+                select.innerHTML = '<option value="">选择行业</option>';
+                
+                // 添加行业选项
+                industries.forEach(ind => {
+                    const option = document.createElement('option');
+                    option.value = ind.id;
+                    option.textContent = ind.name;
+                    select.appendChild(option);
+                });
+            });
         }
         
         // 切换认证标签
@@ -2757,6 +2844,15 @@
         
         // 加载用户信息
         async function loadUserInfo() {
+            // 先尝试从缓存获取（5分钟有效）
+            const cached = getCache('userInfo');
+            if (cached && cached.email === currentUser?.email) {
+                console.log('[Cache] 用户信息从缓存加载');
+                currentUser = cached;
+                updateUserInfoUI(currentUser);
+                return;
+            }
+            
             const res = await safeFetch(`${API}/api/v1/me`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -2774,26 +2870,31 @@
             }
             
             currentUser = data.data;
-            
+            setCache('userInfo', currentUser);
+            updateUserInfoUI(currentUser);
+        }
+        
+        // 更新用户信息UI（从loadUserInfo提取）
+        function updateUserInfoUI(user) {
             // 显示用户邮箱
-            document.getElementById('user-email').textContent = currentUser.email;
+            document.getElementById('user-email').textContent = user.email;
             
             // 显示等级徽章
             const levelBadge = document.getElementById('level-badge');
-            levelBadge.className = `level-badge ${currentUser.user_level}`;
-            levelBadge.textContent = currentUser.level_name;
+            levelBadge.className = `level-badge ${user.user_level}`;
+            levelBadge.textContent = user.level_name;
             
             // 显示使用进度
             const usageProgress = document.getElementById('usage-progress');
             const usageText = document.getElementById('usage-text');
             
-            if (currentUser.daily_limit === -1) {
+            if (user.daily_limit === -1) {
                 // VIP用户无限
                 usageProgress.innerHTML = '<div class="usage-progress-bar"><div class="usage-progress-fill unlimited"></div></div>';
                 usageText.textContent = 'VIP会员 · 无限使用';
             } else {
-                const percentage = currentUser.usage_percentage;
-                const remaining = currentUser.remaining_usage;
+                const percentage = user.usage_percentage;
+                const remaining = user.remaining_usage;
                 
                 // 进度条颜色
                 let progressClass = '';
@@ -2801,12 +2902,12 @@
                 else if (remaining <= 3) progressClass = 'warning';
                 
                 usageProgress.innerHTML = `<div class="usage-progress-bar"><div class="usage-progress-fill ${progressClass}" style="width: ${percentage}%"></div></div>`;
-                usageText.textContent = `今日已用 ${currentUser.usage_today}/${currentUser.daily_limit} 次`;
+                usageText.textContent = `今日已用 ${user.usage_today}/${user.daily_limit} 次`;
             }
             
             // 等级到期提醒
-            if (currentUser.level_expires_at && currentUser.user_level !== 'free') {
-                const expires = new Date(currentUser.level_expires_at);
+            if (user.level_expires_at && user.user_level !== 'free') {
+                const expires = new Date(user.level_expires_at);
                 const daysLeft = Math.ceil((expires - new Date()) / (1000 * 60 * 60 * 24));
                 
                 if (daysLeft <= 7 && daysLeft > 0) {
@@ -2815,7 +2916,7 @@
             }
             
             // 过期提醒
-            if (currentUser.is_expired) {
+            if (user.is_expired) {
                 levelBadge.style.background = '#ffcdd2';
                 levelBadge.textContent = '已过期';
             }
