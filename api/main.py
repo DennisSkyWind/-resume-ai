@@ -222,6 +222,65 @@ if not os.path.exists(USER_DB_PATH):
         try:
             conn.execute("ALTER TABLE feedback ADD COLUMN rating_comment TEXT")
         except: pass
+        
+        # 历史记录表
+        conn.execute('''CREATE TABLE IF NOT EXISTS resumes
+            (id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
+            content TEXT,
+            industry TEXT,
+            score REAL,
+            created_at TEXT)''')
+        
+        # 错误日志表
+        conn.execute('''CREATE TABLE IF NOT EXISTS error_logs
+            (id INTEGER PRIMARY KEY AUTOINCREMENT,
+            error_type TEXT,
+            error_message TEXT,
+            error_stack TEXT,
+            user_id INTEGER,
+            request_path TEXT,
+            request_method TEXT,
+            severity TEXT DEFAULT 'error',
+            resolved INTEGER DEFAULT 0,
+            created_at TEXT)''')
+        
+        # 邀请表
+        conn.execute('''CREATE TABLE IF NOT EXISTS invitations
+            (id INTEGER PRIMARY KEY AUTOINCREMENT,
+            inviter_id INTEGER,
+            invitee_id INTEGER,
+            reward_given INTEGER DEFAULT 0,
+            created_at TEXT)''')
+        
+        # 订单表
+        conn.execute('''CREATE TABLE IF NOT EXISTS orders
+            (id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
+            order_id TEXT,
+            amount REAL,
+            status TEXT,
+            created_at TEXT)''')
+        
+        # 用户字段迁移
+        cursor = conn.cursor()
+        cursor.execute("PRAGMA table_info(users)")
+        columns = [row[1] for row in cursor.fetchall()]
+        
+        if 'is_admin' not in columns:
+            cursor.execute("ALTER TABLE users ADD COLUMN is_admin INTEGER DEFAULT 0")
+        if 'is_paid' not in columns:
+            cursor.execute("ALTER TABLE users ADD COLUMN is_paid INTEGER DEFAULT 0")
+        if 'invite_code' not in columns:
+            cursor.execute("ALTER TABLE users ADD COLUMN invite_code TEXT")
+        if 'invited_by' not in columns:
+            cursor.execute("ALTER TABLE users ADD COLUMN invited_by INTEGER")
+        if 'user_level' not in columns:
+            cursor.execute("ALTER TABLE users ADD COLUMN user_level TEXT DEFAULT 'free'")
+        if 'level_expires_at' not in columns:
+            cursor.execute("ALTER TABLE users ADD COLUMN level_expires_at TEXT")
+        if 'name' not in columns:
+            cursor.execute("ALTER TABLE users ADD COLUMN name TEXT")
         # 使用记录表
         conn.execute('''CREATE TABLE IF NOT EXISTS usage
             (id INTEGER PRIMARY KEY AUTOINCREMENT,
