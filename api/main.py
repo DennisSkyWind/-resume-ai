@@ -3,7 +3,7 @@ ResumeAI Backend - FastAPIwith User Authentication
 简历优化系统后端服务（带用户认证）
 """
 
-from fastapi import FastAPI, HTTPException, Depends, Header, File, UploadFile, Query, Request
+from fastapi import FastAPI, HTTPException, Depends, Header, File, UploadFile, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
 from pydantic import BaseModel
@@ -37,8 +37,15 @@ from email_sender import send_verification_code, generate_code, get_email_config
 import pdfplumber
 from docx import Document
 
-# PDF生成模块 - 延迟导入以兼容Vercel
-# from reportlab... 改为在需要时导入
+# PDF生成模块
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.units import mm
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.lib import colors
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+from io import BytesIO
 
 # 初始化FastAPI
 app = FastAPI(
@@ -160,120 +167,15 @@ if not os.path.exists(USER_DB_PATH):
             expires_at TEXT,
             used INTEGER DEFAULT 0,
             created_at TEXT)''')
-        # 通知表
-        conn.execute('''CREATE TABLE IF NOT EXISTS notifications
-            (id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NOT NULL,
-            title TEXT NOT NULL,
-            message TEXT,
-            type TEXT DEFAULT 'info',
-            related_id INTEGER,
-            related_type TEXT,
-            is_read INTEGER DEFAULT 0,
-            created_at TEXT)''')
-        
-        # 反馈表（增强版）
+        # 反馈表
         conn.execute('''CREATE TABLE IF NOT EXISTS feedback
             (id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id INTEGER,
             email TEXT,
             type TEXT,
-            title TEXT,
             content TEXT,
-            priority TEXT DEFAULT 'medium',
-            tags TEXT,
-            screenshot_url TEXT,
             status TEXT DEFAULT 'pending',
-            admin_reply TEXT,
-            reply_at TEXT,
-            rating INTEGER,
-            rating_comment TEXT,
             created_at TEXT)''')
-        
-        # 反馈表字段迁移（确保旧表有新字段）
-        try:
-            conn.execute("ALTER TABLE feedback ADD COLUMN title TEXT")
-        except: pass
-        try:
-            conn.execute("ALTER TABLE feedback ADD COLUMN priority TEXT DEFAULT 'medium'")
-        except: pass
-        try:
-            conn.execute("ALTER TABLE feedback ADD COLUMN tags TEXT")
-        except: pass
-        try:
-            conn.execute("ALTER TABLE feedback ADD COLUMN screenshot_url TEXT")
-        except: pass
-        try:
-            conn.execute("ALTER TABLE feedback ADD COLUMN admin_reply TEXT")
-        except: pass
-        try:
-            conn.execute("ALTER TABLE feedback ADD COLUMN reply_at TEXT")
-        except: pass
-        try:
-            conn.execute("ALTER TABLE feedback ADD COLUMN rating INTEGER")
-        except: pass
-        try:
-            conn.execute("ALTER TABLE feedback ADD COLUMN rating_comment TEXT")
-        except: pass
-        
-        # 历史记录表
-        conn.execute('''CREATE TABLE IF NOT EXISTS resumes
-            (id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER,
-            content TEXT,
-            industry TEXT,
-            score REAL,
-            created_at TEXT)''')
-        
-        # 错误日志表
-        conn.execute('''CREATE TABLE IF NOT EXISTS error_logs
-            (id INTEGER PRIMARY KEY AUTOINCREMENT,
-            error_type TEXT,
-            error_message TEXT,
-            error_stack TEXT,
-            user_id INTEGER,
-            request_path TEXT,
-            request_method TEXT,
-            severity TEXT DEFAULT 'error',
-            resolved INTEGER DEFAULT 0,
-            created_at TEXT)''')
-        
-        # 邀请表
-        conn.execute('''CREATE TABLE IF NOT EXISTS invitations
-            (id INTEGER PRIMARY KEY AUTOINCREMENT,
-            inviter_id INTEGER,
-            invitee_id INTEGER,
-            reward_given INTEGER DEFAULT 0,
-            created_at TEXT)''')
-        
-        # 订单表
-        conn.execute('''CREATE TABLE IF NOT EXISTS orders
-            (id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER,
-            order_id TEXT,
-            amount REAL,
-            status TEXT,
-            created_at TEXT)''')
-        
-        # 用户字段迁移
-        cursor = conn.cursor()
-        cursor.execute("PRAGMA table_info(users)")
-        columns = [row[1] for row in cursor.fetchall()]
-        
-        if 'is_admin' not in columns:
-            cursor.execute("ALTER TABLE users ADD COLUMN is_admin INTEGER DEFAULT 0")
-        if 'is_paid' not in columns:
-            cursor.execute("ALTER TABLE users ADD COLUMN is_paid INTEGER DEFAULT 0")
-        if 'invite_code' not in columns:
-            cursor.execute("ALTER TABLE users ADD COLUMN invite_code TEXT")
-        if 'invited_by' not in columns:
-            cursor.execute("ALTER TABLE users ADD COLUMN invited_by INTEGER")
-        if 'user_level' not in columns:
-            cursor.execute("ALTER TABLE users ADD COLUMN user_level TEXT DEFAULT 'free'")
-        if 'level_expires_at' not in columns:
-            cursor.execute("ALTER TABLE users ADD COLUMN level_expires_at TEXT")
-        if 'name' not in columns:
-            cursor.execute("ALTER TABLE users ADD COLUMN name TEXT")
         # 使用记录表
         conn.execute('''CREATE TABLE IF NOT EXISTS usage
             (id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -287,28 +189,32 @@ if not os.path.exists(USER_DB_PATH):
         logger.info(f"Created database at {USER_DB_PATH}")
     except Exception as e:
         logger.error(f"Failed to create database: {e}")
+
+# 性能优化：应用启动时创建索引
+@app.on_event("startup")
+async def create_indexes():
+    """启动时创建数据库索引以提升查询性能"""
+    conn = get_user_db()
+    cursor = conn.cursor()
     
-    # 创建索引（移到初始化时）
-    try:
-        indexes = [
-            ("idx_users_email", "users(email)"),
-            ("idx_users_created_at", "users(created_at)"),
-            ("idx_usage_user_id", "usage(user_id)"),
-            ("idx_usage_created_at", "usage(created_at)"),
-            ("idx_resumes_user_id", "resumes(user_id)"),
-            ("idx_error_logs_created_at", "error_logs(created_at)"),
-        ]
-        
-        for idx_name, idx_target in indexes:
-            try:
-                conn.execute(f"CREATE INDEX IF NOT EXISTS {idx_name} ON {idx_target}")
-            except sqlite3.OperationalError:
-                pass  # 表不存在，跳过
-        
-        conn.commit()
-        logger.info("Database indexes created/verified")
-    except Exception as e:
-        logger.warning(f"Failed to create indexes: {e}")
+    # 检查并创建索引
+    indexes = [
+        ("idx_users_email", "users(email)"),
+        ("idx_users_created_at", "users(created_at)"),
+        ("idx_usage_user_id", "usage(user_id)"),
+        ("idx_usage_created_at", "usage(created_at)"),
+        ("idx_resumes_user_id", "resumes(user_id)"),
+        ("idx_error_logs_created_at", "error_logs(created_at)"),
+    ]
+    
+    for idx_name, idx_target in indexes:
+        try:
+            cursor.execute(f"CREATE INDEX IF NOT EXISTS {idx_name} ON {idx_target}")
+        except sqlite3.OperationalError:
+            pass  # 表不存在，跳过
+    
+    conn.commit()
+    logger.info("Database indexes created/verified")
 
 # JWT配置（使用固定密钥）
 JWT_SECRET = os.environ.get("JWT_SECRET", "resumeai_jwt_secret_key_2026")  # 优先使用环境变量
@@ -342,39 +248,18 @@ def check_rate_limit(ip: str) -> bool:
     ip_request_counts[ip].append(now)
     return True
 
-# PDF字体配置 - Vercel兼容（延迟导入）
-PDF_FONT_NAME = 'Helvetica'
-PDF_FONT_BOLD = 'Helvetica-Bold'
-pdfmetrics = None
-
-def init_pdf_fonts():
-    """初始化PDF字体（需要时调用）"""
-    global pdfmetrics, PDF_FONT_NAME, PDF_FONT_BOLD
-    
-    if pdfmetrics is not None:
-        return  # 已初始化
-    
-    # 本地环境尝试注册中文字体
-    if os.environ.get("VERCEL") != "1":
-        try:
-            from reportlab.pdfbase import pdfmetrics as pm
-            from reportlab.pdfbase.ttfonts import TTFont
-            FONT_PATH = "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc"
-            FONT_BOLD_PATH = "/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc"
-            if os.path.exists(FONT_PATH):
-                pm.registerFont(TTFont('NotoSansCJK', FONT_PATH, subfontIndex=0))
-                pm.registerFont(TTFont('NotoSansCJK-Bold', FONT_BOLD_PATH, subfontIndex=0))
-                PDF_FONT_NAME = 'NotoSansCJK'
-                PDF_FONT_BOLD = 'NotoSansCJK-Bold'
-            pdfmetrics = pm
-        except Exception as e:
-            logger.warning(f"字体注册失败: {e}")
-    else:
-        try:
-            from reportlab.pdfbase import pdfmetrics as pm
-            pdfmetrics = pm
-        except:
-            pass
+# PDF中文字体配置
+FONT_PATH = "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc"
+FONT_BOLD_PATH = "/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc"
+try:
+    pdfmetrics.registerFont(TTFont('NotoSansCJK', FONT_PATH, subfontIndex=0))
+    pdfmetrics.registerFont(TTFont('NotoSansCJK-Bold', FONT_BOLD_PATH, subfontIndex=0))
+    PDF_FONT_NAME = 'NotoSansCJK'
+    PDF_FONT_BOLD = 'NotoSansCJK-Bold'
+except Exception as e:
+    print(f"字体注册失败: {e}")
+    PDF_FONT_NAME = 'Helvetica'
+    PDF_FONT_BOLD = 'Helvetica-Bold'
 
 # 阿里云Coding API配置
 DASHSCOPE_API_KEY = os.environ.get("DASHSCOPE_API_KEY", "sk-sp-e8d1076e8dd4461d8d1edf2542f8de68")
@@ -436,23 +321,33 @@ KEYWORDS_DB = load_keywords()
 
 # ========== 用户认证函数 ==========
 
-# Vercel serverless环境下每次请求创建新连接
-def get_user_db():
-    """获取数据库连接（Vercel兼容版）"""
-    # Vercel serverless每次请求都是新实例，不能用全局连接
-    conn = sqlite3.connect(USER_DB_PATH, check_same_thread=False)
-    conn.row_factory = sqlite3.Row
-    # Vercel /tmp目录不支持WAL，使用默认模式
-    if os.environ.get("VERCEL") != "1":
-        try:
-            conn.execute("PRAGMA journal_mode=WAL")
-            conn.execute("PRAGMA synchronous=NORMAL")
-            conn.execute("PRAGMA cache_size=-64000")
-        except:
-            pass
-    return conn
+# 性能优化：数据库连接缓存和SQLite调优
+_db_connection = None
 
-# Vercel serverless不支持shutdown事件，移除
+def get_user_db():
+    """获取数据库连接（性能优化版）"""
+    global _db_connection
+    if _db_connection is None:
+        conn = sqlite3.connect(USER_DB_PATH, check_same_thread=False)
+        conn.row_factory = sqlite3.Row
+        # SQLite性能优化PRAGMA
+        conn.execute("PRAGMA journal_mode=WAL")  # 写前日志，提升并发性能
+        conn.execute("PRAGMA synchronous=NORMAL")  # 降低同步频率
+        conn.execute("PRAGMA cache_size=-64000")  # 64MB缓存
+        conn.execute("PRAGMA temp_store=MEMORY")  # 临时表存内存
+        _db_connection = conn
+    return _db_connection
+
+def close_db_connection():
+    """关闭数据库连接（服务关闭时调用）"""
+    global _db_connection
+    if _db_connection:
+        _db_connection.close()
+        _db_connection = None
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    close_db_connection()
 
 def hash_password(password: str) -> str:
     return hashlib.sha256(password.encode()).hexdigest()
@@ -1812,250 +1707,61 @@ def get_current_user_optional(authorization: Optional[str] = Header(None)):
 
 @app.post("/api/v1/feedback")
 async def submit_feedback(request: FeedbackRequest, user: Optional[dict] = Depends(get_current_user_optional)):
-    """提交用户反馈（增强版）"""
+    """提交用户反馈"""
     conn = get_user_db()
     cursor = conn.cursor()
     
     user_id = user.get("id") if user else None
     email = request.email or (user.get("email") if user else "anonymous")
     
-    # 使用增强字段
-    title = getattr(request, 'title', None) or request.content[:50] if request.content else None
-    priority = getattr(request, 'priority', 'medium')
-    tags = getattr(request, 'tags', None)
-    screenshot_url = getattr(request, 'screenshot_url', None)
-    
     cursor.execute("""
-        INSERT INTO feedback (user_id, email, type, title, content, priority, tags, screenshot_url, status, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?)
-    """, (user_id, email, request.type, title, request.content, priority, tags, screenshot_url, datetime.now().isoformat()))
+        INSERT INTO feedback (user_id, email, type, content, status, created_at)
+        VALUES (?, ?, ?, ?, 'pending', ?)
+    """, (user_id, email, request.type, request.content, datetime.now().isoformat()))
     conn.commit()
     
     return {"success": True, "message": "反馈已提交，感谢您的建议！"}
 
-# ==================== 用户反馈列表 ====================
-
-@app.get("/api/v1/feedback/my")
-async def get_my_feedback(user: dict = Depends(get_current_user)):
-    """获取用户自己的反馈列表"""
-    conn = get_user_db()
-    cursor = conn.cursor()
-    
-    cursor.execute("""
-        SELECT * FROM feedback WHERE user_id = ? ORDER BY created_at DESC LIMIT 50
-    """, (user["id"],))
-    
-    feedbacks = [dict(row) for row in cursor.fetchall()]
-    return {"success": True, "data": feedbacks}
-
-@app.get("/api/v1/feedback/{feedback_id}")
-async def get_feedback_detail(feedback_id: int, user: dict = Depends(get_current_user)):
-    """获取反馈详情"""
-    conn = get_user_db()
-    cursor = conn.cursor()
-    
-    cursor.execute("SELECT * FROM feedback WHERE id = ? AND user_id = ?", (feedback_id, user["id"]))
-    feedback = cursor.fetchone()
-    
-    if not feedback:
-        return {"success": False, "message": "反馈不存在或无权访问"}
-    
-    return {"success": True, "data": dict(feedback)}
-
-# ==================== 通知系统 ====================
-
-@app.get("/api/v1/notifications")
-async def get_notifications(user: dict = Depends(get_current_user)):
-    """获取用户通知列表"""
-    conn = get_user_db()
-    cursor = conn.cursor()
-    
-    cursor.execute("""
-        SELECT * FROM notifications WHERE user_id = ? ORDER BY created_at DESC LIMIT 50
-    """, (user["id"],))
-    
-    notifications = [dict(row) for row in cursor.fetchall()]
-    
-    # 未读数量
-    cursor.execute("SELECT COUNT(*) as count FROM notifications WHERE user_id = ? AND is_read = 0", (user["id"],))
-    unread = cursor.fetchone()["count"]
-    
-    return {"success": True, "data": notifications, "unread": unread}
-
-@app.post("/api/v1/notifications/{notif_id}/read")
-async def mark_notification_read(notif_id: int, user: dict = Depends(get_current_user)):
-    """标记通知为已读"""
-    conn = get_user_db()
-    cursor = conn.cursor()
-    
-    cursor.execute("UPDATE notifications SET is_read = 1 WHERE id = ? AND user_id = ?", (notif_id, user["id"]))
-    conn.commit()
-    
-    return {"success": True, "message": "已标记为已读"}
-
-@app.post("/api/v1/notifications/read-all")
-async def mark_all_notifications_read(user: dict = Depends(get_current_user)):
-    """标记所有通知为已读"""
-    conn = get_user_db()
-    cursor = conn.cursor()
-    
-    cursor.execute("UPDATE notifications SET is_read = 1 WHERE user_id = ?", (user["id"],))
-    conn.commit()
-    
-    return {"success": True, "message": "全部已标记为已读"}
-
-# ==================== 满意度评分 ====================
-
-@app.post("/api/v1/feedback/{feedback_id}/rate")
-async def rate_feedback(feedback_id: int, request: Request, user: dict = Depends(get_current_user)):
-    """用户对已解决的反馈进行评分"""
-    data = await request.json()
-    rating = data.get("rating")
-    comment = data.get("comment", "")
-    
-    if not rating or rating < 1 or rating > 5:
-        return {"success": False, "message": "评分必须在1-5之间"}
-    
-    conn = get_user_db()
-    cursor = conn.cursor()
-    
-    # 验证反馈归属
-    cursor.execute("SELECT * FROM feedback WHERE id = ? AND user_id = ?", (feedback_id, user["id"]))
-    feedback = cursor.fetchone()
-    
-    if not feedback:
-        return {"success": False, "message": "反馈不存在或无权评分"}
-    
-    if feedback["status"] != "resolved":
-        return {"success": False, "message": "只能对已解决的反馈评分"}
-    
-    # 更新评分
-    cursor.execute("UPDATE feedback SET rating = ?, rating_comment = ? WHERE id = ?", (rating, comment, feedback_id))
-    conn.commit()
-    
-    return {"success": True, "message": "感谢您的评分！"}
-
-# ==================== 管理后台 ====================
-
 @app.get("/api/v1/admin/feedback")
 async def admin_get_feedback(admin: dict = Depends(get_admin_user)):
-    """获取反馈列表（管理员增强版）"""
+    """获取反馈列表（管理员）"""
     conn = get_user_db()
     cursor = conn.cursor()
     
     cursor.execute("""
-        SELECT f.*, u.name as user_name
+        SELECT f.id, f.user_id, f.email, f.type, f.content, f.status, f.created_at,
+               u.name as user_name
         FROM feedback f
         LEFT JOIN users u ON f.user_id = u.id
-        ORDER BY 
-            CASE f.priority WHEN 'urgent' THEN 1 WHEN 'high' THEN 2 WHEN 'medium' THEN 3 ELSE 4 END,
-            f.created_at DESC
+        ORDER BY f.created_at DESC
         LIMIT 100
     """)
     
-    feedbacks = [dict(row) for row in cursor.fetchall()]
+    feedbacks = []
+    for row in cursor.fetchall():
+        feedbacks.append({
+            "id": row[0],
+            "user_id": row[1],
+            "email": row[2],
+            "type": row[3],
+            "content": row[4],
+            "status": row[5],
+            "created_at": row[6],
+            "user_name": row[7]
+        })
+    
     return {"success": True, "data": feedbacks}
 
-@app.get("/api/v1/admin/feedback/stats")
-async def admin_feedback_stats(admin: dict = Depends(get_admin_user)):
-    """反馈统计（管理后台仪表盘）"""
-    conn = get_user_db()
-    cursor = conn.cursor()
-    
-    cursor.execute("SELECT COUNT(*) as count FROM feedback")
-    total = cursor.fetchone()["count"]
-    
-    cursor.execute("SELECT COUNT(*) as count FROM feedback WHERE status = 'pending'")
-    pending = cursor.fetchone()["count"]
-    
-    cursor.execute("SELECT COUNT(*) as count FROM feedback WHERE status = 'in_progress'")
-    in_progress = cursor.fetchone()["count"]
-    
-    cursor.execute("SELECT COUNT(*) as count FROM feedback WHERE status = 'resolved'")
-    resolved = cursor.fetchone()["count"]
-    
-    cursor.execute("SELECT COUNT(*) as count FROM feedback WHERE status = 'closed'")
-    closed = cursor.fetchone()["count"]
-    
-    cursor.execute("SELECT COUNT(*) as count FROM feedback WHERE priority = 'urgent' AND status != 'resolved' AND status != 'closed'")
-    urgent_count = cursor.fetchone()["count"]
-    
-    cursor.execute("SELECT AVG(rating) as avg FROM feedback WHERE rating IS NOT NULL")
-    avg_rating = cursor.fetchone()["avg"] or 0
-    
-    return {
-        "success": True,
-        "data": {
-            "total": total,
-            "pending": pending,
-            "in_progress": in_progress,
-            "resolved": resolved,
-            "closed": closed,
-            "urgent_count": urgent_count,
-            "avg_rating": round(avg_rating, 1) if avg_rating else 0
-        }
-    }
-
-def create_notification(user_id: int, title: str, message: str, notif_type: str = "info", related_id: int = None, related_type: str = None):
-    """创建通知的辅助函数"""
-    conn = get_user_db()
-    cursor = conn.cursor()
-    
-    cursor.execute("""
-        INSERT INTO notifications (user_id, title, message, type, related_id, related_type, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-    """, (user_id, title, message, notif_type, related_id, related_type, datetime.now().isoformat()))
-    
-    conn.commit()
-
 @app.put("/api/v1/admin/feedback/{feedback_id}")
-async def admin_update_feedback(feedback_id: int, status: str = None, reply: str = None, admin: dict = Depends(get_admin_user)):
-    """更新反馈（管理员，支持回复+通知）"""
+async def admin_update_feedback(feedback_id: int, status: str, admin: dict = Depends(get_admin_user)):
+    """更新反馈状态（管理员）"""
     conn = get_user_db()
     cursor = conn.cursor()
     
-    cursor.execute("SELECT * FROM feedback WHERE id = ?", (feedback_id,))
-    feedback = cursor.fetchone()
-    if not feedback:
-        return {"success": False, "message": "反馈不存在"}
-    
-    old_status = feedback["status"]
-    
-    if status:
-        cursor.execute("UPDATE feedback SET status = ? WHERE id = ?", (status, feedback_id))
-        
-        # 状态变化通知
-        status_text = {"pending": "待处理", "in_progress": "处理中", "resolved": "已解决", "closed": "已关闭"}
-        if feedback["user_id"] and status != old_status:
-            create_notification(
-                user_id=feedback["user_id"],
-                title=f"反馈状态更新 #{feedback_id}",
-                message=f"您的反馈「{feedback['title'] or '无标题'}」状态已更新为：{status_text.get(status, status)}",
-                notif_type="feedback",
-                related_id=feedback_id,
-                related_type="feedback"
-            )
-    
-    if reply:
-        cursor.execute("""
-            UPDATE feedback SET admin_reply = ?, reply_at = ?, status = 'in_progress'
-            WHERE id = ?
-        """, (reply, datetime.now().isoformat(), feedback_id))
-        
-        # 回复通知
-        if feedback["user_id"]:
-            create_notification(
-                user_id=feedback["user_id"],
-                title=f"您收到管理员回复 #{feedback_id}",
-                message=f"管理员回复了您的反馈「{feedback['title'] or '无标题'}」",
-                notif_type="feedback_reply",
-                related_id=feedback_id,
-                related_type="feedback"
-            )
-    
+    cursor.execute("UPDATE feedback SET status = ? WHERE id = ?", (status, feedback_id))
     conn.commit()
     
-    return {"success": True, "message": "反馈已更新"}
+    return {"success": True, "message": f"反馈状态已更新为 {status}"}
 
 if __name__ == "__main__":
     import uvicorn
