@@ -446,9 +446,7 @@ def close_db_connection():
         _db_connection.close()
         _db_connection = None
 
-@app.on_event("shutdown")
-async def shutdown_event():
-    close_db_connection()
+# Vercel serverless不支持shutdown事件，移除
 
 def hash_password(password: str) -> str:
     return hashlib.sha256(password.encode()).hexdigest()
