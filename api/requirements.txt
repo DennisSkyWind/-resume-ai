@@ -1,4 +1,4 @@
-# ResumeAI Backend Dependencies
+﻿# ResumeAI Backend Dependencies
 
 fastapi>=0.100.0
 uvicorn>=0.23.0
@@ -12,5 +12,6 @@ python-multipart>=0.0.6
 # Vercel Serverless
 mangum>=0.17.0
 
-# Supabase (optional, for production)
-supabase>=2.0.0
+# Email sending
+resend>=0.5.0
+httpx>=0.24.0
