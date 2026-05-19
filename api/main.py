@@ -294,32 +294,28 @@ if not os.path.exists(USER_DB_PATH):
         logger.info(f"Created database at {USER_DB_PATH}")
     except Exception as e:
         logger.error(f"Failed to create database: {e}")
-
-# 性能优化：应用启动时创建索引
-@app.on_event("startup")
-async def create_indexes():
-    """启动时创建数据库索引以提升查询性能"""
-    conn = get_user_db()
-    cursor = conn.cursor()
     
-    # 检查并创建索引
-    indexes = [
-        ("idx_users_email", "users(email)"),
-        ("idx_users_created_at", "users(created_at)"),
-        ("idx_usage_user_id", "usage(user_id)"),
-        ("idx_usage_created_at", "usage(created_at)"),
-        ("idx_resumes_user_id", "resumes(user_id)"),
-        ("idx_error_logs_created_at", "error_logs(created_at)"),
-    ]
-    
-    for idx_name, idx_target in indexes:
-        try:
-            cursor.execute(f"CREATE INDEX IF NOT EXISTS {idx_name} ON {idx_target}")
-        except sqlite3.OperationalError:
-            pass  # 表不存在，跳过
-    
-    conn.commit()
-    logger.info("Database indexes created/verified")
+    # 创建索引（移到初始化时）
+    try:
+        indexes = [
+            ("idx_users_email", "users(email)"),
+            ("idx_users_created_at", "users(created_at)"),
+            ("idx_usage_user_id", "usage(user_id)"),
+            ("idx_usage_created_at", "usage(created_at)"),
+            ("idx_resumes_user_id", "resumes(user_id)"),
+            ("idx_error_logs_created_at", "error_logs(created_at)"),
+        ]
+        
+        for idx_name, idx_target in indexes:
+            try:
+                conn.execute(f"CREATE INDEX IF NOT EXISTS {idx_name} ON {idx_target}")
+            except sqlite3.OperationalError:
+                pass  # 表不存在，跳过
+        
+        conn.commit()
+        logger.info("Database indexes created/verified")
+    except Exception as e:
+        logger.warning(f"Failed to create indexes: {e}")
 
 # JWT配置（使用固定密钥）
 JWT_SECRET = os.environ.get("JWT_SECRET", "resumeai_jwt_secret_key_2026")  # 优先使用环境变量
