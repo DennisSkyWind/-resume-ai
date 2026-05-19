@@ -3,7 +3,7 @@ ResumeAI Backend - FastAPIwith User Authentication
 简历优化系统后端服务（带用户认证）
 """
 
-from fastapi import FastAPI, HTTPException, Depends, Header, File, UploadFile, Query
+from fastapi import FastAPI, HTTPException, Depends, Header, File, UploadFile, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
 from pydantic import BaseModel
