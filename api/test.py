@@ -1,8 +1,7 @@
-# Simple test handler for Vercel
-
+# 最简单的Vercel测试API
 def handler(event, context):
     return {
         "statusCode": 200,
-        "body": "Hello from Vercel!",
-        "headers": {"Content-Type": "text/plain"}
+        "body": '{"success": true, "message": "Test OK"}',
+        "headers": {"Content-Type": "application/json"}
     }
