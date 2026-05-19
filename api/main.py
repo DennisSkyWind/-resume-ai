@@ -349,18 +349,22 @@ def check_rate_limit(ip: str) -> bool:
     ip_request_counts[ip].append(now)
     return True
 
-# PDF中文字体配置
-FONT_PATH = "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc"
-FONT_BOLD_PATH = "/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc"
-try:
-    pdfmetrics.registerFont(TTFont('NotoSansCJK', FONT_PATH, subfontIndex=0))
-    pdfmetrics.registerFont(TTFont('NotoSansCJK-Bold', FONT_BOLD_PATH, subfontIndex=0))
-    PDF_FONT_NAME = 'NotoSansCJK'
-    PDF_FONT_BOLD = 'NotoSansCJK-Bold'
-except Exception as e:
-    print(f"字体注册失败: {e}")
-    PDF_FONT_NAME = 'Helvetica'
-    PDF_FONT_BOLD = 'Helvetica-Bold'
+# PDF字体配置 - Vercel兼容
+PDF_FONT_NAME = 'Helvetica'
+PDF_FONT_BOLD = 'Helvetica-Bold'
+
+# 本地环境尝试注册中文字体
+if os.environ.get("VERCEL") != "1":
+    FONT_PATH = "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc"
+    FONT_BOLD_PATH = "/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc"
+    if os.path.exists(FONT_PATH):
+        try:
+            pdfmetrics.registerFont(TTFont('NotoSansCJK', FONT_PATH, subfontIndex=0))
+            pdfmetrics.registerFont(TTFont('NotoSansCJK-Bold', FONT_BOLD_PATH, subfontIndex=0))
+            PDF_FONT_NAME = 'NotoSansCJK'
+            PDF_FONT_BOLD = 'NotoSansCJK-Bold'
+        except Exception as e:
+            logger.warning(f"字体注册失败: {e}")
 
 # 阿里云Coding API配置
 DASHSCOPE_API_KEY = os.environ.get("DASHSCOPE_API_KEY", "sk-sp-e8d1076e8dd4461d8d1edf2542f8de68")
