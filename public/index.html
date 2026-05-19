@@ -3279,6 +3279,33 @@
                 `;
             }
             
+            // 示例句子展示（新增）
+            if (data.example_sentences && Object.keys(data.example_sentences).length > 0) {
+                html += `
+                    <div class="keywords-section" style="background:#eff6ff;padding:20px;border-radius:12px;margin-bottom:24px;">
+                        <div class="keywords-title" style="display:flex;align-items:center;gap:8px;">
+                            <span>✨ 示例句子生成</span>
+                            <span style="font-size:13px;color:#6b7280;">点击复制使用</span>
+                        </div>
+                        ${Object.entries(data.example_sentences).map(([keyword, examples]) => `
+                            <div style="margin-bottom:16px;">
+                                <div style="font-size:14px;font-weight:600;color:#1f2937;margin-bottom:8px;">
+                                    📌 「${keyword}」相关表达
+                                </div>
+                                <div style="display:flex;flex-direction:column;gap:8px;">
+                                    ${examples.map(example => `
+                                        <div style="display:flex;align-items:center;gap:8px;padding:12px;background:#fff;border-radius:8px;border:1px solid #e5e7eb;cursor:pointer;" onclick="copyExampleSentence('${example.replace(/'/g, "\\'")}')" title="点击复制">
+                                            <span style="flex:1;font-size:13px;color:#374151;">${example}</span>
+                                            <span style="color:#3b82f6;font-size:12px;">📋 复制</span>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+            
             if (data.suggestions && data.suggestions.length > 0) {
                 html += `
                     <div class="suggestions-section">
@@ -3462,6 +3489,20 @@
             document.getElementById('industry').value = '';
             document.getElementById('jd-content').value = '';
             document.getElementById('results').style.display = 'none';
+        }
+        
+        // 复制示例句子
+        function copyExampleSentence(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                // 显示复制成功提示
+                const toast = document.createElement('div');
+                toast.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#10b981;color:#fff;padding:12px 24px;border-radius:8px;font-size:14px;z-index:9999;';
+                toast.textContent = '✓ 已复制到剪贴板';
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 2000);
+            }).catch(err => {
+                alert('复制失败，请手动复制');
+            });
         }
         
         // 导出PDF

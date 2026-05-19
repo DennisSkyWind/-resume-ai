@@ -1470,17 +1470,25 @@ def analyze_resume(resume: str, industry: str, language: str, jd: Optional[str] 
                 "suggestion": f"根据职位要求，建议添加'{kw}'相关经验"
             })
     
+    # 为缺失关键词生成示例句子（新增）
+    example_sentences = {}
+    for kw in keywords_missing[:5]:
+        kw_text = kw["keyword"]
+        examples = generate_example_sentences(kw_text, industry)
+        example_sentences[kw_text] = examples
+    
     return {
         "overall_score": overall_score,
         "keyword_score": keyword_score,
         "ats_score": ats_score,
         "ats_details": ats_result,
         "keyword_density": keyword_density_result,
-        "metrics_analysis": quantified_metrics_result,  # 新增：量化指标分析
+        "metrics_analysis": quantified_metrics_result,
         "jd_match": jd_match_result,
         "keywords_found": keywords_found,
         "keywords_missing": keywords_missing,
         "suggestions": suggestions,
+        "example_sentences": example_sentences,  # 新增：示例句子
         "industry_name": industry_keywords.get("name", industry)
     }
 
@@ -1719,6 +1727,93 @@ def generate_suggestions(resume: str, missing_keywords: list, industry: str):
             })
     
     return suggestions
+
+def generate_example_sentences(keyword: str, industry: str, context: str = "") -> list:
+    """根据关键词和行业生成示例句子"""
+    industry_name = KEYWORDS_DB.get(industry, {}).get("name", industry)
+    
+    # 行业特点模板库
+    industry_templates = {
+        "sales": {
+            "prefixes": ["负责", "主导", "推动", "实现", "达成"],
+            "suffixes": ["提升销售额XX%", "拓展XX个新客户", "建立XX渠道合作关系", "完成年度销售目标XX%"],
+            "examples": [
+                f"通过{keyword}策略，成功拓展了30+新客户，销售额同比增长25%",
+                f"主导{keyword}项目，实现季度销售目标超额完成15%",
+                f"运用{keyword}技巧，建立了50+渠道合作关系，市场覆盖率提升20%",
+                f"负责{keyword}工作，年度业绩达成率120%，获得销售冠军称号"
+            ]
+        },
+        "finance": {
+            "prefixes": ["管理", "审核", "分析", "优化", "控制"],
+            "suffixes": ["节省成本XX万元", "提高资金周转率XX%", "降低财务风险XX%", "优化财务流程"],
+            "examples": [
+                f"通过{keyword}分析，为公司节省成本15万元/年",
+                f"负责{keyword}工作，财务报表准确率100%，零差错",
+                f"运用{keyword}方法，优化资金配置，周转率提升30%",
+                f"主导{keyword}项目，建立完善的内控体系，降低风险20%"
+            ]
+        },
+        "administrative": {
+            "prefixes": ["组织", "协调", "管理", "优化", "支持"],
+            "suffixes": ["提升工作效率XX%", "服务XX人次", "处理XX事项", "优化流程"],
+            "examples": [
+                f"负责{keyword}工作，部门运转效率提升20%",
+                f"通过{keyword}协调，成功组织XX场大型会议/活动",
+                f"运用{keyword}技能，处理日常事务XX件，零延误",
+                f"主导{keyword}优化，建立标准化流程，响应速度提升50%"
+            ]
+        },
+        "customer_service": {
+            "prefixes": ["服务", "解决", "处理", "维护", "提升"],
+            "suffixes": ["满意度XX%", "响应时间XX分钟", "处理XX客户问题", "挽回XX客户"],
+            "examples": [
+                f"通过{keyword}服务，客户满意度达到95%",
+                f"负责{keyword}工作，日均处理50+客户问题，解决率98%",
+                f"运用{keyword}技巧，成功挽回流失客户30+",
+                f"主导{keyword}改进，响应时间缩短至5分钟，投诉率下降40%"
+            ]
+        },
+        "education": {
+            "prefixes": ["教授", "指导", "培训", "开发", "设计"],
+            "suffixes": ["学员XX人", "通过率XX%", "满意度XX%", "课程XX门"],
+            "examples": [
+                f"负责{keyword}教学，学员通过率95%，满意度4.8分",
+                f"通过{keyword}方法，培训学员200+，就业率80%",
+                f"运用{keyword}设计，开发精品课程10门，获好评",
+                f"主导{keyword}项目，教学质量评估优秀，获教学奖"
+            ]
+        }
+    }
+    
+    # 默认模板（通用）
+    default_templates = {
+        "prefixes": ["负责", "主导", "参与", "完成", "实现"],
+        "suffixes": ["提升效率XX%", "完成XX项目", "达成XX目标", "获得XX成果"],
+        "examples": [
+            f"负责{keyword}工作，成功达成项目目标，效率提升20%",
+            f"通过{keyword}实践，积累了丰富经验，取得显著成果",
+            f"运用{keyword}技能，解决了XX难题，获得团队认可",
+            f"主导{keyword}项目，按时完成交付，质量达标"
+        ]
+    }
+    
+    # 获取行业模板或使用默认
+    templates = industry_templates.get(industry, default_templates)
+    
+    # 生成示例句子
+    examples = templates.get("examples", default_templates["examples"])
+    
+    # 如果有上下文（如工作经历段落），可以结合生成更精准的句子
+    if context:
+        # 根据上下文判断句子类型
+        if "负责" in context or "主管" in context:
+            examples = [f"负责{keyword}工作，{templates['suffixes'][0]}" for kw_suffix in templates['suffixes'][:2]]
+        elif "参与" in context or "协助" in context:
+            examples = [f"参与{keyword}项目，协助完成目标" for _ in range(2)]
+    
+    # 返回多个示例供用户选择
+    return examples[:4]  # 最多返回4个示例
 
 def analyze_keyword_density(resume: str, keywords_found: list, all_keywords: list) -> dict:
     """关键词密度分析"""
