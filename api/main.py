@@ -37,15 +37,8 @@ from email_sender import send_verification_code, generate_code, get_email_config
 import pdfplumber
 from docx import Document
 
-# PDF生成模块
-from reportlab.lib.pagesizes import A4
-from reportlab.lib.units import mm
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
-from reportlab.lib import colors
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
-from io import BytesIO
+# PDF生成模块 - 延迟导入以兼容Vercel
+# from reportlab... 改为在需要时导入
 
 # 初始化FastAPI
 app = FastAPI(
@@ -349,22 +342,39 @@ def check_rate_limit(ip: str) -> bool:
     ip_request_counts[ip].append(now)
     return True
 
-# PDF字体配置 - Vercel兼容
+# PDF字体配置 - Vercel兼容（延迟导入）
 PDF_FONT_NAME = 'Helvetica'
 PDF_FONT_BOLD = 'Helvetica-Bold'
+pdfmetrics = None
 
-# 本地环境尝试注册中文字体
-if os.environ.get("VERCEL") != "1":
-    FONT_PATH = "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc"
-    FONT_BOLD_PATH = "/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc"
-    if os.path.exists(FONT_PATH):
+def init_pdf_fonts():
+    """初始化PDF字体（需要时调用）"""
+    global pdfmetrics, PDF_FONT_NAME, PDF_FONT_BOLD
+    
+    if pdfmetrics is not None:
+        return  # 已初始化
+    
+    # 本地环境尝试注册中文字体
+    if os.environ.get("VERCEL") != "1":
         try:
-            pdfmetrics.registerFont(TTFont('NotoSansCJK', FONT_PATH, subfontIndex=0))
-            pdfmetrics.registerFont(TTFont('NotoSansCJK-Bold', FONT_BOLD_PATH, subfontIndex=0))
-            PDF_FONT_NAME = 'NotoSansCJK'
-            PDF_FONT_BOLD = 'NotoSansCJK-Bold'
+            from reportlab.pdfbase import pdfmetrics as pm
+            from reportlab.pdfbase.ttfonts import TTFont
+            FONT_PATH = "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc"
+            FONT_BOLD_PATH = "/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc"
+            if os.path.exists(FONT_PATH):
+                pm.registerFont(TTFont('NotoSansCJK', FONT_PATH, subfontIndex=0))
+                pm.registerFont(TTFont('NotoSansCJK-Bold', FONT_BOLD_PATH, subfontIndex=0))
+                PDF_FONT_NAME = 'NotoSansCJK'
+                PDF_FONT_BOLD = 'NotoSansCJK-Bold'
+            pdfmetrics = pm
         except Exception as e:
             logger.warning(f"字体注册失败: {e}")
+    else:
+        try:
+            from reportlab.pdfbase import pdfmetrics as pm
+            pdfmetrics = pm
+        except:
+            pass
 
 # 阿里云Coding API配置
 DASHSCOPE_API_KEY = os.environ.get("DASHSCOPE_API_KEY", "sk-sp-e8d1076e8dd4461d8d1edf2542f8de68")
