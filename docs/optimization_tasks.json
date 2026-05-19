@@ -4,8 +4,8 @@
   "created_at": "2026-05-19T22:45:00",
   "source": "用户视角测试发现的改进点",
   "total_tasks": 18,
-  "completed": 5,
-  "in_progress": 1,
+  "completed": 6,
+  "in_progress": 0,
   "pending": 12,
   "current_phase": 2,
   "current_phase": 2,
@@ -142,15 +142,18 @@
       "id": "O2-3",
       "name": "ATS检测扩展 - 量化指标检测",
       "phase": 2,
-      "status": "in_progress",
+      "status": "completed",
       "priority": "high",
       "eta": "30min",
+      "completed_at": "2026-05-20T06:30:00",
       "description": "检测简历是否包含量化成果",
       "details": [
-        "检测数字+单位模式（如'提升30%'、'节省10万'）",
-        "统计量化指标数量",
-        "提示需要量化的工作经历",
-        "示例：'销售额增长XX%'、'团队规模XX人'"
+        "✅ 检测数字+单位模式（百分比、金额、人数、时间、数量）",
+        "✅ 检测动词+数值专业表达模式",
+        "✅ 统计量化指标数量并评分",
+        "✅ 提示需要量化的工作经历段落",
+        "✅ 提供量化数据示例模板",
+        "✅ 前端量化指标详情卡片展示"
       ]
     },
     {
