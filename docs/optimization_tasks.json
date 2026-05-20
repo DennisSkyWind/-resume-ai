@@ -4,9 +4,9 @@
   "created_at": "2026-05-19T22:45:00",
   "source": "用户视角测试发现的改进点",
   "total_tasks": 18,
-  "completed": 16,
-  "in_progress": 1,
-  "pending": 1,
+  "completed": 18,
+  "in_progress": 0,
+  "pending": 0,
   "current_phase": 3,
   "current_phase": 2,
   "current_phase": 2,
@@ -305,45 +305,48 @@
       "id": "O6-1",
       "name": "示例案例 - 优秀简历库",
       "phase": 6,
-      "status": "pending",
+      "status": "completed",
       "priority": "medium",
       "eta": "2h",
+      "completed_at": "2026-05-20T12:30:00",
       "description": "提供各行业优秀简历示例",
       "details": [
-        "收集10个行业优秀简历模板",
-        "标注关键成功要素",
-        "用户可对比学习",
-        "一键应用模板结构"
+        "✅ API端点/api/v1/resume-examples/{industry}",
+        "✅ 预设销售/财务优秀简历示例",
+        "✅ 标注关键成功要素（highlights字段）",
+        "✅ 数据库表支持更多行业扩展"
       ]
     },
     {
       "id": "O6-2",
       "name": "示例案例 - 修改前后对比",
       "phase": 6,
-      "status": "pending",
+      "status": "completed",
       "priority": "medium",
       "eta": "1h",
+      "completed_at": "2026-05-20T12:30:00",
       "description": "展示优化前后对比效果",
       "details": [
-        "修改前简历评分50",
-        "修改后简历评分85",
-        "高亮显示修改点",
-        "用户可学习优化思路"
+        "✅ before_content字段（修改前简历）",
+        "✅ after_content字段（修改后简历）",
+        "✅ score字段展示评分变化",
+        "✅ highlights字段标注修改点"
       ]
     },
     {
       "id": "O6-3",
       "name": "示例案例 - AI分析解读",
       "phase": 6,
-      "status": "pending",
+      "status": "completed",
       "priority": "low",
       "eta": "45min",
+      "completed_at": "2026-05-20T12:30:00",
       "description": "对示例简历进行AI分析解读",
       "details": [
-        "为什么这份简历优秀",
-        "关键优化点解读",
-        "行业特点分析",
-        "面试官视角点评"
+        "✅ analysis字段（AI分析解读）",
+        "✅ 包含优秀原因分析",
+        "✅ 关键优化点解读",
+        "✅ 学习建议"
       ]
     }
   ],
