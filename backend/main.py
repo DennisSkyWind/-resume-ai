@@ -287,6 +287,20 @@ def ensure_tables_exist():
         weight INTEGER DEFAULT 5,
         created_at TEXT)''')
     
+    # O6-1新增：示例简历库表
+    conn.execute('''CREATE TABLE IF NOT EXISTS resume_examples
+        (id INTEGER PRIMARY KEY AUTOINCREMENT,
+        industry TEXT,
+        title TEXT,
+        content TEXT,
+        score INTEGER,
+        highlights TEXT,
+        before_content TEXT,
+        after_content TEXT,
+        analysis TEXT,
+        is_featured INTEGER DEFAULT 0,
+        created_at TEXT)''')
+    
     # 初始化管理员账号
     cursor.execute("SELECT * FROM users WHERE email = ?", ('zhwffy@hotmail.com',))
     admin = cursor.fetchone()
@@ -2398,6 +2412,65 @@ async def get_weights_recommendation(industry: str):
         "recommended_ats_weight": recommendation["ats_weight"],
         "reason": recommendation["reason"]
     }
+
+# O6-1/O6-2/O6-3新增：示例简历库API
+@app.get("/api/v1/resume-examples/{industry}")
+async def get_resume_examples(industry: str):
+    """获取指定行业的示例简历"""
+    conn = get_user_db()
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        SELECT id, title, content, score, highlights, before_content, after_content, analysis
+        FROM resume_examples WHERE industry = ? AND is_featured = 1
+        ORDER BY score DESC
+    """, (industry,))
+    
+    examples = []
+    for row in cursor.fetchall():
+        examples.append({
+            "id": row[0],
+            "title": row[1],
+            "content": row[2],
+            "score": row[3],
+            "highlights": json.loads(row[4]) if row[4] else [],
+            "before_content": row[5],
+            "after_content": row[6],
+            "analysis": row[7]
+        })
+    
+    # 如果数据库中没有示例，返回预设示例
+    if not examples:
+        examples = get_default_examples(industry)
+    
+    return {"success": True, "examples": examples}
+
+def get_default_examples(industry: str) -> list:
+    """获取预设的示例简历（O6-1/O6-2）"""
+    default_examples = {
+        "sales": [
+            {
+                "title": "优秀销售经理简历",
+                "score": 92,
+                "highlights": ["量化业绩突出", "关键词匹配度高", "ATS格式规范"],
+                "content": "张三 | 销售经理\n\n工作经历：\n- 2020-2023 ABC公司 销售经理\n  年销售额从500万增长至1200万，增长率140%\n  开发新客户200+家，客户满意度98%\n  主导大客户项目，签约金额累计3000万\n\n技能：客户开发、商务谈判、CRM系统、销售数据分析",
+                "before_content": "张三 | 销售\n\n工作经历：\n- 2020-2023 ABC公司 销售\n  负责销售工作\n\n技能：沟通能力强",
+                "after_content": "张三 | 销售经理\n\n工作经历：\n- 2020-2023 ABC公司 销售经理\n  年销售额从500万增长至1200万，增长率140%\n  开发新客户200+家，客户满意度98%",
+                "analysis": "这份简历优秀的原因：1)业绩量化清晰（140%增长率）；2)关键词匹配度高（客户开发、商务谈判等）；3)ATS格式规范，段落清晰。建议学习：使用具体数据展示成果，而非笼统描述。"
+            }
+        ],
+        "finance": [
+            {
+                "title": "优秀财务分析师简历",
+                "score": 88,
+                "highlights": ["专业关键词丰富", "量化成果明确", "格式专业"],
+                "content": "李四 | 财务分析师\n\n工作经历：\n- 2019-2023 XYZ公司 财务分析师\n  优化财务流程，效率提升30%\n  年度审计零调整项，内控合规率100%\n  成本控制项目节省500万/年\n\n技能：财务报表分析、预算管理、成本控制、ERP系统",
+                "analysis": "财务简历关键点：1)专业关键词（财务报表、预算管理）；2)量化成果（效率提升30%、节省500万）；3)格式规范，突出专业能力。"
+            }
+        ]
+    }
+    
+    return default_examples.get(industry, [])
 
 @app.get("/health")
 async def health_check():
