@@ -1545,7 +1545,14 @@
                 
                 // 检查响应状态
                 if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    // 尝试读取响应体获取详细错误信息
+                    try {
+                        const errorData = await response.json();
+                        const errorMsg = errorData.detail || errorData.message || `HTTP ${response.status}`;
+                        throw new Error(errorMsg);
+                    } catch (parseError) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
                 }
                 
                 return response;
