@@ -1113,13 +1113,21 @@
                 
                 <div class="form-group">
                     <label>目标行业 <span class="tooltip-container"><span class="tooltip-icon">?</span><span class="tooltip-text">选择目标行业，AI将提供针对性的优化建议</span></span></label>
-                    <select id="industry">
+                    <select id="industry" onchange="loadSubIndustries()">
                         <option value="">选择行业</option>
                         <option value="sales">销售/市场</option>
                         <option value="finance">财务/会计</option>
                         <option value="administrative">行政/人事</option>
                         <option value="customer_service">客服/服务</option>
                         <option value="education">教育/培训</option>
+                    </select>
+                </div>
+                
+                <!-- O4-1新增：子行业选择 -->
+                <div class="form-group" id="sub-industry-group" style="display:none;">
+                    <label>职位类型 <span class="tooltip-container"><span class="tooltip-icon">?</span><span class="tooltip-text">选择更精确的职位类型，AI将提供更针对性的关键词建议</span></span></label>
+                    <select id="sub-industry">
+                        <option value="">选择职位类型</option>
                     </select>
                 </div>
                 
@@ -3003,6 +3011,44 @@
             }
         }
         
+        // O4-1新增：加载子行业列表
+        async function loadSubIndustries() {
+            const industry = document.getElementById('industry').value;
+            const subGroup = document.getElementById('sub-industry-group');
+            const subSelect = document.getElementById('sub-industry');
+            
+            // 清空子行业选择
+            subSelect.innerHTML = '<option value="">选择职位类型</option>';
+            
+            if (!industry) {
+                subGroup.style.display = 'none';
+                return;
+            }
+            
+            try {
+                const res = await safeFetch(`${API}/api/v1/sub-industries/${industry}`);
+                const data = await res.json();
+                
+                if (data.success && data.data && data.data.length > 0) {
+                    // 显示子行业选择
+                    subGroup.style.display = 'block';
+                    
+                    // 添加子行业选项
+                    for (const sub of data.data) {
+                        const option = document.createElement('option');
+                        option.value = sub.id;
+                        option.textContent = sub.name;
+                        subSelect.appendChild(option);
+                    }
+                } else {
+                    subGroup.style.display = 'none';
+                }
+            } catch (err) {
+                console.error('加载子行业失败:', err);
+                subGroup.style.display = 'none';
+            }
+        }
+        
         // 分析简历
         async function analyzeResume() {
             // 检查使用次数
@@ -3014,6 +3060,7 @@
             
             const content = document.getElementById('resume-content').value;
             const industry = document.getElementById('industry').value;
+            const subIndustry = document.getElementById('sub-industry')?.value || '';  // O4-1新增
             const jd = document.getElementById('jd-content').value;
             
             if (!content || !industry) {
@@ -3035,6 +3082,7 @@
                     body: JSON.stringify({
                         resume_content: content,
                         industry: industry,
+                        sub_industry: subIndustry || null,  // O4-1新增
                         language: currentLanguage,
                         jd_content: jd || null
                     })

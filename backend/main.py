@@ -694,12 +694,14 @@ class FeedbackRequest(BaseModel):
 class AnalyzeRequest(BaseModel):
     resume_content: str
     industry: str
+    sub_industry: Optional[str] = None  # 新增O4-1：子行业参数
     language: str = "zh"
     jd_content: Optional[str] = None
 
 class OptimizeRequest(BaseModel):
     resume_content: str
     industry: str
+    sub_industry: Optional[str] = None  # 新增O4-1：子行业参数
     language: str = "zh"
     jd_content: Optional[str] = None
 
@@ -1129,8 +1131,8 @@ async def analyze(request: AnalyzeRequest, user: dict = Depends(get_current_user
     if not check_usage_limit(user["id"]):
         raise HTTPException(status_code=403, detail="今日免费次数已用完，请升级付费或明天再试")
     
-    # 分析简历
-    result = analyze_resume(request.resume_content, request.industry, request.language, request.jd_content)
+    # 分析简历（O4-1新增sub_industry参数）
+    result = analyze_resume(request.resume_content, request.industry, request.language, request.jd_content, request.sub_industry)
     
     # 记录使用
     record_usage(user["id"], "analyze", request.industry)
@@ -1372,12 +1374,27 @@ async def export_word(user: dict = Depends(get_current_user)):
 
 # ========== 核心分析函数 ==========
 
-def analyze_resume(resume: str, industry: str, language: str, jd: Optional[str] = None):
-    """分析简历关键词匹配度"""
+def analyze_resume(resume: str, industry: str, language: str, jd: Optional[str] = None, sub_industry: Optional[str] = None):
+    """分析简历关键词匹配度（新增sub_industry参数O4-1）"""
     
     industry_keywords = KEYWORDS_DB.get(industry, {})
     required_keywords = industry_keywords.get("keywords", {}).get("required", [])
     preferred_keywords = industry_keywords.get("keywords", {}).get("preferred", [])
+    
+    # 如果有子行业，添加子行业专属关键词（O4-1）
+    sub_industry_keywords = []
+    if sub_industry and "sub_industries" in industry_keywords:
+        for sub in industry_keywords["sub_industries"]:
+            if sub.get("id") == sub_industry:
+                sub_industry_keywords = sub.get("keywords_boost", [])
+                # 将子行业关键词添加为preferred关键词（权重+2）
+                for kw in sub_industry_keywords:
+                    preferred_keywords.append({
+                        "keyword": kw,
+                        "weight": 7,  # 子行业关键词中等权重
+                        "source": "sub_industry"
+                    })
+                break
     
     all_keywords = required_keywords + preferred_keywords
     
@@ -2254,9 +2271,32 @@ async def get_industries():
         industries.append({
             "id": key,
             "name": data.get("name", key),
-            "name_en": data.get("name_en", key)
+            "name_en": data.get("name_en", key),
+            "has_sub_industries": "sub_industries" in data  # O4-1：标识是否有子行业
         })
     return {"success": True, "data": industries}
+
+# O4-1新增：获取子行业列表
+@app.get("/api/v1/sub-industries/{industry_id}")
+async def get_sub_industries(industry_id: str):
+    """获取指定行业的子行业列表"""
+    industry_data = KEYWORDS_DB.get(industry_id)
+    if not industry_data:
+        return {"success": False, "error": "行业不存在"}
+    
+    sub_industries = industry_data.get("sub_industries", [])
+    if not sub_industries:
+        return {"success": True, "data": [], "message": "该行业暂无子行业分类"}
+    
+    result = []
+    for sub in sub_industries:
+        result.append({
+            "id": sub.get("id"),
+            "name": sub.get("name"),
+            "keywords_count": len(sub.get("keywords_boost", []))
+        })
+    
+    return {"success": True, "data": result}
 
 @app.get("/health")
 async def health_check():

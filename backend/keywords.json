@@ -4,1176 +4,3551 @@
     "name_en": "Sales/Marketing",
     "keywords": {
       "required": [
-        {"keyword": "客户开发", "en": "Customer Acquisition", "weight": 10},
-        {"keyword": "销售目标", "en": "Sales Target", "weight": 10},
-        {"keyword": "业绩增长", "en": "Revenue Growth", "weight": 9},
-        {"keyword": "渠道拓展", "en": "Channel Development", "weight": 8},
-        {"keyword": "客户关系", "en": "Client Relationship", "weight": 8}
+        {
+          "keyword": "客户开发",
+          "en": "Customer Acquisition",
+          "weight": 10
+        },
+        {
+          "keyword": "销售目标",
+          "en": "Sales Target",
+          "weight": 10
+        },
+        {
+          "keyword": "业绩增长",
+          "en": "Revenue Growth",
+          "weight": 9
+        },
+        {
+          "keyword": "渠道拓展",
+          "en": "Channel Development",
+          "weight": 8
+        },
+        {
+          "keyword": "客户关系",
+          "en": "Client Relationship",
+          "weight": 8
+        }
       ],
       "preferred": [
-        {"keyword": "CRM", "en": "CRM", "weight": 5},
-        {"keyword": "大客户管理", "en": "Key Account Management", "weight": 5},
-        {"keyword": "销售培训", "en": "Sales Training", "weight": 4}
+        {
+          "keyword": "CRM",
+          "en": "CRM",
+          "weight": 5
+        },
+        {
+          "keyword": "大客户管理",
+          "en": "Key Account Management",
+          "weight": 5
+        },
+        {
+          "keyword": "销售培训",
+          "en": "Sales Training",
+          "weight": 4
+        }
       ]
     },
-    "metrics_examples": ["年销售额从500万增长至1200万", "开发新客户200+家"],
-    "suitable_for": ["本科应届", "有经验"]
+    "metrics_examples": [
+      "年销售额从500万增长至1200万",
+      "开发新客户200+家"
+    ],
+    "suitable_for": [
+      "本科应届",
+      "有经验"
+    ],
+    "sub_industries": [
+      {
+        "id": "retail_sales",
+        "name": "零售销售",
+        "keywords_boost": [
+          "门店销售",
+          "顾客服务",
+          "促销活动",
+          "商品陈列"
+        ]
+      },
+      {
+        "id": "b2b_sales",
+        "name": "B2B销售",
+        "keywords_boost": [
+          "企业客户",
+          "商务谈判",
+          "合同签署",
+          "解决方案"
+        ]
+      },
+      {
+        "id": "channel_sales",
+        "name": "渠道销售",
+        "keywords_boost": [
+          "代理商管理",
+          "渠道拓展",
+          "分销网络",
+          "区域覆盖"
+        ]
+      },
+      {
+        "id": "key_account",
+        "name": "大客户销售",
+        "keywords_boost": [
+          "大客户管理",
+          "战略客户",
+          "高层对接",
+          "定制方案"
+        ]
+      }
+    ]
   },
   "finance": {
     "name": "财务/会计",
     "name_en": "Finance/Accounting",
     "keywords": {
       "required": [
-        {"keyword": "财务报表", "en": "Financial Statements", "weight": 10},
-        {"keyword": "预算管理", "en": "Budget Management", "weight": 9},
-        {"keyword": "成本控制", "en": "Cost Control", "weight": 9},
-        {"keyword": "税务筹划", "en": "Tax Planning", "weight": 8},
-        {"keyword": "内部控制", "en": "Internal Control", "weight": 8}
+        {
+          "keyword": "财务报表",
+          "en": "Financial Statements",
+          "weight": 10
+        },
+        {
+          "keyword": "预算管理",
+          "en": "Budget Management",
+          "weight": 9
+        },
+        {
+          "keyword": "成本控制",
+          "en": "Cost Control",
+          "weight": 9
+        },
+        {
+          "keyword": "税务筹划",
+          "en": "Tax Planning",
+          "weight": 8
+        },
+        {
+          "keyword": "内部控制",
+          "en": "Internal Control",
+          "weight": 8
+        }
       ],
       "preferred": [
-        {"keyword": "CPA", "en": "CPA", "weight": 6},
-        {"keyword": "ACCA", "en": "ACCA", "weight": 5},
-        {"keyword": "成本优化", "en": "Cost Optimization", "weight": 5}
+        {
+          "keyword": "CPA",
+          "en": "CPA",
+          "weight": 6
+        },
+        {
+          "keyword": "ACCA",
+          "en": "ACCA",
+          "weight": 5
+        },
+        {
+          "keyword": "成本优化",
+          "en": "Cost Optimization",
+          "weight": 5
+        }
       ]
     },
-    "metrics_examples": ["优化财务流程，效率提升30%", "年度审计零调整项"],
-    "suitable_for": ["本科应届", "研究生", "有经验"]
+    "metrics_examples": [
+      "优化财务流程，效率提升30%",
+      "年度审计零调整项"
+    ],
+    "suitable_for": [
+      "本科应届",
+      "研究生",
+      "有经验"
+    ],
+    "sub_industries": [
+      {
+        "id": "accounting",
+        "name": "会计",
+        "keywords_boost": [
+          "凭证录入",
+          "账务处理",
+          "财务报表",
+          "科目核算"
+        ]
+      },
+      {
+        "id": "auditing",
+        "name": "审计",
+        "keywords_boost": [
+          "审计执行",
+          "内控评估",
+          "审计报告",
+          "风险发现"
+        ]
+      },
+      {
+        "id": "financial_analysis",
+        "name": "财务分析",
+        "keywords_boost": [
+          "财务分析",
+          "经营分析",
+          "数据建模",
+          "预测分析"
+        ]
+      },
+      {
+        "id": "taxation",
+        "name": "税务",
+        "keywords_boost": [
+          "税务筹划",
+          "税务申报",
+          "税务合规",
+          "税收优惠"
+        ]
+      }
+    ]
   },
   "administrative": {
     "name": "行政/人事",
     "name_en": "Administrative/HR",
     "keywords": {
       "required": [
-        {"keyword": "日程管理", "en": "Schedule Management", "weight": 9},
-        {"keyword": "会议组织", "en": "Meeting Coordination", "weight": 8},
-        {"keyword": "文档管理", "en": "Document Management", "weight": 8},
-        {"keyword": "跨部门协调", "en": "Cross-department Coordination", "weight": 8},
-        {"keyword": "办公用品采购", "en": "Office Supplies Procurement", "weight": 7}
+        {
+          "keyword": "日程管理",
+          "en": "Schedule Management",
+          "weight": 9
+        },
+        {
+          "keyword": "会议组织",
+          "en": "Meeting Coordination",
+          "weight": 8
+        },
+        {
+          "keyword": "文档管理",
+          "en": "Document Management",
+          "weight": 8
+        },
+        {
+          "keyword": "跨部门协调",
+          "en": "Cross-department Coordination",
+          "weight": 8
+        },
+        {
+          "keyword": "办公用品采购",
+          "en": "Office Supplies Procurement",
+          "weight": 7
+        }
       ],
       "preferred": [
-        {"keyword": "流程优化", "en": "Process Improvement", "weight": 5},
-        {"keyword": "成本节约", "en": "Cost Saving", "weight": 5}
+        {
+          "keyword": "流程优化",
+          "en": "Process Improvement",
+          "weight": 5
+        },
+        {
+          "keyword": "成本节约",
+          "en": "Cost Saving",
+          "weight": 5
+        }
       ]
     },
-    "metrics_examples": ["组织年会等大型活动10+场", "优化会议流程，效率提升40%"],
-    "suitable_for": ["本科应届", "有经验"]
+    "metrics_examples": [
+      "组织年会等大型活动10+场",
+      "优化会议流程，效率提升40%"
+    ],
+    "suitable_for": [
+      "本科应届",
+      "有经验"
+    ],
+    "sub_industries": [
+      {
+        "id": "receptionist",
+        "name": "前台接待",
+        "keywords_boost": [
+          "前台接待",
+          "来访登记",
+          "电话接听",
+          "快递收发"
+        ]
+      },
+      {
+        "id": "hr_assistant",
+        "name": "人事助理",
+        "keywords_boost": [
+          "简历筛选",
+          "面试安排",
+          "入职办理",
+          "档案管理"
+        ]
+      },
+      {
+        "id": "admin_supervisor",
+        "name": "行政主管",
+        "keywords_boost": [
+          "行政管理",
+          "流程优化",
+          "部门协调",
+          "预算控制"
+        ]
+      },
+      {
+        "id": "office_manager",
+        "name": "办公室经理",
+        "keywords_boost": [
+          "办公环境",
+          "资产管理",
+          "供应商管理",
+          "团队建设"
+        ]
+      }
+    ]
   },
   "customer_service": {
     "name": "客服/服务",
     "name_en": "Customer Service",
     "keywords": {
       "required": [
-        {"keyword": "客户满意度", "en": "Customer Satisfaction", "weight": 10},
-        {"keyword": "问题解决", "en": "Problem Solving", "weight": 9},
-        {"keyword": "投诉处理", "en": "Complaint Handling", "weight": 8},
-        {"keyword": "电话沟通", "en": "Phone Communication", "weight": 7},
-        {"keyword": "客户回访", "en": "Customer Follow-up", "weight": 7}
+        {
+          "keyword": "客户满意度",
+          "en": "Customer Satisfaction",
+          "weight": 10
+        },
+        {
+          "keyword": "问题解决",
+          "en": "Problem Solving",
+          "weight": 9
+        },
+        {
+          "keyword": "投诉处理",
+          "en": "Complaint Handling",
+          "weight": 8
+        },
+        {
+          "keyword": "电话沟通",
+          "en": "Phone Communication",
+          "weight": 7
+        },
+        {
+          "keyword": "客户回访",
+          "en": "Customer Follow-up",
+          "weight": 7
+        }
       ],
       "preferred": [
-        {"keyword": "VIP服务", "en": "VIP Service", "weight": 5},
-        {"keyword": "服务培训", "en": "Service Training", "weight": 4}
+        {
+          "keyword": "VIP服务",
+          "en": "VIP Service",
+          "weight": 5
+        },
+        {
+          "keyword": "服务培训",
+          "en": "Service Training",
+          "weight": 4
+        }
       ]
     },
-    "metrics_examples": ["客户满意度98%", "投诉处理时效<24小时"],
-    "suitable_for": ["本科应届", "大专"]
+    "metrics_examples": [
+      "客户满意度98%",
+      "投诉处理时效<24小时"
+    ],
+    "suitable_for": [
+      "本科应届",
+      "大专"
+    ]
   },
   "education": {
     "name": "教师/培训",
     "name_en": "Education/Training",
     "keywords": {
       "required": [
-        {"keyword": "课程设计", "en": "Curriculum Design", "weight": 9},
-        {"keyword": "教学计划", "en": "Lesson Planning", "weight": 8},
-        {"keyword": "课堂管理", "en": "Classroom Management", "weight": 8},
-        {"keyword": "学生评估", "en": "Student Assessment", "weight": 7},
-        {"keyword": "家校沟通", "en": "Parent Communication", "weight": 7}
+        {
+          "keyword": "课程设计",
+          "en": "Curriculum Design",
+          "weight": 9
+        },
+        {
+          "keyword": "教学计划",
+          "en": "Lesson Planning",
+          "weight": 8
+        },
+        {
+          "keyword": "课堂管理",
+          "en": "Classroom Management",
+          "weight": 8
+        },
+        {
+          "keyword": "学生评估",
+          "en": "Student Assessment",
+          "weight": 7
+        },
+        {
+          "keyword": "家校沟通",
+          "en": "Parent Communication",
+          "weight": 7
+        }
       ],
       "preferred": [
-        {"keyword": "教师资格证", "en": "Teaching Certificate", "weight": 6},
-        {"keyword": "多媒体教学", "en": "Multimedia Teaching", "weight": 5}
+        {
+          "keyword": "教师资格证",
+          "en": "Teaching Certificate",
+          "weight": 6
+        },
+        {
+          "keyword": "多媒体教学",
+          "en": "Multimedia Teaching",
+          "weight": 5
+        }
       ]
     },
-    "metrics_examples": ["学生成绩平均提升15%", "家长满意度95%"],
-    "suitable_for": ["本科应届", "研究生"]
+    "metrics_examples": [
+      "学生成绩平均提升15%",
+      "家长满意度95%"
+    ],
+    "suitable_for": [
+      "本科应届",
+      "研究生"
+    ]
   },
   "it_developer": {
     "name": "软件开发",
     "name_en": "Software Development",
     "keywords": {
       "required": [
-        {"keyword": "代码开发", "en": "Code Development", "weight": 10},
-        {"keyword": "系统架构", "en": "System Architecture", "weight": 9},
-        {"keyword": "版本控制", "en": "Version Control", "weight": 8},
-        {"keyword": "单元测试", "en": "Unit Testing", "weight": 8},
-        {"keyword": "Bug修复", "en": "Bug Fixing", "weight": 7}
+        {
+          "keyword": "代码开发",
+          "en": "Code Development",
+          "weight": 10
+        },
+        {
+          "keyword": "系统架构",
+          "en": "System Architecture",
+          "weight": 9
+        },
+        {
+          "keyword": "版本控制",
+          "en": "Version Control",
+          "weight": 8
+        },
+        {
+          "keyword": "单元测试",
+          "en": "Unit Testing",
+          "weight": 8
+        },
+        {
+          "keyword": "Bug修复",
+          "en": "Bug Fixing",
+          "weight": 7
+        }
       ],
       "preferred": [
-        {"keyword": "Git", "en": "Git", "weight": 5},
-        {"keyword": "代码评审", "en": "Code Review", "weight": 5},
-        {"keyword": "CI/CD", "en": "CI/CD", "weight": 4}
+        {
+          "keyword": "Git",
+          "en": "Git",
+          "weight": 5
+        },
+        {
+          "keyword": "代码评审",
+          "en": "Code Review",
+          "weight": 5
+        },
+        {
+          "keyword": "CI/CD",
+          "en": "CI/CD",
+          "weight": 4
+        }
       ]
     },
-    "metrics_examples": ["参与开发项目20+", "代码覆盖率提升至85%"],
-    "suitable_for": ["本科应届", "研究生", "有经验"]
+    "metrics_examples": [
+      "参与开发项目20+",
+      "代码覆盖率提升至85%"
+    ],
+    "suitable_for": [
+      "本科应届",
+      "研究生",
+      "有经验"
+    ]
   },
   "it_product": {
     "name": "产品经理",
     "name_en": "Product Manager",
     "keywords": {
       "required": [
-        {"keyword": "产品规划", "en": "Product Planning", "weight": 10},
-        {"keyword": "需求分析", "en": "Requirement Analysis", "weight": 9},
-        {"keyword": "用户调研", "en": "User Research", "weight": 9},
-        {"keyword": "原型设计", "en": "Prototype Design", "weight": 8},
-        {"keyword": "数据分析", "en": "Data Analysis", "weight": 8}
+        {
+          "keyword": "产品规划",
+          "en": "Product Planning",
+          "weight": 10
+        },
+        {
+          "keyword": "需求分析",
+          "en": "Requirement Analysis",
+          "weight": 9
+        },
+        {
+          "keyword": "用户调研",
+          "en": "User Research",
+          "weight": 9
+        },
+        {
+          "keyword": "原型设计",
+          "en": "Prototype Design",
+          "weight": 8
+        },
+        {
+          "keyword": "数据分析",
+          "en": "Data Analysis",
+          "weight": 8
+        }
       ],
       "preferred": [
-        {"keyword": "用户增长", "en": "User Growth", "weight": 5},
-        {"keyword": "竞品分析", "en": "Competitive Analysis", "weight": 5},
-        {"keyword": "PRD", "en": "PRD", "weight": 4}
+        {
+          "keyword": "用户增长",
+          "en": "User Growth",
+          "weight": 5
+        },
+        {
+          "keyword": "竞品分析",
+          "en": "Competitive Analysis",
+          "weight": 5
+        },
+        {
+          "keyword": "PRD",
+          "en": "PRD",
+          "weight": 4
+        }
       ]
     },
-    "metrics_examples": ["产品上线后用户增长50%", "完成需求文档50+份"],
-    "suitable_for": ["本科应届", "研究生", "有经验"]
+    "metrics_examples": [
+      "产品上线后用户增长50%",
+      "完成需求文档50+份"
+    ],
+    "suitable_for": [
+      "本科应届",
+      "研究生",
+      "有经验"
+    ]
   },
   "it_operation": {
     "name": "运维工程师",
     "name_en": "Operations Engineer",
     "keywords": {
       "required": [
-        {"keyword": "系统运维", "en": "System Operations", "weight": 10},
-        {"keyword": "故障排查", "en": "Troubleshooting", "weight": 9},
-        {"keyword": "自动化部署", "en": "Automated Deployment", "weight": 8},
-        {"keyword": "监控告警", "en": "Monitoring & Alerting", "weight": 8},
-        {"keyword": "容灾备份", "en": "Disaster Recovery", "weight": 7}
+        {
+          "keyword": "系统运维",
+          "en": "System Operations",
+          "weight": 10
+        },
+        {
+          "keyword": "故障排查",
+          "en": "Troubleshooting",
+          "weight": 9
+        },
+        {
+          "keyword": "自动化部署",
+          "en": "Automated Deployment",
+          "weight": 8
+        },
+        {
+          "keyword": "监控告警",
+          "en": "Monitoring & Alerting",
+          "weight": 8
+        },
+        {
+          "keyword": "容灾备份",
+          "en": "Disaster Recovery",
+          "weight": 7
+        }
       ],
       "preferred": [
-        {"keyword": "Docker", "en": "Docker", "weight": 5},
-        {"keyword": "Kubernetes", "en": "Kubernetes", "weight": 5},
-        {"keyword": "Linux", "en": "Linux", "weight": 4}
+        {
+          "keyword": "Docker",
+          "en": "Docker",
+          "weight": 5
+        },
+        {
+          "keyword": "Kubernetes",
+          "en": "Kubernetes",
+          "weight": 5
+        },
+        {
+          "keyword": "Linux",
+          "en": "Linux",
+          "weight": 4
+        }
       ]
     },
-    "metrics_examples": ["系统可用性99.9%", "故障响应时间<10分钟"],
-    "suitable_for": ["本科应届", "有经验"]
+    "metrics_examples": [
+      "系统可用性99.9%",
+      "故障响应时间<10分钟"
+    ],
+    "suitable_for": [
+      "本科应届",
+      "有经验"
+    ]
   },
   "medical": {
     "name": "医疗护理",
     "name_en": "Medical/Nursing",
     "keywords": {
       "required": [
-        {"keyword": "患者护理", "en": "Patient Care", "weight": 10},
-        {"keyword": "病历记录", "en": "Medical Records", "weight": 9},
-        {"keyword": "用药指导", "en": "Medication Guidance", "weight": 8},
-        {"keyword": "健康教育", "en": "Health Education", "weight": 8},
-        {"keyword": "急救处理", "en": "Emergency Care", "weight": 7}
+        {
+          "keyword": "患者护理",
+          "en": "Patient Care",
+          "weight": 10
+        },
+        {
+          "keyword": "病历记录",
+          "en": "Medical Records",
+          "weight": 9
+        },
+        {
+          "keyword": "用药指导",
+          "en": "Medication Guidance",
+          "weight": 8
+        },
+        {
+          "keyword": "健康教育",
+          "en": "Health Education",
+          "weight": 8
+        },
+        {
+          "keyword": "急救处理",
+          "en": "Emergency Care",
+          "weight": 7
+        }
       ],
       "preferred": [
-        {"keyword": "护士执业证", "en": "Nurse License", "weight": 6},
-        {"keyword": "医疗器械", "en": "Medical Equipment", "weight": 5},
-        {"keyword": "ICU经验", "en": "ICU Experience", "weight": 5}
+        {
+          "keyword": "护士执业证",
+          "en": "Nurse License",
+          "weight": 6
+        },
+        {
+          "keyword": "医疗器械",
+          "en": "Medical Equipment",
+          "weight": 5
+        },
+        {
+          "keyword": "ICU经验",
+          "en": "ICU Experience",
+          "weight": 5
+        }
       ]
     },
-    "metrics_examples": ["患者满意度95%", "护理差错率<0.1%"],
-    "suitable_for": ["本科应届", "大专"]
+    "metrics_examples": [
+      "患者满意度95%",
+      "护理差错率<0.1%"
+    ],
+    "suitable_for": [
+      "本科应届",
+      "大专"
+    ]
   },
   "construction": {
     "name": "建筑工程",
     "name_en": "Construction Engineering",
     "keywords": {
       "required": [
-        {"keyword": "项目管理", "en": "Project Management", "weight": 10},
-        {"keyword": "施工监督", "en": "Construction Supervision", "weight": 9},
-        {"keyword": "成本控制", "en": "Cost Control", "weight": 8},
-        {"keyword": "图纸审核", "en": "Blueprint Review", "weight": 8},
-        {"keyword": "安全管理", "en": "Safety Management", "weight": 7}
+        {
+          "keyword": "项目管理",
+          "en": "Project Management",
+          "weight": 10
+        },
+        {
+          "keyword": "施工监督",
+          "en": "Construction Supervision",
+          "weight": 9
+        },
+        {
+          "keyword": "成本控制",
+          "en": "Cost Control",
+          "weight": 8
+        },
+        {
+          "keyword": "图纸审核",
+          "en": "Blueprint Review",
+          "weight": 8
+        },
+        {
+          "keyword": "安全管理",
+          "en": "Safety Management",
+          "weight": 7
+        }
       ],
       "preferred": [
-        {"keyword": "CAD", "en": "CAD", "weight": 5},
-        {"keyword": "工程造价", "en": "Project Costing", "weight": 5},
-        {"keyword": "一级建造师", "en": "Constructor License", "weight": 6}
+        {
+          "keyword": "CAD",
+          "en": "CAD",
+          "weight": 5
+        },
+        {
+          "keyword": "工程造价",
+          "en": "Project Costing",
+          "weight": 5
+        },
+        {
+          "keyword": "一级建造师",
+          "en": "Constructor License",
+          "weight": 6
+        }
       ]
     },
-    "metrics_examples": ["完成项目投资额5000万+", "安全事故零发生"],
-    "suitable_for": ["本科应届", "研究生", "有经验"]
+    "metrics_examples": [
+      "完成项目投资额5000万+",
+      "安全事故零发生"
+    ],
+    "suitable_for": [
+      "本科应届",
+      "研究生",
+      "有经验"
+    ]
   },
   "design": {
     "name": "设计创意",
     "name_en": "Design/Creative",
     "keywords": {
       "required": [
-        {"keyword": "视觉设计", "en": "Visual Design", "weight": 10},
-        {"keyword": "品牌设计", "en": "Brand Design", "weight": 9},
-        {"keyword": "UI/UX", "en": "UI/UX", "weight": 8},
-        {"keyword": "创意构思", "en": "Creative Concept", "weight": 8},
-        {"keyword": "设计规范", "en": "Design Standards", "weight": 7}
+        {
+          "keyword": "视觉设计",
+          "en": "Visual Design",
+          "weight": 10
+        },
+        {
+          "keyword": "品牌设计",
+          "en": "Brand Design",
+          "weight": 9
+        },
+        {
+          "keyword": "UI/UX",
+          "en": "UI/UX",
+          "weight": 8
+        },
+        {
+          "keyword": "创意构思",
+          "en": "Creative Concept",
+          "weight": 8
+        },
+        {
+          "keyword": "设计规范",
+          "en": "Design Standards",
+          "weight": 7
+        }
       ],
       "preferred": [
-        {"keyword": "Photoshop", "en": "Photoshop", "weight": 5},
-        {"keyword": "Figma", "en": "Figma", "weight": 5},
-        {"keyword": "视频剪辑", "en": "Video Editing", "weight": 4}
+        {
+          "keyword": "Photoshop",
+          "en": "Photoshop",
+          "weight": 5
+        },
+        {
+          "keyword": "Figma",
+          "en": "Figma",
+          "weight": 5
+        },
+        {
+          "keyword": "视频剪辑",
+          "en": "Video Editing",
+          "weight": 4
+        }
       ]
     },
-    "metrics_examples": ["设计作品获奖3项", "品牌升级后销量增长30%"],
-    "suitable_for": ["本科应届", "研究生", "有经验"]
+    "metrics_examples": [
+      "设计作品获奖3项",
+      "品牌升级后销量增长30%"
+    ],
+    "suitable_for": [
+      "本科应届",
+      "研究生",
+      "有经验"
+    ]
   },
   "legal": {
     "name": "法律法务",
     "name_en": "Legal/Law",
     "keywords": {
       "required": [
-        {"keyword": "合同审核", "en": "Contract Review", "weight": 10},
-        {"keyword": "法律咨询", "en": "Legal Consultation", "weight": 9},
-        {"keyword": "风险评估", "en": "Risk Assessment", "weight": 8},
-        {"keyword": "诉讼代理", "en": "Litigation", "weight": 8},
-        {"keyword": "合规管理", "en": "Compliance Management", "weight": 7}
+        {
+          "keyword": "合同审核",
+          "en": "Contract Review",
+          "weight": 10
+        },
+        {
+          "keyword": "法律咨询",
+          "en": "Legal Consultation",
+          "weight": 9
+        },
+        {
+          "keyword": "风险评估",
+          "en": "Risk Assessment",
+          "weight": 8
+        },
+        {
+          "keyword": "诉讼代理",
+          "en": "Litigation",
+          "weight": 8
+        },
+        {
+          "keyword": "合规管理",
+          "en": "Compliance Management",
+          "weight": 7
+        }
       ],
       "preferred": [
-        {"keyword": "律师执业证", "en": "Lawyer License", "weight": 6},
-        {"keyword": "知识产权", "en": "IP Rights", "weight": 5},
-        {"keyword": "公司法", "en": "Corporate Law", "weight": 4}
+        {
+          "keyword": "律师执业证",
+          "en": "Lawyer License",
+          "weight": 6
+        },
+        {
+          "keyword": "知识产权",
+          "en": "IP Rights",
+          "weight": 5
+        },
+        {
+          "keyword": "公司法",
+          "en": "Corporate Law",
+          "weight": 4
+        }
       ]
     },
-    "metrics_examples": ["合同审核100+份", "诉讼胜诉率90%"],
-    "suitable_for": ["研究生", "有经验"]
+    "metrics_examples": [
+      "合同审核100+份",
+      "诉讼胜诉率90%"
+    ],
+    "suitable_for": [
+      "研究生",
+      "有经验"
+    ]
   },
   "logistics": {
     "name": "物流仓储",
     "name_en": "Logistics/Warehouse",
     "keywords": {
       "required": [
-        {"keyword": "仓储管理", "en": "Warehouse Management", "weight": 10},
-        {"keyword": "配送调度", "en": "Delivery Scheduling", "weight": 9},
-        {"keyword": "库存控制", "en": "Inventory Control", "weight": 8},
-        {"keyword": "运输优化", "en": "Transport Optimization", "weight": 8},
-        {"keyword": "成本核算", "en": "Cost Accounting", "weight": 7}
+        {
+          "keyword": "仓储管理",
+          "en": "Warehouse Management",
+          "weight": 10
+        },
+        {
+          "keyword": "配送调度",
+          "en": "Delivery Scheduling",
+          "weight": 9
+        },
+        {
+          "keyword": "库存控制",
+          "en": "Inventory Control",
+          "weight": 8
+        },
+        {
+          "keyword": "运输优化",
+          "en": "Transport Optimization",
+          "weight": 8
+        },
+        {
+          "keyword": "成本核算",
+          "en": "Cost Accounting",
+          "weight": 7
+        }
       ],
       "preferred": [
-        {"keyword": "ERP系统", "en": "ERP System", "weight": 5},
-        {"keyword": "供应链优化", "en": "Supply Chain Optimization", "weight": 5},
-        {"keyword": "冷链物流", "en": "Cold Chain Logistics", "weight": 4}
+        {
+          "keyword": "ERP系统",
+          "en": "ERP System",
+          "weight": 5
+        },
+        {
+          "keyword": "供应链优化",
+          "en": "Supply Chain Optimization",
+          "weight": 5
+        },
+        {
+          "keyword": "冷链物流",
+          "en": "Cold Chain Logistics",
+          "weight": 4
+        }
       ]
     },
-    "metrics_examples": ["配送准时率98%", "库存周转率提升20%"],
-    "suitable_for": ["本科应届", "大专", "有经验"]
+    "metrics_examples": [
+      "配送准时率98%",
+      "库存周转率提升20%"
+    ],
+    "suitable_for": [
+      "本科应届",
+      "大专",
+      "有经验"
+    ]
   },
   "hotel": {
     "name": "酒店餐饮",
     "name_en": "Hotel/F&B",
     "keywords": {
       "required": [
-        {"keyword": "客房管理", "en": "Room Management", "weight": 10},
-        {"keyword": "客户接待", "en": "Guest Reception", "weight": 9},
-        {"keyword": "餐饮服务", "en": "Food Service", "weight": 8},
-        {"keyword": "卫生管理", "en": "Hygiene Management", "weight": 8},
-        {"keyword": "投诉处理", "en": "Complaint Handling", "weight": 7}
+        {
+          "keyword": "客房管理",
+          "en": "Room Management",
+          "weight": 10
+        },
+        {
+          "keyword": "客户接待",
+          "en": "Guest Reception",
+          "weight": 9
+        },
+        {
+          "keyword": "餐饮服务",
+          "en": "Food Service",
+          "weight": 8
+        },
+        {
+          "keyword": "卫生管理",
+          "en": "Hygiene Management",
+          "weight": 8
+        },
+        {
+          "keyword": "投诉处理",
+          "en": "Complaint Handling",
+          "weight": 7
+        }
       ],
       "preferred": [
-        {"keyword": "酒店星级标准", "en": "Hotel Standards", "weight": 5},
-        {"keyword": "宴会组织", "en": "Banquet Organization", "weight": 5},
-        {"keyword": "成本控制", "en": "Cost Control", "weight": 4}
+        {
+          "keyword": "酒店星级标准",
+          "en": "Hotel Standards",
+          "weight": 5
+        },
+        {
+          "keyword": "宴会组织",
+          "en": "Banquet Organization",
+          "weight": 5
+        },
+        {
+          "keyword": "成本控制",
+          "en": "Cost Control",
+          "weight": 4
+        }
       ]
     },
-    "metrics_examples": ["客户满意度95%", "客房入住率85%"],
-    "suitable_for": ["本科应届", "大专"]
+    "metrics_examples": [
+      "客户满意度95%",
+      "客房入住率85%"
+    ],
+    "suitable_for": [
+      "本科应届",
+      "大专"
+    ]
   },
   "media": {
     "name": "传媒公关",
     "name_en": "Media/PR",
     "keywords": {
       "required": [
-        {"keyword": "内容策划", "en": "Content Planning", "weight": 10},
-        {"keyword": "媒体关系", "en": "Media Relations", "weight": 9},
-        {"keyword": "品牌推广", "en": "Brand Promotion", "weight": 8},
-        {"keyword": "危机公关", "en": "Crisis PR", "weight": 8},
-        {"keyword": "活动策划", "en": "Event Planning", "weight": 7}
+        {
+          "keyword": "内容策划",
+          "en": "Content Planning",
+          "weight": 10
+        },
+        {
+          "keyword": "媒体关系",
+          "en": "Media Relations",
+          "weight": 9
+        },
+        {
+          "keyword": "品牌推广",
+          "en": "Brand Promotion",
+          "weight": 8
+        },
+        {
+          "keyword": "危机公关",
+          "en": "Crisis PR",
+          "weight": 8
+        },
+        {
+          "keyword": "活动策划",
+          "en": "Event Planning",
+          "weight": 7
+        }
       ],
       "preferred": [
-        {"keyword": "新媒体运营", "en": "Social Media", "weight": 5},
-        {"keyword": "文案写作", "en": "Copywriting", "weight": 5},
-        {"keyword": "视频制作", "en": "Video Production", "weight": 4}
+        {
+          "keyword": "新媒体运营",
+          "en": "Social Media",
+          "weight": 5
+        },
+        {
+          "keyword": "文案写作",
+          "en": "Copywriting",
+          "weight": 5
+        },
+        {
+          "keyword": "视频制作",
+          "en": "Video Production",
+          "weight": 4
+        }
       ]
     },
-    "metrics_examples": ["品牌曝光量提升200%", "活动参与人数5000+"],
-    "suitable_for": ["本科应届", "研究生", "有经验"]
+    "metrics_examples": [
+      "品牌曝光量提升200%",
+      "活动参与人数5000+"
+    ],
+    "suitable_for": [
+      "本科应届",
+      "研究生",
+      "有经验"
+    ]
   },
   "investment": {
     "name": "投资银行",
     "name_en": "Investment/Banking",
     "keywords": {
       "required": [
-        {"keyword": "投资分析", "en": "Investment Analysis", "weight": 10},
-        {"keyword": "风险评估", "en": "Risk Assessment", "weight": 9},
-        {"keyword": "资产管理", "en": "Asset Management", "weight": 8},
-        {"keyword": "尽职调查", "en": "Due Diligence", "weight": 8},
-        {"keyword": "融资方案", "en": "Financing Plan", "weight": 7}
+        {
+          "keyword": "投资分析",
+          "en": "Investment Analysis",
+          "weight": 10
+        },
+        {
+          "keyword": "风险评估",
+          "en": "Risk Assessment",
+          "weight": 9
+        },
+        {
+          "keyword": "资产管理",
+          "en": "Asset Management",
+          "weight": 8
+        },
+        {
+          "keyword": "尽职调查",
+          "en": "Due Diligence",
+          "weight": 8
+        },
+        {
+          "keyword": "融资方案",
+          "en": "Financing Plan",
+          "weight": 7
+        }
       ],
       "preferred": [
-        {"keyword": "CFA", "en": "CFA", "weight": 6},
-        {"keyword": "投资组合", "en": "Portfolio", "weight": 5},
-        {"keyword": "证券从业", "en": "Securities License", "weight": 5}
+        {
+          "keyword": "CFA",
+          "en": "CFA",
+          "weight": 6
+        },
+        {
+          "keyword": "投资组合",
+          "en": "Portfolio",
+          "weight": 5
+        },
+        {
+          "keyword": "证券从业",
+          "en": "Securities License",
+          "weight": 5
+        }
       ]
     },
-    "metrics_examples": ["管理资产规模5000万+", "投资项目成功率80%"],
-    "suitable_for": ["研究生", "有经验"]
+    "metrics_examples": [
+      "管理资产规模5000万+",
+      "投资项目成功率80%"
+    ],
+    "suitable_for": [
+      "研究生",
+      "有经验"
+    ]
   },
   "real_estate": {
     "name": "房地产",
     "name_en": "Real Estate",
     "keywords": {
       "required": [
-        {"keyword": "房产销售", "en": "Property Sales", "weight": 10},
-        {"keyword": "客户谈判", "en": "Client Negotiation", "weight": 9},
-        {"keyword": "市场分析", "en": "Market Analysis", "weight": 8},
-        {"keyword": "合同签署", "en": "Contract Signing", "weight": 8},
-        {"keyword": "物业管理", "en": "Property Management", "weight": 7}
+        {
+          "keyword": "房产销售",
+          "en": "Property Sales",
+          "weight": 10
+        },
+        {
+          "keyword": "客户谈判",
+          "en": "Client Negotiation",
+          "weight": 9
+        },
+        {
+          "keyword": "市场分析",
+          "en": "Market Analysis",
+          "weight": 8
+        },
+        {
+          "keyword": "合同签署",
+          "en": "Contract Signing",
+          "weight": 8
+        },
+        {
+          "keyword": "物业管理",
+          "en": "Property Management",
+          "weight": 7
+        }
       ],
       "preferred": [
-        {"keyword": "楼盘推广", "en": "Property Marketing", "weight": 5},
-        {"keyword": "房产估价", "en": "Property Valuation", "weight": 5},
-        {"keyword": "产权过户", "en": "Title Transfer", "weight": 4}
+        {
+          "keyword": "楼盘推广",
+          "en": "Property Marketing",
+          "weight": 5
+        },
+        {
+          "keyword": "房产估价",
+          "en": "Property Valuation",
+          "weight": 5
+        },
+        {
+          "keyword": "产权过户",
+          "en": "Title Transfer",
+          "weight": 4
+        }
       ]
     },
-    "metrics_examples": ["年销售额3000万+", "客户转化率35%"],
-    "suitable_for": ["本科应届", "有经验"]
+    "metrics_examples": [
+      "年销售额3000万+",
+      "客户转化率35%"
+    ],
+    "suitable_for": [
+      "本科应届",
+      "有经验"
+    ]
   },
   "manufacturing": {
     "name": "生产制造",
     "name_en": "Manufacturing",
     "keywords": {
       "required": [
-        {"keyword": "生产管理", "en": "Production Management", "weight": 10},
-        {"keyword": "质量控制", "en": "Quality Control", "weight": 9},
-        {"keyword": "工艺优化", "en": "Process Optimization", "weight": 8},
-        {"keyword": "设备维护", "en": "Equipment Maintenance", "weight": 8},
-        {"keyword": "安全生产", "en": "Safety Production", "weight": 7}
+        {
+          "keyword": "生产管理",
+          "en": "Production Management",
+          "weight": 10
+        },
+        {
+          "keyword": "质量控制",
+          "en": "Quality Control",
+          "weight": 9
+        },
+        {
+          "keyword": "工艺优化",
+          "en": "Process Optimization",
+          "weight": 8
+        },
+        {
+          "keyword": "设备维护",
+          "en": "Equipment Maintenance",
+          "weight": 8
+        },
+        {
+          "keyword": "安全生产",
+          "en": "Safety Production",
+          "weight": 7
+        }
       ],
       "preferred": [
-        {"keyword": "精益生产", "en": "Lean Production", "weight": 5},
-        {"keyword": "6S管理", "en": "6S Management", "weight": 5},
-        {"keyword": "ISO认证", "en": "ISO Certification", "weight": 4}
+        {
+          "keyword": "精益生产",
+          "en": "Lean Production",
+          "weight": 5
+        },
+        {
+          "keyword": "6S管理",
+          "en": "6S Management",
+          "weight": 5
+        },
+        {
+          "keyword": "ISO认证",
+          "en": "ISO Certification",
+          "weight": 4
+        }
       ]
     },
-    "metrics_examples": ["生产效率提升25%", "质量合格率99.5%"],
-    "suitable_for": ["本科应届", "有经验"]
+    "metrics_examples": [
+      "生产效率提升25%",
+      "质量合格率99.5%"
+    ],
+    "suitable_for": [
+      "本科应届",
+      "有经验"
+    ]
   },
   "ecommerce": {
     "name": "电商运营",
     "name_en": "E-commerce Operation",
     "keywords": {
       "required": [
-        {"keyword": "店铺运营", "en": "Store Operation", "weight": 10},
-        {"keyword": "流量推广", "en": "Traffic Promotion", "weight": 9},
-        {"keyword": "转化优化", "en": "Conversion Optimization", "weight": 8},
-        {"keyword": "数据分析", "en": "Data Analysis", "weight": 8},
-        {"keyword": "客服管理", "en": "Customer Service Management", "weight": 7}
+        {
+          "keyword": "店铺运营",
+          "en": "Store Operation",
+          "weight": 10
+        },
+        {
+          "keyword": "流量推广",
+          "en": "Traffic Promotion",
+          "weight": 9
+        },
+        {
+          "keyword": "转化优化",
+          "en": "Conversion Optimization",
+          "weight": 8
+        },
+        {
+          "keyword": "数据分析",
+          "en": "Data Analysis",
+          "weight": 8
+        },
+        {
+          "keyword": "客服管理",
+          "en": "Customer Service Management",
+          "weight": 7
+        }
       ],
       "preferred": [
-        {"keyword": "直通车", "en": "Paid Promotion", "weight": 5},
-        {"keyword": "直播带货", "en": "Live Streaming", "weight": 5},
-        {"keyword": "SEO优化", "en": "SEO Optimization", "weight": 4}
+        {
+          "keyword": "直通车",
+          "en": "Paid Promotion",
+          "weight": 5
+        },
+        {
+          "keyword": "直播带货",
+          "en": "Live Streaming",
+          "weight": 5
+        },
+        {
+          "keyword": "SEO优化",
+          "en": "SEO Optimization",
+          "weight": 4
+        }
       ]
     },
-    "metrics_examples": ["店铺GMV增长150%", "转化率提升至8%"],
-    "suitable_for": ["本科应届", "有经验"]
+    "metrics_examples": [
+      "店铺GMV增长150%",
+      "转化率提升至8%"
+    ],
+    "suitable_for": [
+      "本科应届",
+      "有经验"
+    ]
   },
   "hr": {
     "name": "人力资源",
     "name_en": "Human Resources",
     "keywords": {
       "required": [
-        {"keyword": "招聘面试", "en": "Recruitment & Interview", "weight": 10},
-        {"keyword": "培训发展", "en": "Training & Development", "weight": 9},
-        {"keyword": "绩效考核", "en": "Performance Evaluation", "weight": 8},
-        {"keyword": "薪酬福利", "en": "Compensation & Benefits", "weight": 8},
-        {"keyword": "员工关系", "en": "Employee Relations", "weight": 7}
+        {
+          "keyword": "招聘面试",
+          "en": "Recruitment & Interview",
+          "weight": 10
+        },
+        {
+          "keyword": "培训发展",
+          "en": "Training & Development",
+          "weight": 9
+        },
+        {
+          "keyword": "绩效考核",
+          "en": "Performance Evaluation",
+          "weight": 8
+        },
+        {
+          "keyword": "薪酬福利",
+          "en": "Compensation & Benefits",
+          "weight": 8
+        },
+        {
+          "keyword": "员工关系",
+          "en": "Employee Relations",
+          "weight": 7
+        }
       ],
       "preferred": [
-        {"keyword": "HRBP", "en": "HRBP", "weight": 5},
-        {"keyword": "人才盘点", "en": "Talent Review", "weight": 5},
-        {"keyword": "OKR", "en": "OKR", "weight": 4}
+        {
+          "keyword": "HRBP",
+          "en": "HRBP",
+          "weight": 5
+        },
+        {
+          "keyword": "人才盘点",
+          "en": "Talent Review",
+          "weight": 5
+        },
+        {
+          "keyword": "OKR",
+          "en": "OKR",
+          "weight": 4
+        }
       ]
     },
-    "metrics_examples": ["年度招聘完成率95%", "员工留存率提升15%"],
-    "suitable_for": ["本科应届", "研究生", "有经验"]
+    "metrics_examples": [
+      "年度招聘完成率95%",
+      "员工留存率提升15%"
+    ],
+    "suitable_for": [
+      "本科应届",
+      "研究生",
+      "有经验"
+    ]
   },
   "procurement": {
     "name": "采购供应",
     "name_en": "Procurement/Supply",
     "keywords": {
       "required": [
-        {"keyword": "供应商管理", "en": "Supplier Management", "weight": 10},
-        {"keyword": "采购谈判", "en": "Procurement Negotiation", "weight": 9},
-        {"keyword": "成本控制", "en": "Cost Control", "weight": 8},
-        {"keyword": "合同管理", "en": "Contract Management", "weight": 8},
-        {"keyword": "质量检验", "en": "Quality Inspection", "weight": 7}
+        {
+          "keyword": "供应商管理",
+          "en": "Supplier Management",
+          "weight": 10
+        },
+        {
+          "keyword": "采购谈判",
+          "en": "Procurement Negotiation",
+          "weight": 9
+        },
+        {
+          "keyword": "成本控制",
+          "en": "Cost Control",
+          "weight": 8
+        },
+        {
+          "keyword": "合同管理",
+          "en": "Contract Management",
+          "weight": 8
+        },
+        {
+          "keyword": "质量检验",
+          "en": "Quality Inspection",
+          "weight": 7
+        }
       ],
       "preferred": [
-        {"keyword": "采购招标", "en": "Procurement Bidding", "weight": 5},
-        {"keyword": "供应链优化", "en": "Supply Chain Optimization", "weight": 5},
-        {"keyword": "ERP", "en": "ERP", "weight": 4}
+        {
+          "keyword": "采购招标",
+          "en": "Procurement Bidding",
+          "weight": 5
+        },
+        {
+          "keyword": "供应链优化",
+          "en": "Supply Chain Optimization",
+          "weight": 5
+        },
+        {
+          "keyword": "ERP",
+          "en": "ERP",
+          "weight": 4
+        }
       ]
     },
-    "metrics_examples": ["采购成本降低15%", "供应商准时交货率98%"],
-    "suitable_for": ["本科应届", "有经验"]
+    "metrics_examples": [
+      "采购成本降低15%",
+      "供应商准时交货率98%"
+    ],
+    "suitable_for": [
+      "本科应届",
+      "有经验"
+    ]
   },
   "project_management": {
     "name": "项目管理",
     "name_en": "Project Management",
     "keywords": {
       "required": [
-        {"keyword": "项目规划", "en": "Project Planning", "weight": 10},
-        {"keyword": "进度控制", "en": "Schedule Control", "weight": 9},
-        {"keyword": "风险管理", "en": "Risk Management", "weight": 8},
-        {"keyword": "资源协调", "en": "Resource Coordination", "weight": 8},
-        {"keyword": "质量把控", "en": "Quality Assurance", "weight": 7}
+        {
+          "keyword": "项目规划",
+          "en": "Project Planning",
+          "weight": 10
+        },
+        {
+          "keyword": "进度控制",
+          "en": "Schedule Control",
+          "weight": 9
+        },
+        {
+          "keyword": "风险管理",
+          "en": "Risk Management",
+          "weight": 8
+        },
+        {
+          "keyword": "资源协调",
+          "en": "Resource Coordination",
+          "weight": 8
+        },
+        {
+          "keyword": "质量把控",
+          "en": "Quality Assurance",
+          "weight": 7
+        }
       ],
       "preferred": [
-        {"keyword": "PMP", "en": "PMP", "weight": 6},
-        {"keyword": "敏捷开发", "en": "Agile", "weight": 5},
-        {"keyword": "甘特图", "en": "Gantt Chart", "weight": 4}
+        {
+          "keyword": "PMP",
+          "en": "PMP",
+          "weight": 6
+        },
+        {
+          "keyword": "敏捷开发",
+          "en": "Agile",
+          "weight": 5
+        },
+        {
+          "keyword": "甘特图",
+          "en": "Gantt Chart",
+          "weight": 4
+        }
       ]
     },
-    "metrics_examples": ["项目按时交付率95%", "项目成本控制在预算内"],
-    "suitable_for": ["本科应届", "研究生", "有经验"]
+    "metrics_examples": [
+      "项目按时交付率95%",
+      "项目成本控制在预算内"
+    ],
+    "suitable_for": [
+      "本科应届",
+      "研究生",
+      "有经验"
+    ]
   },
   "quality": {
     "name": "质量管理",
     "name_en": "Quality Management",
     "keywords": {
       "required": [
-        {"keyword": "质量检验", "en": "Quality Inspection", "weight": 10},
-        {"keyword": "标准制定", "en": "Standards Development", "weight": 9},
-        {"keyword": "问题追溯", "en": "Issue Tracking", "weight": 8},
-        {"keyword": "改进优化", "en": "Improvement Optimization", "weight": 8},
-        {"keyword": "培训指导", "en": "Training & Guidance", "weight": 7}
+        {
+          "keyword": "质量检验",
+          "en": "Quality Inspection",
+          "weight": 10
+        },
+        {
+          "keyword": "标准制定",
+          "en": "Standards Development",
+          "weight": 9
+        },
+        {
+          "keyword": "问题追溯",
+          "en": "Issue Tracking",
+          "weight": 8
+        },
+        {
+          "keyword": "改进优化",
+          "en": "Improvement Optimization",
+          "weight": 8
+        },
+        {
+          "keyword": "培训指导",
+          "en": "Training & Guidance",
+          "weight": 7
+        }
       ],
       "preferred": [
-        {"keyword": "ISO9001", "en": "ISO9001", "weight": 5},
-        {"keyword": "六西格玛", "en": "Six Sigma", "weight": 5},
-        {"keyword": "质量体系", "en": "Quality System", "weight": 4}
+        {
+          "keyword": "ISO9001",
+          "en": "ISO9001",
+          "weight": 5
+        },
+        {
+          "keyword": "六西格玛",
+          "en": "Six Sigma",
+          "weight": 5
+        },
+        {
+          "keyword": "质量体系",
+          "en": "Quality System",
+          "weight": 4
+        }
       ]
     },
-    "metrics_examples": ["产品合格率99%", "客诉率下降50%"],
-    "suitable_for": ["本科应届", "有经验"]
+    "metrics_examples": [
+      "产品合格率99%",
+      "客诉率下降50%"
+    ],
+    "suitable_for": [
+      "本科应届",
+      "有经验"
+    ]
   },
   "translation": {
     "name": "翻译语言",
     "name_en": "Translation/Language",
     "keywords": {
       "required": [
-        {"keyword": "文字翻译", "en": "Translation", "weight": 10},
-        {"keyword": "口语翻译", "en": "Interpretation", "weight": 9},
-        {"keyword": "本地化", "en": "Localization", "weight": 8},
-        {"keyword": "校对审核", "en": "Proofreading", "weight": 8},
-        {"keyword": "术语管理", "en": "Terminology Management", "weight": 7}
+        {
+          "keyword": "文字翻译",
+          "en": "Translation",
+          "weight": 10
+        },
+        {
+          "keyword": "口语翻译",
+          "en": "Interpretation",
+          "weight": 9
+        },
+        {
+          "keyword": "本地化",
+          "en": "Localization",
+          "weight": 8
+        },
+        {
+          "keyword": "校对审核",
+          "en": "Proofreading",
+          "weight": 8
+        },
+        {
+          "keyword": "术语管理",
+          "en": "Terminology Management",
+          "weight": 7
+        }
       ],
       "preferred": [
-        {"keyword": "专业领域", "en": "Specialized Field", "weight": 5},
-        {"keyword": "CAT工具", "en": "CAT Tools", "weight": 5},
-        {"keyword": "多语言", "en": "Multilingual", "weight": 4}
+        {
+          "keyword": "专业领域",
+          "en": "Specialized Field",
+          "weight": 5
+        },
+        {
+          "keyword": "CAT工具",
+          "en": "CAT Tools",
+          "weight": 5
+        },
+        {
+          "keyword": "多语言",
+          "en": "Multilingual",
+          "weight": 4
+        }
       ]
     },
-    "metrics_examples": ["翻译准确率99%", "日均翻译量5000字"],
-    "suitable_for": ["本科应届", "研究生"]
+    "metrics_examples": [
+      "翻译准确率99%",
+      "日均翻译量5000字"
+    ],
+    "suitable_for": [
+      "本科应届",
+      "研究生"
+    ]
   },
   "fitness": {
     "name": "健身体育",
     "name_en": "Fitness/Sports",
     "keywords": {
       "required": [
-        {"keyword": "健身指导", "en": "Fitness Coaching", "weight": 10},
-        {"keyword": "训练计划", "en": "Training Plan", "weight": 9},
-        {"keyword": "体能评估", "en": "Physical Assessment", "weight": 8},
-        {"keyword": "营养建议", "en": "Nutrition Advice", "weight": 8},
-        {"keyword": "会员管理", "en": "Member Management", "weight": 7}
+        {
+          "keyword": "健身指导",
+          "en": "Fitness Coaching",
+          "weight": 10
+        },
+        {
+          "keyword": "训练计划",
+          "en": "Training Plan",
+          "weight": 9
+        },
+        {
+          "keyword": "体能评估",
+          "en": "Physical Assessment",
+          "weight": 8
+        },
+        {
+          "keyword": "营养建议",
+          "en": "Nutrition Advice",
+          "weight": 8
+        },
+        {
+          "keyword": "会员管理",
+          "en": "Member Management",
+          "weight": 7
+        }
       ],
       "preferred": [
-        {"keyword": "健身教练证", "en": "Fitness Certificate", "weight": 5},
-        {"keyword": "运动康复", "en": "Sports Rehabilitation", "weight": 5},
-        {"keyword": "私教课程", "en": "Personal Training", "weight": 4}
+        {
+          "keyword": "健身教练证",
+          "en": "Fitness Certificate",
+          "weight": 5
+        },
+        {
+          "keyword": "运动康复",
+          "en": "Sports Rehabilitation",
+          "weight": 5
+        },
+        {
+          "keyword": "私教课程",
+          "en": "Personal Training",
+          "weight": 4
+        }
       ]
     },
-    "metrics_examples": ["会员续费率80%", "学员达标率95%"],
-    "suitable_for": ["本科应届", "大专", "有经验"]
+    "metrics_examples": [
+      "会员续费率80%",
+      "学员达标率95%"
+    ],
+    "suitable_for": [
+      "本科应届",
+      "大专",
+      "有经验"
+    ]
   },
   "automotive": {
     "name": "汽车行业",
     "name_en": "Automotive",
     "keywords": {
       "required": [
-        {"keyword": "汽车销售", "en": "Vehicle Sales", "weight": 10},
-        {"keyword": "维修保养", "en": "Maintenance & Repair", "weight": 9},
-        {"keyword": "客户服务", "en": "Customer Service", "weight": 8},
-        {"keyword": "配件管理", "en": "Parts Management", "weight": 8},
-        {"keyword": "技术诊断", "en": "Technical Diagnosis", "weight": 7}
+        {
+          "keyword": "汽车销售",
+          "en": "Vehicle Sales",
+          "weight": 10
+        },
+        {
+          "keyword": "维修保养",
+          "en": "Maintenance & Repair",
+          "weight": 9
+        },
+        {
+          "keyword": "客户服务",
+          "en": "Customer Service",
+          "weight": 8
+        },
+        {
+          "keyword": "配件管理",
+          "en": "Parts Management",
+          "weight": 8
+        },
+        {
+          "keyword": "技术诊断",
+          "en": "Technical Diagnosis",
+          "weight": 7
+        }
       ],
       "preferred": [
-        {"keyword": "汽车技师证", "en": "Mechanic License", "weight": 5},
-        {"keyword": "试驾服务", "en": "Test Drive Service", "weight": 5},
-        {"keyword": "保险理赔", "en": "Insurance Claims", "weight": 4}
+        {
+          "keyword": "汽车技师证",
+          "en": "Mechanic License",
+          "weight": 5
+        },
+        {
+          "keyword": "试驾服务",
+          "en": "Test Drive Service",
+          "weight": 5
+        },
+        {
+          "keyword": "保险理赔",
+          "en": "Insurance Claims",
+          "weight": 4
+        }
       ]
     },
-    "metrics_examples": ["年销量150台+", "维修返修率<2%"],
-    "suitable_for": ["本科应届", "大专", "有经验"]
+    "metrics_examples": [
+      "年销量150台+",
+      "维修返修率<2%"
+    ],
+    "suitable_for": [
+      "本科应届",
+      "大专",
+      "有经验"
+    ]
   },
   "agriculture": {
     "name": "农业林业",
     "name_en": "Agriculture/Forestry",
     "keywords": {
       "required": [
-        {"keyword": "种植管理", "en": "Planting Management", "weight": 10},
-        {"keyword": "病虫害防治", "en": "Pest Control", "weight": 9},
-        {"keyword": "农业技术", "en": "Agricultural Technology", "weight": 8},
-        {"keyword": "产品销售", "en": "Product Sales", "weight": 8},
-        {"keyword": "品质管理", "en": "Quality Management", "weight": 7}
+        {
+          "keyword": "种植管理",
+          "en": "Planting Management",
+          "weight": 10
+        },
+        {
+          "keyword": "病虫害防治",
+          "en": "Pest Control",
+          "weight": 9
+        },
+        {
+          "keyword": "农业技术",
+          "en": "Agricultural Technology",
+          "weight": 8
+        },
+        {
+          "keyword": "产品销售",
+          "en": "Product Sales",
+          "weight": 8
+        },
+        {
+          "keyword": "品质管理",
+          "en": "Quality Management",
+          "weight": 7
+        }
       ],
       "preferred": [
-        {"keyword": "有机认证", "en": "Organic Certification", "weight": 5},
-        {"keyword": "温室技术", "en": "Greenhouse Technology", "weight": 5},
-        {"keyword": "农业机械", "en": "Agricultural Machinery", "weight": 4}
+        {
+          "keyword": "有机认证",
+          "en": "Organic Certification",
+          "weight": 5
+        },
+        {
+          "keyword": "温室技术",
+          "en": "Greenhouse Technology",
+          "weight": 5
+        },
+        {
+          "keyword": "农业机械",
+          "en": "Agricultural Machinery",
+          "weight": 4
+        }
       ]
     },
-    "metrics_examples": ["产量提升30%", "病虫害损失率<5%"],
-    "suitable_for": ["本科应届", "研究生", "有经验"]
+    "metrics_examples": [
+      "产量提升30%",
+      "病虫害损失率<5%"
+    ],
+    "suitable_for": [
+      "本科应届",
+      "研究生",
+      "有经验"
+    ]
   },
   "data_analyst": {
     "name": "数据分析",
     "name_en": "Data Analyst",
     "keywords": {
       "required": [
-        {"keyword": "数据清洗", "en": "Data Cleaning", "weight": 10},
-        {"keyword": "统计分析", "en": "Statistical Analysis", "weight": 9},
-        {"keyword": "报表制作", "en": "Report Generation", "weight": 8},
-        {"keyword": "数据可视化", "en": "Data Visualization", "weight": 8},
-        {"keyword": "业务洞察", "en": "Business Insights", "weight": 7}
+        {
+          "keyword": "数据清洗",
+          "en": "Data Cleaning",
+          "weight": 10
+        },
+        {
+          "keyword": "统计分析",
+          "en": "Statistical Analysis",
+          "weight": 9
+        },
+        {
+          "keyword": "报表制作",
+          "en": "Report Generation",
+          "weight": 8
+        },
+        {
+          "keyword": "数据可视化",
+          "en": "Data Visualization",
+          "weight": 8
+        },
+        {
+          "keyword": "业务洞察",
+          "en": "Business Insights",
+          "weight": 7
+        }
       ],
       "preferred": [
-        {"keyword": "Python", "en": "Python", "weight": 5},
-        {"keyword": "SQL", "en": "SQL", "weight": 5},
-        {"keyword": "Excel高级", "en": "Advanced Excel", "weight": 4}
+        {
+          "keyword": "Python",
+          "en": "Python",
+          "weight": 5
+        },
+        {
+          "keyword": "SQL",
+          "en": "SQL",
+          "weight": 5
+        },
+        {
+          "keyword": "Excel高级",
+          "en": "Advanced Excel",
+          "weight": 4
+        }
       ]
     },
-    "metrics_examples": ["分析报告输出50+份", "数据准确性99%"],
-    "suitable_for": ["本科应届", "研究生"]
+    "metrics_examples": [
+      "分析报告输出50+份",
+      "数据准确性99%"
+    ],
+    "suitable_for": [
+      "本科应届",
+      "研究生"
+    ]
   },
   "data_scientist": {
     "name": "数据科学家",
     "name_en": "Data Scientist",
     "keywords": {
       "required": [
-        {"keyword": "机器学习", "en": "Machine Learning", "weight": 10},
-        {"keyword": "模型开发", "en": "Model Development", "weight": 9},
-        {"keyword": "特征工程", "en": "Feature Engineering", "weight": 8},
-        {"keyword": "算法优化", "en": "Algorithm Optimization", "weight": 8},
-        {"keyword": "实验设计", "en": "Experiment Design", "weight": 7}
+        {
+          "keyword": "机器学习",
+          "en": "Machine Learning",
+          "weight": 10
+        },
+        {
+          "keyword": "模型开发",
+          "en": "Model Development",
+          "weight": 9
+        },
+        {
+          "keyword": "特征工程",
+          "en": "Feature Engineering",
+          "weight": 8
+        },
+        {
+          "keyword": "算法优化",
+          "en": "Algorithm Optimization",
+          "weight": 8
+        },
+        {
+          "keyword": "实验设计",
+          "en": "Experiment Design",
+          "weight": 7
+        }
       ],
       "preferred": [
-        {"keyword": "深度学习", "en": "Deep Learning", "weight": 5},
-        {"keyword": "TensorFlow", "en": "TensorFlow", "weight": 5},
-        {"keyword": "PyTorch", "en": "PyTorch", "weight": 4}
+        {
+          "keyword": "深度学习",
+          "en": "Deep Learning",
+          "weight": 5
+        },
+        {
+          "keyword": "TensorFlow",
+          "en": "TensorFlow",
+          "weight": 5
+        },
+        {
+          "keyword": "PyTorch",
+          "en": "PyTorch",
+          "weight": 4
+        }
       ]
     },
-    "metrics_examples": ["模型准确率提升20%", "算法性能优化50%"],
-    "suitable_for": ["研究生", "博士"]
+    "metrics_examples": [
+      "模型准确率提升20%",
+      "算法性能优化50%"
+    ],
+    "suitable_for": [
+      "研究生",
+      "博士"
+    ]
   },
   "ai_engineer": {
     "name": "AI工程师",
     "name_en": "AI Engineer",
     "keywords": {
       "required": [
-        {"keyword": "AI模型开发", "en": "AI Model Development", "weight": 10},
-        {"keyword": "自然语言处理", "en": "NLP", "weight": 9},
-        {"keyword": "计算机视觉", "en": "Computer Vision", "weight": 8},
-        {"keyword": "模型部署", "en": "Model Deployment", "weight": 8},
-        {"keyword": "性能优化", "en": "Performance Optimization", "weight": 7}
+        {
+          "keyword": "AI模型开发",
+          "en": "AI Model Development",
+          "weight": 10
+        },
+        {
+          "keyword": "自然语言处理",
+          "en": "NLP",
+          "weight": 9
+        },
+        {
+          "keyword": "计算机视觉",
+          "en": "Computer Vision",
+          "weight": 8
+        },
+        {
+          "keyword": "模型部署",
+          "en": "Model Deployment",
+          "weight": 8
+        },
+        {
+          "keyword": "性能优化",
+          "en": "Performance Optimization",
+          "weight": 7
+        }
       ],
       "preferred": [
-        {"keyword": "大模型", "en": "LLM", "weight": 5},
-        {"keyword": "GPU编程", "en": "GPU Programming", "weight": 5},
-        {"keyword": "AI框架", "en": "AI Frameworks", "weight": 4}
+        {
+          "keyword": "大模型",
+          "en": "LLM",
+          "weight": 5
+        },
+        {
+          "keyword": "GPU编程",
+          "en": "GPU Programming",
+          "weight": 5
+        },
+        {
+          "keyword": "AI框架",
+          "en": "AI Frameworks",
+          "weight": 4
+        }
       ]
     },
-    "metrics_examples": ["AI模型上线3个", "处理效率提升10倍"],
-    "suitable_for": ["研究生", "博士"]
+    "metrics_examples": [
+      "AI模型上线3个",
+      "处理效率提升10倍"
+    ],
+    "suitable_for": [
+      "研究生",
+      "博士"
+    ]
   },
   "algorithm": {
     "name": "算法工程师",
     "name_en": "Algorithm Engineer",
     "keywords": {
       "required": [
-        {"keyword": "算法设计", "en": "Algorithm Design", "weight": 10},
-        {"keyword": "推荐系统", "en": "Recommendation System", "weight": 9},
-        {"keyword": "搜索算法", "en": "Search Algorithm", "weight": 8},
-        {"keyword": "排序优化", "en": "Ranking Optimization", "weight": 8},
-        {"keyword": "性能调优", "en": "Performance Tuning", "weight": 7}
+        {
+          "keyword": "算法设计",
+          "en": "Algorithm Design",
+          "weight": 10
+        },
+        {
+          "keyword": "推荐系统",
+          "en": "Recommendation System",
+          "weight": 9
+        },
+        {
+          "keyword": "搜索算法",
+          "en": "Search Algorithm",
+          "weight": 8
+        },
+        {
+          "keyword": "排序优化",
+          "en": "Ranking Optimization",
+          "weight": 8
+        },
+        {
+          "keyword": "性能调优",
+          "en": "Performance Tuning",
+          "weight": 7
+        }
       ],
       "preferred": [
-        {"keyword": "竞赛经历", "en": "Competition Experience", "weight": 5},
-        {"keyword": "论文发表", "en": "Paper Publication", "weight": 5},
-        {"keyword": "数学建模", "en": "Mathematical Modeling", "weight": 4}
+        {
+          "keyword": "竞赛经历",
+          "en": "Competition Experience",
+          "weight": 5
+        },
+        {
+          "keyword": "论文发表",
+          "en": "Paper Publication",
+          "weight": 5
+        },
+        {
+          "keyword": "数学建模",
+          "en": "Mathematical Modeling",
+          "weight": 4
+        }
       ]
     },
-    "metrics_examples": ["算法效果提升30%", "系统响应时间降低50%"],
-    "suitable_for": ["研究生", "博士", "竞赛获奖者"]
+    "metrics_examples": [
+      "算法效果提升30%",
+      "系统响应时间降低50%"
+    ],
+    "suitable_for": [
+      "研究生",
+      "博士",
+      "竞赛获奖者"
+    ]
   },
   "research_scientist": {
     "name": "科研研发",
     "name_en": "Research Scientist",
     "keywords": {
       "required": [
-        {"keyword": "实验设计", "en": "Experiment Design", "weight": 10},
-        {"keyword": "数据分析", "en": "Data Analysis", "weight": 9},
-        {"keyword": "论文撰写", "en": "Paper Writing", "weight": 8},
-        {"keyword": "专利申请", "en": "Patent Application", "weight": 8},
-        {"keyword": "项目申报", "en": "Project Application", "weight": 7}
+        {
+          "keyword": "实验设计",
+          "en": "Experiment Design",
+          "weight": 10
+        },
+        {
+          "keyword": "数据分析",
+          "en": "Data Analysis",
+          "weight": 9
+        },
+        {
+          "keyword": "论文撰写",
+          "en": "Paper Writing",
+          "weight": 8
+        },
+        {
+          "keyword": "专利申请",
+          "en": "Patent Application",
+          "weight": 8
+        },
+        {
+          "keyword": "项目申报",
+          "en": "Project Application",
+          "weight": 7
+        }
       ],
       "preferred": [
-        {"keyword": "SCI论文", "en": "SCI Paper", "weight": 6},
-        {"keyword": "国家自然科学基金", "en": "NSFC", "weight": 5},
-        {"keyword": "实验室管理", "en": "Lab Management", "weight": 4}
+        {
+          "keyword": "SCI论文",
+          "en": "SCI Paper",
+          "weight": 6
+        },
+        {
+          "keyword": "国家自然科学基金",
+          "en": "NSFC",
+          "weight": 5
+        },
+        {
+          "keyword": "实验室管理",
+          "en": "Lab Management",
+          "weight": 4
+        }
       ]
     },
-    "metrics_examples": ["发表论文5篇", "获得专利2项"],
-    "suitable_for": ["研究生", "博士", "博士后"]
+    "metrics_examples": [
+      "发表论文5篇",
+      "获得专利2项"
+    ],
+    "suitable_for": [
+      "研究生",
+      "博士",
+      "博士后"
+    ]
   },
   "biotech": {
     "name": "生物技术",
     "name_en": "Biotechnology",
     "keywords": {
       "required": [
-        {"keyword": "实验操作", "en": "Lab Operations", "weight": 10},
-        {"keyword": "细胞培养", "en": "Cell Culture", "weight": 9},
-        {"keyword": "基因分析", "en": "Gene Analysis", "weight": 8},
-        {"keyword": "PCR技术", "en": "PCR Technology", "weight": 8},
-        {"keyword": "数据分析", "en": "Data Analysis", "weight": 7}
+        {
+          "keyword": "实验操作",
+          "en": "Lab Operations",
+          "weight": 10
+        },
+        {
+          "keyword": "细胞培养",
+          "en": "Cell Culture",
+          "weight": 9
+        },
+        {
+          "keyword": "基因分析",
+          "en": "Gene Analysis",
+          "weight": 8
+        },
+        {
+          "keyword": "PCR技术",
+          "en": "PCR Technology",
+          "weight": 8
+        },
+        {
+          "keyword": "数据分析",
+          "en": "Data Analysis",
+          "weight": 7
+        }
       ],
       "preferred": [
-        {"keyword": "CRISPR", "en": "CRISPR", "weight": 5},
-        {"keyword": "测序技术", "en": "Sequencing", "weight": 5},
-        {"keyword": "蛋白纯化", "en": "Protein Purification", "weight": 4}
+        {
+          "keyword": "CRISPR",
+          "en": "CRISPR",
+          "weight": 5
+        },
+        {
+          "keyword": "测序技术",
+          "en": "Sequencing",
+          "weight": 5
+        },
+        {
+          "keyword": "蛋白纯化",
+          "en": "Protein Purification",
+          "weight": 4
+        }
       ]
     },
-    "metrics_examples": ["实验成功率95%", "独立完成实验项目10+"],
-    "suitable_for": ["本科应届", "研究生", "博士"]
+    "metrics_examples": [
+      "实验成功率95%",
+      "独立完成实验项目10+"
+    ],
+    "suitable_for": [
+      "本科应届",
+      "研究生",
+      "博士"
+    ]
   },
   "pharmaceutical": {
     "name": "医药研发",
     "name_en": "Pharmaceutical R&D",
     "keywords": {
       "required": [
-        {"keyword": "药物研发", "en": "Drug Development", "weight": 10},
-        {"keyword": "临床试验", "en": "Clinical Trial", "weight": 9},
-        {"keyword": "药物分析", "en": "Drug Analysis", "weight": 8},
-        {"keyword": "质量标准", "en": "Quality Standards", "weight": 8},
-        {"keyword": "注册申报", "en": "Registration Application", "weight": 7}
+        {
+          "keyword": "药物研发",
+          "en": "Drug Development",
+          "weight": 10
+        },
+        {
+          "keyword": "临床试验",
+          "en": "Clinical Trial",
+          "weight": 9
+        },
+        {
+          "keyword": "药物分析",
+          "en": "Drug Analysis",
+          "weight": 8
+        },
+        {
+          "keyword": "质量标准",
+          "en": "Quality Standards",
+          "weight": 8
+        },
+        {
+          "keyword": "注册申报",
+          "en": "Registration Application",
+          "weight": 7
+        }
       ],
       "preferred": [
-        {"keyword": "GMP认证", "en": "GMP", "weight": 5},
-        {"keyword": "药典知识", "en": "Pharmacopoeia", "weight": 5},
-        {"keyword": "GLP规范", "en": "GLP", "weight": 4}
+        {
+          "keyword": "GMP认证",
+          "en": "GMP",
+          "weight": 5
+        },
+        {
+          "keyword": "药典知识",
+          "en": "Pharmacopoeia",
+          "weight": 5
+        },
+        {
+          "keyword": "GLP规范",
+          "en": "GLP",
+          "weight": 4
+        }
       ]
     },
-    "metrics_examples": ["参与研发项目3个", "临床试验方案设计2个"],
-    "suitable_for": ["研究生", "博士"]
+    "metrics_examples": [
+      "参与研发项目3个",
+      "临床试验方案设计2个"
+    ],
+    "suitable_for": [
+      "研究生",
+      "博士"
+    ]
   },
   "new_energy": {
     "name": "新能源",
     "name_en": "New Energy",
     "keywords": {
       "required": [
-        {"keyword": "电池技术", "en": "Battery Technology", "weight": 10},
-        {"keyword": "光伏系统", "en": "PV System", "weight": 9},
-        {"keyword": "储能方案", "en": "Energy Storage", "weight": 8},
-        {"keyword": "系统设计", "en": "System Design", "weight": 8},
-        {"keyword": "性能测试", "en": "Performance Testing", "weight": 7}
+        {
+          "keyword": "电池技术",
+          "en": "Battery Technology",
+          "weight": 10
+        },
+        {
+          "keyword": "光伏系统",
+          "en": "PV System",
+          "weight": 9
+        },
+        {
+          "keyword": "储能方案",
+          "en": "Energy Storage",
+          "weight": 8
+        },
+        {
+          "keyword": "系统设计",
+          "en": "System Design",
+          "weight": 8
+        },
+        {
+          "keyword": "性能测试",
+          "en": "Performance Testing",
+          "weight": 7
+        }
       ],
       "preferred": [
-        {"keyword": "锂电技术", "en": "Lithium Battery", "weight": 5},
-        {"keyword": "充电桩", "en": "Charging Station", "weight": 5},
-        {"keyword": "氢能源", "en": "Hydrogen Energy", "weight": 4}
+        {
+          "keyword": "锂电技术",
+          "en": "Lithium Battery",
+          "weight": 5
+        },
+        {
+          "keyword": "充电桩",
+          "en": "Charging Station",
+          "weight": 5
+        },
+        {
+          "keyword": "氢能源",
+          "en": "Hydrogen Energy",
+          "weight": 4
+        }
       ]
     },
-    "metrics_examples": ["电池能量密度提升15%", "光伏系统效率提升10%"],
-    "suitable_for": ["本科应届", "研究生"]
+    "metrics_examples": [
+      "电池能量密度提升15%",
+      "光伏系统效率提升10%"
+    ],
+    "suitable_for": [
+      "本科应届",
+      "研究生"
+    ]
   },
   "semiconductor": {
     "name": "半导体/芯片",
     "name_en": "Semiconductor",
     "keywords": {
       "required": [
-        {"keyword": "芯片设计", "en": "Chip Design", "weight": 10},
-        {"keyword": "工艺开发", "en": "Process Development", "weight": 9},
-        {"keyword": "电路仿真", "en": "Circuit Simulation", "weight": 8},
-        {"keyword": "版图设计", "en": "Layout Design", "weight": 8},
-        {"keyword": "测试验证", "en": "Testing & Verification", "weight": 7}
+        {
+          "keyword": "芯片设计",
+          "en": "Chip Design",
+          "weight": 10
+        },
+        {
+          "keyword": "工艺开发",
+          "en": "Process Development",
+          "weight": 9
+        },
+        {
+          "keyword": "电路仿真",
+          "en": "Circuit Simulation",
+          "weight": 8
+        },
+        {
+          "keyword": "版图设计",
+          "en": "Layout Design",
+          "weight": 8
+        },
+        {
+          "keyword": "测试验证",
+          "en": "Testing & Verification",
+          "weight": 7
+        }
       ],
       "preferred": [
-        {"keyword": "Verilog", "en": "Verilog", "weight": 5},
-        {"keyword": "EDA工具", "en": "EDA Tools", "weight": 5},
-        {"keyword": "FPGA", "en": "FPGA", "weight": 4}
+        {
+          "keyword": "Verilog",
+          "en": "Verilog",
+          "weight": 5
+        },
+        {
+          "keyword": "EDA工具",
+          "en": "EDA Tools",
+          "weight": 5
+        },
+        {
+          "keyword": "FPGA",
+          "en": "FPGA",
+          "weight": 4
+        }
       ]
     },
-    "metrics_examples": ["芯片设计项目2个", "工艺优化良率提升5%"],
-    "suitable_for": ["研究生", "博士"]
+    "metrics_examples": [
+      "芯片设计项目2个",
+      "工艺优化良率提升5%"
+    ],
+    "suitable_for": [
+      "研究生",
+      "博士"
+    ]
   },
   "fintech": {
     "name": "金融科技",
     "name_en": "Fintech",
     "keywords": {
       "required": [
-        {"keyword": "支付系统", "en": "Payment System", "weight": 10},
-        {"keyword": "风控模型", "en": "Risk Model", "weight": 9},
-        {"keyword": "智能投顾", "en": "Robo-Advisor", "weight": 8},
-        {"keyword": "区块链应用", "en": "Blockchain Application", "weight": 8},
-        {"keyword": "合规系统", "en": "Compliance System", "weight": 7}
+        {
+          "keyword": "支付系统",
+          "en": "Payment System",
+          "weight": 10
+        },
+        {
+          "keyword": "风控模型",
+          "en": "Risk Model",
+          "weight": 9
+        },
+        {
+          "keyword": "智能投顾",
+          "en": "Robo-Advisor",
+          "weight": 8
+        },
+        {
+          "keyword": "区块链应用",
+          "en": "Blockchain Application",
+          "weight": 8
+        },
+        {
+          "keyword": "合规系统",
+          "en": "Compliance System",
+          "weight": 7
+        }
       ],
       "preferred": [
-        {"keyword": "量化交易", "en": "Quantitative Trading", "weight": 5},
-        {"keyword": "金融API", "en": "Financial API", "weight": 5},
-        {"keyword": "智能合约", "en": "Smart Contract", "weight": 4}
+        {
+          "keyword": "量化交易",
+          "en": "Quantitative Trading",
+          "weight": 5
+        },
+        {
+          "keyword": "金融API",
+          "en": "Financial API",
+          "weight": 5
+        },
+        {
+          "keyword": "智能合约",
+          "en": "Smart Contract",
+          "weight": 4
+        }
       ]
     },
-    "metrics_examples": ["风控准确率提升20%", "系统处理效率提升50%"],
-    "suitable_for": ["本科应届", "研究生"]
+    "metrics_examples": [
+      "风控准确率提升20%",
+      "系统处理效率提升50%"
+    ],
+    "suitable_for": [
+      "本科应届",
+      "研究生"
+    ]
   },
   "consulting": {
     "name": "咨询顾问",
     "name_en": "Consulting",
     "keywords": {
       "required": [
-        {"keyword": "行业研究", "en": "Industry Research", "weight": 10},
-        {"keyword": "方案设计", "en": "Solution Design", "weight": 9},
-        {"keyword": "客户沟通", "en": "Client Communication", "weight": 8},
-        {"keyword": "数据分析", "en": "Data Analysis", "weight": 8},
-        {"keyword": "报告撰写", "en": "Report Writing", "weight": 7}
+        {
+          "keyword": "行业研究",
+          "en": "Industry Research",
+          "weight": 10
+        },
+        {
+          "keyword": "方案设计",
+          "en": "Solution Design",
+          "weight": 9
+        },
+        {
+          "keyword": "客户沟通",
+          "en": "Client Communication",
+          "weight": 8
+        },
+        {
+          "keyword": "数据分析",
+          "en": "Data Analysis",
+          "weight": 8
+        },
+        {
+          "keyword": "报告撰写",
+          "en": "Report Writing",
+          "weight": 7
+        }
       ],
       "preferred": [
-        {"keyword": "PPT制作", "en": "PPT Creation", "weight": 5},
-        {"keyword": "项目管理", "en": "Project Management", "weight": 5},
-        {"keyword": "商业模式", "en": "Business Model", "weight": 4}
+        {
+          "keyword": "PPT制作",
+          "en": "PPT Creation",
+          "weight": 5
+        },
+        {
+          "keyword": "项目管理",
+          "en": "Project Management",
+          "weight": 5
+        },
+        {
+          "keyword": "商业模式",
+          "en": "Business Model",
+          "weight": 4
+        }
       ]
     },
-    "metrics_examples": ["咨询项目完成10+", "客户满意度95%"],
-    "suitable_for": ["本科应届", "研究生", "有经验"]
+    "metrics_examples": [
+      "咨询项目完成10+",
+      "客户满意度95%"
+    ],
+    "suitable_for": [
+      "本科应届",
+      "研究生",
+      "有经验"
+    ]
   },
   "game_design": {
     "name": "游戏设计",
     "name_en": "Game Design",
     "keywords": {
       "required": [
-        {"keyword": "游戏策划", "en": "Game Planning", "weight": 10},
-        {"keyword": "关卡设计", "en": "Level Design", "weight": 9},
-        {"keyword": "数值设计", "en": "Numeric Design", "weight": 8},
-        {"keyword": "用户体验", "en": "User Experience", "weight": 8},
-        {"keyword": "原型开发", "en": "Prototype Development", "weight": 7}
+        {
+          "keyword": "游戏策划",
+          "en": "Game Planning",
+          "weight": 10
+        },
+        {
+          "keyword": "关卡设计",
+          "en": "Level Design",
+          "weight": 9
+        },
+        {
+          "keyword": "数值设计",
+          "en": "Numeric Design",
+          "weight": 8
+        },
+        {
+          "keyword": "用户体验",
+          "en": "User Experience",
+          "weight": 8
+        },
+        {
+          "keyword": "原型开发",
+          "en": "Prototype Development",
+          "weight": 7
+        }
       ],
       "preferred": [
-        {"keyword": "Unity", "en": "Unity", "weight": 5},
-        {"keyword": "游戏引擎", "en": "Game Engine", "weight": 5},
-        {"keyword": "剧情编写", "en": "Story Writing", "weight": 4}
+        {
+          "keyword": "Unity",
+          "en": "Unity",
+          "weight": 5
+        },
+        {
+          "keyword": "游戏引擎",
+          "en": "Game Engine",
+          "weight": 5
+        },
+        {
+          "keyword": "剧情编写",
+          "en": "Story Writing",
+          "weight": 4
+        }
       ]
     },
-    "metrics_examples": ["游戏设计文档10份", "上线游戏2款"],
-    "suitable_for": ["本科应届", "研究生"]
+    "metrics_examples": [
+      "游戏设计文档10份",
+      "上线游戏2款"
+    ],
+    "suitable_for": [
+      "本科应届",
+      "研究生"
+    ]
   },
   "animation": {
     "name": "动漫动画",
     "name_en": "Animation",
     "keywords": {
       "required": [
-        {"keyword": "动画制作", "en": "Animation Production", "weight": 10},
-        {"keyword": "角色设计", "en": "Character Design", "weight": 9},
-        {"keyword": "分镜脚本", "en": "Storyboard", "weight": 8},
-        {"keyword": "特效制作", "en": "Effect Production", "weight": 8},
-        {"keyword": "后期合成", "en": "Post-production", "weight": 7}
+        {
+          "keyword": "动画制作",
+          "en": "Animation Production",
+          "weight": 10
+        },
+        {
+          "keyword": "角色设计",
+          "en": "Character Design",
+          "weight": 9
+        },
+        {
+          "keyword": "分镜脚本",
+          "en": "Storyboard",
+          "weight": 8
+        },
+        {
+          "keyword": "特效制作",
+          "en": "Effect Production",
+          "weight": 8
+        },
+        {
+          "keyword": "后期合成",
+          "en": "Post-production",
+          "weight": 7
+        }
       ],
       "preferred": [
-        {"keyword": "Maya", "en": "Maya", "weight": 5},
-        {"keyword": "Blender", "en": "Blender", "weight": 5},
-        {"keyword": "AE", "en": "After Effects", "weight": 4}
+        {
+          "keyword": "Maya",
+          "en": "Maya",
+          "weight": 5
+        },
+        {
+          "keyword": "Blender",
+          "en": "Blender",
+          "weight": 5
+        },
+        {
+          "keyword": "AE",
+          "en": "After Effects",
+          "weight": 4
+        }
       ]
     },
-    "metrics_examples": ["动画作品获奖2项", "独立制作短片5部"],
-    "suitable_for": ["本科应届", "研究生"]
+    "metrics_examples": [
+      "动画作品获奖2项",
+      "独立制作短片5部"
+    ],
+    "suitable_for": [
+      "本科应届",
+      "研究生"
+    ]
   },
   "digital_marketing": {
     "name": "数字营销",
     "name_en": "Digital Marketing",
     "keywords": {
       "required": [
-        {"keyword": "社媒运营", "en": "Social Media Operation", "weight": 10},
-        {"keyword": "内容营销", "en": "Content Marketing", "weight": 9},
-        {"keyword": "SEO优化", "en": "SEO Optimization", "weight": 8},
-        {"keyword": "广告投放", "en": "Ad Placement", "weight": 8},
-        {"keyword": "数据分析", "en": "Data Analysis", "weight": 7}
+        {
+          "keyword": "社媒运营",
+          "en": "Social Media Operation",
+          "weight": 10
+        },
+        {
+          "keyword": "内容营销",
+          "en": "Content Marketing",
+          "weight": 9
+        },
+        {
+          "keyword": "SEO优化",
+          "en": "SEO Optimization",
+          "weight": 8
+        },
+        {
+          "keyword": "广告投放",
+          "en": "Ad Placement",
+          "weight": 8
+        },
+        {
+          "keyword": "数据分析",
+          "en": "Data Analysis",
+          "weight": 7
+        }
       ],
       "preferred": [
-        {"keyword": "短视频运营", "en": "Short Video", "weight": 5},
-        {"keyword": "私域流量", "en": "Private Traffic", "weight": 5},
-        {"keyword": "用户增长", "en": "User Growth", "weight": 4}
+        {
+          "keyword": "短视频运营",
+          "en": "Short Video",
+          "weight": 5
+        },
+        {
+          "keyword": "私域流量",
+          "en": "Private Traffic",
+          "weight": 5
+        },
+        {
+          "keyword": "用户增长",
+          "en": "User Growth",
+          "weight": 4
+        }
       ]
     },
-    "metrics_examples": ["粉丝增长100万+", "转化率提升50%"],
-    "suitable_for": ["本科应届", "有经验"]
+    "metrics_examples": [
+      "粉丝增长100万+",
+      "转化率提升50%"
+    ],
+    "suitable_for": [
+      "本科应届",
+      "有经验"
+    ]
   },
   "content_creator": {
     "name": "内容创作",
     "name_en": "Content Creator",
     "keywords": {
       "required": [
-        {"keyword": "文案撰写", "en": "Copywriting", "weight": 10},
-        {"keyword": "选题策划", "en": "Topic Planning", "weight": 9},
-        {"keyword": "内容编辑", "en": "Content Editing", "weight": 8},
-        {"keyword": "热点追踪", "en": "Trend Tracking", "weight": 8},
-        {"keyword": "排版设计", "en": "Layout Design", "weight": 7}
+        {
+          "keyword": "文案撰写",
+          "en": "Copywriting",
+          "weight": 10
+        },
+        {
+          "keyword": "选题策划",
+          "en": "Topic Planning",
+          "weight": 9
+        },
+        {
+          "keyword": "内容编辑",
+          "en": "Content Editing",
+          "weight": 8
+        },
+        {
+          "keyword": "热点追踪",
+          "en": "Trend Tracking",
+          "weight": 8
+        },
+        {
+          "keyword": "排版设计",
+          "en": "Layout Design",
+          "weight": 7
+        }
       ],
       "preferred": [
-        {"keyword": "公众号运营", "en": "WeChat Operation", "weight": 5},
-        {"keyword": "视频脚本", "en": "Video Script", "weight": 5},
-        {"keyword": "多平台发布", "en": "Multi-platform", "weight": 4}
+        {
+          "keyword": "公众号运营",
+          "en": "WeChat Operation",
+          "weight": 5
+        },
+        {
+          "keyword": "视频脚本",
+          "en": "Video Script",
+          "weight": 5
+        },
+        {
+          "keyword": "多平台发布",
+          "en": "Multi-platform",
+          "weight": 4
+        }
       ]
     },
-    "metrics_examples": ["文章阅读量10万+", "爆款内容5篇"],
-    "suitable_for": ["本科应届", "有经验"]
+    "metrics_examples": [
+      "文章阅读量10万+",
+      "爆款内容5篇"
+    ],
+    "suitable_for": [
+      "本科应届",
+      "有经验"
+    ]
   },
   "campus_recruit": {
     "name": "校招管培",
     "name_en": "Campus Recruit/Trainee",
     "keywords": {
       "required": [
-        {"keyword": "学习能力", "en": "Learning Ability", "weight": 10},
-        {"keyword": "团队协作", "en": "Teamwork", "weight": 9},
-        {"keyword": "沟通表达", "en": "Communication", "weight": 8},
-        {"keyword": "任务执行", "en": "Task Execution", "weight": 8},
-        {"keyword": "实习经历", "en": "Internship Experience", "weight": 7}
+        {
+          "keyword": "学习能力",
+          "en": "Learning Ability",
+          "weight": 10
+        },
+        {
+          "keyword": "团队协作",
+          "en": "Teamwork",
+          "weight": 9
+        },
+        {
+          "keyword": "沟通表达",
+          "en": "Communication",
+          "weight": 8
+        },
+        {
+          "keyword": "任务执行",
+          "en": "Task Execution",
+          "weight": 8
+        },
+        {
+          "keyword": "实习经历",
+          "en": "Internship Experience",
+          "weight": 7
+        }
       ],
       "preferred": [
-        {"keyword": "奖学金", "en": "Scholarship", "weight": 5},
-        {"keyword": "学生会经历", "en": "Student Union", "weight": 5},
-        {"keyword": "竞赛获奖", "en": "Competition Awards", "weight": 4}
+        {
+          "keyword": "奖学金",
+          "en": "Scholarship",
+          "weight": 5
+        },
+        {
+          "keyword": "学生会经历",
+          "en": "Student Union",
+          "weight": 5
+        },
+        {
+          "keyword": "竞赛获奖",
+          "en": "Competition Awards",
+          "weight": 4
+        }
       ]
     },
-    "metrics_examples": ["实习期间完成项目X个", "获得X次表彰"],
-    "suitable_for": ["本科应届", "研究生应届"]
+    "metrics_examples": [
+      "实习期间完成项目X个",
+      "获得X次表彰"
+    ],
+    "suitable_for": [
+      "本科应届",
+      "研究生应届"
+    ]
   },
   "intern_general": {
     "name": "实习助理",
     "name_en": "Intern/Assistant",
     "keywords": {
       "required": [
-        {"keyword": "文档整理", "en": "Document Organization", "weight": 9},
-        {"keyword": "数据录入", "en": "Data Entry", "weight": 8},
-        {"keyword": "会议记录", "en": "Meeting Minutes", "weight": 8},
-        {"keyword": "协助执行", "en": "Assist Execution", "weight": 7},
-        {"keyword": "信息收集", "en": "Information Gathering", "weight": 7}
+        {
+          "keyword": "文档整理",
+          "en": "Document Organization",
+          "weight": 9
+        },
+        {
+          "keyword": "数据录入",
+          "en": "Data Entry",
+          "weight": 8
+        },
+        {
+          "keyword": "会议记录",
+          "en": "Meeting Minutes",
+          "weight": 8
+        },
+        {
+          "keyword": "协助执行",
+          "en": "Assist Execution",
+          "weight": 7
+        },
+        {
+          "keyword": "信息收集",
+          "en": "Information Gathering",
+          "weight": 7
+        }
       ],
       "preferred": [
-        {"keyword": "Office软件", "en": "Office Software", "weight": 5},
-        {"keyword": "细心负责", "en": "Detail-oriented", "weight": 5},
-        {"keyword": "时间管理", "en": "Time Management", "weight": 4}
+        {
+          "keyword": "Office软件",
+          "en": "Office Software",
+          "weight": 5
+        },
+        {
+          "keyword": "细心负责",
+          "en": "Detail-oriented",
+          "weight": 5
+        },
+        {
+          "keyword": "时间管理",
+          "en": "Time Management",
+          "weight": 4
+        }
       ]
     },
-    "metrics_examples": ["实习期间表现优秀", "获得转正机会"],
-    "suitable_for": ["本科在校", "研究生在校"]
+    "metrics_examples": [
+      "实习期间表现优秀",
+      "获得转正机会"
+    ],
+    "suitable_for": [
+      "本科在校",
+      "研究生在校"
+    ]
   },
   "accounting_assistant": {
     "name": "财务助理",
     "name_en": "Accounting Assistant",
     "keywords": {
       "required": [
-        {"keyword": "凭证录入", "en": "Voucher Entry", "weight": 10},
-        {"keyword": "账务核对", "en": "Account Reconciliation", "weight": 9},
-        {"keyword": "发票管理", "en": "Invoice Management", "weight": 8},
-        {"keyword": "报表协助", "en": "Report Assistance", "weight": 8},
-        {"keyword": "报销处理", "en": "Expense Processing", "weight": 7}
+        {
+          "keyword": "凭证录入",
+          "en": "Voucher Entry",
+          "weight": 10
+        },
+        {
+          "keyword": "账务核对",
+          "en": "Account Reconciliation",
+          "weight": 9
+        },
+        {
+          "keyword": "发票管理",
+          "en": "Invoice Management",
+          "weight": 8
+        },
+        {
+          "keyword": "报表协助",
+          "en": "Report Assistance",
+          "weight": 8
+        },
+        {
+          "keyword": "报销处理",
+          "en": "Expense Processing",
+          "weight": 7
+        }
       ],
       "preferred": [
-        {"keyword": "会计初级证", "en": "Junior CPA", "weight": 5},
-        {"keyword": "Excel熟练", "en": "Excel Proficiency", "weight": 5},
-        {"keyword": "财务软件", "en": "Financial Software", "weight": 4}
+        {
+          "keyword": "会计初级证",
+          "en": "Junior CPA",
+          "weight": 5
+        },
+        {
+          "keyword": "Excel熟练",
+          "en": "Excel Proficiency",
+          "weight": 5
+        },
+        {
+          "keyword": "财务软件",
+          "en": "Financial Software",
+          "weight": 4
+        }
       ]
     },
-    "metrics_examples": ["凭证录入准确率100%", "独立处理报销单50+"],
-    "suitable_for": ["本科应届", "本科在校"]
+    "metrics_examples": [
+      "凭证录入准确率100%",
+      "独立处理报销单50+"
+    ],
+    "suitable_for": [
+      "本科应届",
+      "本科在校"
+    ]
   },
   "hr_assistant": {
     "name": "HR助理",
     "name_en": "HR Assistant",
     "keywords": {
       "required": [
-        {"keyword": "简历筛选", "en": "Resume Screening", "weight": 10},
-        {"keyword": "面试安排", "en": "Interview Scheduling", "weight": 9},
-        {"keyword": "入职办理", "en": "Onboarding", "weight": 8},
-        {"keyword": "档案管理", "en": "File Management", "weight": 8},
-        {"keyword": "员工服务", "en": "Employee Service", "weight": 7}
+        {
+          "keyword": "简历筛选",
+          "en": "Resume Screening",
+          "weight": 10
+        },
+        {
+          "keyword": "面试安排",
+          "en": "Interview Scheduling",
+          "weight": 9
+        },
+        {
+          "keyword": "入职办理",
+          "en": "Onboarding",
+          "weight": 8
+        },
+        {
+          "keyword": "档案管理",
+          "en": "File Management",
+          "weight": 8
+        },
+        {
+          "keyword": "员工服务",
+          "en": "Employee Service",
+          "weight": 7
+        }
       ],
       "preferred": [
-        {"keyword": "招聘系统", "en": "Recruitment System", "weight": 5},
-        {"keyword": "Excel熟练", "en": "Excel Proficiency", "weight": 5},
-        {"keyword": "沟通能力", "en": "Communication", "weight": 4}
+        {
+          "keyword": "招聘系统",
+          "en": "Recruitment System",
+          "weight": 5
+        },
+        {
+          "keyword": "Excel熟练",
+          "en": "Excel Proficiency",
+          "weight": 5
+        },
+        {
+          "keyword": "沟通能力",
+          "en": "Communication",
+          "weight": 4
+        }
       ]
     },
-    "metrics_examples": ["筛选简历100+份", "安排面试50+次"],
-    "suitable_for": ["本科应届", "本科在校"]
+    "metrics_examples": [
+      "筛选简历100+份",
+      "安排面试50+次"
+    ],
+    "suitable_for": [
+      "本科应届",
+      "本科在校"
+    ]
   },
   "executive_assistant": {
     "name": "高管助理",
     "name_en": "Executive Assistant",
     "keywords": {
       "required": [
-        {"keyword": "日程安排", "en": "Schedule Management", "weight": 10},
-        {"keyword": "会议协调", "en": "Meeting Coordination", "weight": 9},
-        {"keyword": "文件起草", "en": "Document Drafting", "weight": 8},
-        {"keyword": "商务接待", "en": "Business Reception", "weight": 8},
-        {"keyword": "信息汇总", "en": "Information Summary", "weight": 7}
+        {
+          "keyword": "日程安排",
+          "en": "Schedule Management",
+          "weight": 10
+        },
+        {
+          "keyword": "会议协调",
+          "en": "Meeting Coordination",
+          "weight": 9
+        },
+        {
+          "keyword": "文件起草",
+          "en": "Document Drafting",
+          "weight": 8
+        },
+        {
+          "keyword": "商务接待",
+          "en": "Business Reception",
+          "weight": 8
+        },
+        {
+          "keyword": "信息汇总",
+          "en": "Information Summary",
+          "weight": 7
+        }
       ],
       "preferred": [
-        {"keyword": "商务礼仪", "en": "Business Etiquette", "weight": 5},
-        {"keyword": "PPT制作", "en": "PPT Creation", "weight": 5},
-        {"keyword": "英语能力", "en": "English Proficiency", "weight": 4}
+        {
+          "keyword": "商务礼仪",
+          "en": "Business Etiquette",
+          "weight": 5
+        },
+        {
+          "keyword": "PPT制作",
+          "en": "PPT Creation",
+          "weight": 5
+        },
+        {
+          "keyword": "英语能力",
+          "en": "English Proficiency",
+          "weight": 4
+        }
       ]
     },
-    "metrics_examples": ["协助高管完成重点工作10+", "会议组织50+场"],
-    "suitable_for": ["本科应届", "研究生应届"]
+    "metrics_examples": [
+      "协助高管完成重点工作10+",
+      "会议组织50+场"
+    ],
+    "suitable_for": [
+      "本科应届",
+      "研究生应届"
+    ]
   },
   "customer_success": {
     "name": "客户成功",
     "name_en": "Customer Success",
     "keywords": {
       "required": [
-        {"keyword": "客户留存", "en": "Customer Retention", "weight": 10},
-        {"keyword": "产品培训", "en": "Product Training", "weight": 9},
-        {"keyword": "问题解决", "en": "Problem Solving", "weight": 8},
-        {"keyword": "续约沟通", "en": "Renewal Communication", "weight": 8},
-        {"keyword": "价值传递", "en": "Value Delivery", "weight": 7}
+        {
+          "keyword": "客户留存",
+          "en": "Customer Retention",
+          "weight": 10
+        },
+        {
+          "keyword": "产品培训",
+          "en": "Product Training",
+          "weight": 9
+        },
+        {
+          "keyword": "问题解决",
+          "en": "Problem Solving",
+          "weight": 8
+        },
+        {
+          "keyword": "续约沟通",
+          "en": "Renewal Communication",
+          "weight": 8
+        },
+        {
+          "keyword": "价值传递",
+          "en": "Value Delivery",
+          "weight": 7
+        }
       ],
       "preferred": [
-        {"keyword": "客户案例", "en": "Customer Cases", "weight": 5},
-        {"keyword": "产品知识", "en": "Product Knowledge", "weight": 5},
-        {"keyword": "数据分析", "en": "Data Analysis", "weight": 4}
+        {
+          "keyword": "客户案例",
+          "en": "Customer Cases",
+          "weight": 5
+        },
+        {
+          "keyword": "产品知识",
+          "en": "Product Knowledge",
+          "weight": 5
+        },
+        {
+          "keyword": "数据分析",
+          "en": "Data Analysis",
+          "weight": 4
+        }
       ]
     },
-    "metrics_examples": ["客户续约率95%", "培训满意度98%"],
-    "suitable_for": ["本科应届", "有经验"]
+    "metrics_examples": [
+      "客户续约率95%",
+      "培训满意度98%"
+    ],
+    "suitable_for": [
+      "本科应届",
+      "有经验"
+    ]
   },
   "business_analysis": {
     "name": "商业分析",
     "name_en": "Business Analysis",
     "keywords": {
       "required": [
-        {"keyword": "业务分析", "en": "Business Analysis", "weight": 10},
-        {"keyword": "需求梳理", "en": "Requirement Clarification", "weight": 9},
-        {"keyword": "流程优化", "en": "Process Optimization", "weight": 8},
-        {"keyword": "数据建模", "en": "Data Modeling", "weight": 8},
-        {"keyword": "方案设计", "en": "Solution Design", "weight": 7}
+        {
+          "keyword": "业务分析",
+          "en": "Business Analysis",
+          "weight": 10
+        },
+        {
+          "keyword": "需求梳理",
+          "en": "Requirement Clarification",
+          "weight": 9
+        },
+        {
+          "keyword": "流程优化",
+          "en": "Process Optimization",
+          "weight": 8
+        },
+        {
+          "keyword": "数据建模",
+          "en": "Data Modeling",
+          "weight": 8
+        },
+        {
+          "keyword": "方案设计",
+          "en": "Solution Design",
+          "weight": 7
+        }
       ],
       "preferred": [
-        {"keyword": "UML", "en": "UML", "weight": 5},
-        {"keyword": "SQL", "en": "SQL", "weight": 5},
-        {"keyword": "原型工具", "en": "Prototype Tools", "weight": 4}
+        {
+          "keyword": "UML",
+          "en": "UML",
+          "weight": 5
+        },
+        {
+          "keyword": "SQL",
+          "en": "SQL",
+          "weight": 5
+        },
+        {
+          "keyword": "原型工具",
+          "en": "Prototype Tools",
+          "weight": 4
+        }
       ]
     },
-    "metrics_examples": ["业务分析报告20+份", "优化流程效率提升30%"],
-    "suitable_for": ["本科应届", "研究生"]
+    "metrics_examples": [
+      "业务分析报告20+份",
+      "优化流程效率提升30%"
+    ],
+    "suitable_for": [
+      "本科应届",
+      "研究生"
+    ]
   },
   "strategy_planning": {
     "name": "战略规划",
     "name_en": "Strategy Planning",
     "keywords": {
       "required": [
-        {"keyword": "战略分析", "en": "Strategy Analysis", "weight": 10},
-        {"keyword": "市场研究", "en": "Market Research", "weight": 9},
-        {"keyword": "竞争分析", "en": "Competitive Analysis", "weight": 8},
-        {"keyword": "规划方案", "en": "Planning Proposal", "weight": 8},
-        {"keyword": "执行跟踪", "en": "Execution Tracking", "weight": 7}
+        {
+          "keyword": "战略分析",
+          "en": "Strategy Analysis",
+          "weight": 10
+        },
+        {
+          "keyword": "市场研究",
+          "en": "Market Research",
+          "weight": 9
+        },
+        {
+          "keyword": "竞争分析",
+          "en": "Competitive Analysis",
+          "weight": 8
+        },
+        {
+          "keyword": "规划方案",
+          "en": "Planning Proposal",
+          "weight": 8
+        },
+        {
+          "keyword": "执行跟踪",
+          "en": "Execution Tracking",
+          "weight": 7
+        }
       ],
       "preferred": [
-        {"keyword": "MBA", "en": "MBA", "weight": 5},
-        {"keyword": "行业洞察", "en": "Industry Insight", "weight": 5},
-        {"keyword": "财务模型", "en": "Financial Model", "weight": 4}
+        {
+          "keyword": "MBA",
+          "en": "MBA",
+          "weight": 5
+        },
+        {
+          "keyword": "行业洞察",
+          "en": "Industry Insight",
+          "weight": 5
+        },
+        {
+          "keyword": "财务模型",
+          "en": "Financial Model",
+          "weight": 4
+        }
       ]
     },
-    "metrics_examples": ["战略方案落地3个", "市场分析报告10+"],
-    "suitable_for": ["研究生", "MBA", "有经验"]
+    "metrics_examples": [
+      "战略方案落地3个",
+      "市场分析报告10+"
+    ],
+    "suitable_for": [
+      "研究生",
+      "MBA",
+      "有经验"
+    ]
   },
   "public_service": {
     "name": "公务员",
     "name_en": "Public Service",
     "keywords": {
       "required": [
-        {"keyword": "公文写作", "en": "Official Document Writing", "weight": 10},
-        {"keyword": "政策理解", "en": "Policy Understanding", "weight": 9},
-        {"keyword": "群众服务", "en": "Public Service", "weight": 8},
-        {"keyword": "事务处理", "en": "Administrative Affairs", "weight": 8},
-        {"keyword": "协调沟通", "en": "Coordination", "weight": 7}
+        {
+          "keyword": "公文写作",
+          "en": "Official Document Writing",
+          "weight": 10
+        },
+        {
+          "keyword": "政策理解",
+          "en": "Policy Understanding",
+          "weight": 9
+        },
+        {
+          "keyword": "群众服务",
+          "en": "Public Service",
+          "weight": 8
+        },
+        {
+          "keyword": "事务处理",
+          "en": "Administrative Affairs",
+          "weight": 8
+        },
+        {
+          "keyword": "协调沟通",
+          "en": "Coordination",
+          "weight": 7
+        }
       ],
       "preferred": [
-        {"keyword": "公务员考试", "en": "Civil Service Exam", "weight": 5},
-        {"keyword": "基层经历", "en": " grassroots Experience", "weight": 5},
-        {"keyword": "党员身份", "en": "Party Member", "weight": 4}
+        {
+          "keyword": "公务员考试",
+          "en": "Civil Service Exam",
+          "weight": 5
+        },
+        {
+          "keyword": "基层经历",
+          "en": " grassroots Experience",
+          "weight": 5
+        },
+        {
+          "keyword": "党员身份",
+          "en": "Party Member",
+          "weight": 4
+        }
       ]
     },
-    "metrics_examples": ["处理群众诉求100+件", "撰写公文50+篇"],
-    "suitable_for": ["本科应届", "研究生应届"]
+    "metrics_examples": [
+      "处理群众诉求100+件",
+      "撰写公文50+篇"
+    ],
+    "suitable_for": [
+      "本科应届",
+      "研究生应届"
+    ]
   },
   "nonprofit": {
     "name": "公益组织",
     "name_en": "NGO/Nonprofit",
     "keywords": {
       "required": [
-        {"keyword": "公益项目", "en": "Charity Projects", "weight": 10},
-        {"keyword": "志愿者管理", "en": "Volunteer Management", "weight": 9},
-        {"keyword": "活动组织", "en": "Event Organization", "weight": 8},
-        {"keyword": "资源筹募", "en": "Resource Fundraising", "weight": 8},
-        {"keyword": "社会宣传", "en": "Social Advocacy", "weight": 7}
+        {
+          "keyword": "公益项目",
+          "en": "Charity Projects",
+          "weight": 10
+        },
+        {
+          "keyword": "志愿者管理",
+          "en": "Volunteer Management",
+          "weight": 9
+        },
+        {
+          "keyword": "活动组织",
+          "en": "Event Organization",
+          "weight": 8
+        },
+        {
+          "keyword": "资源筹募",
+          "en": "Resource Fundraising",
+          "weight": 8
+        },
+        {
+          "keyword": "社会宣传",
+          "en": "Social Advocacy",
+          "weight": 7
+        }
       ],
       "preferred": [
-        {"keyword": "社工证", "en": "Social Worker Certificate", "weight": 5},
-        {"keyword": "公益经历", "en": "Charity Experience", "weight": 5},
-        {"keyword": "项目管理", "en": "Project Management", "weight": 4}
+        {
+          "keyword": "社工证",
+          "en": "Social Worker Certificate",
+          "weight": 5
+        },
+        {
+          "keyword": "公益经历",
+          "en": "Charity Experience",
+          "weight": 5
+        },
+        {
+          "keyword": "项目管理",
+          "en": "Project Management",
+          "weight": 4
+        }
       ]
     },
-    "metrics_examples": ["组织公益活动20+场", "志愿者招募500+"],
-    "suitable_for": ["本科应届", "研究生", "有经验"]
+    "metrics_examples": [
+      "组织公益活动20+场",
+      "志愿者招募500+"
+    ],
+    "suitable_for": [
+      "本科应届",
+      "研究生",
+      "有经验"
+    ]
   },
   "academic_teacher": {
     "name": "高校教师",
     "name_en": "University Teacher",
     "keywords": {
       "required": [
-        {"keyword": "教学授课", "en": "Teaching", "weight": 10},
-        {"keyword": "科研课题", "en": "Research Projects", "weight": 9},
-        {"keyword": "论文发表", "en": "Paper Publication", "weight": 8},
-        {"keyword": "学生指导", "en": "Student Guidance", "weight": 8},
-        {"keyword": "学术交流", "en": "Academic Exchange", "weight": 7}
+        {
+          "keyword": "教学授课",
+          "en": "Teaching",
+          "weight": 10
+        },
+        {
+          "keyword": "科研课题",
+          "en": "Research Projects",
+          "weight": 9
+        },
+        {
+          "keyword": "论文发表",
+          "en": "Paper Publication",
+          "weight": 8
+        },
+        {
+          "keyword": "学生指导",
+          "en": "Student Guidance",
+          "weight": 8
+        },
+        {
+          "keyword": "学术交流",
+          "en": "Academic Exchange",
+          "weight": 7
+        }
       ],
       "preferred": [
-        {"keyword": "博士学位", "en": "PhD", "weight": 6},
-        {"keyword": "SCI论文", "en": "SCI Papers", "weight": 5},
-        {"keyword": "研究生导师", "en": "Graduate Supervisor", "weight": 4}
+        {
+          "keyword": "博士学位",
+          "en": "PhD",
+          "weight": 6
+        },
+        {
+          "keyword": "SCI论文",
+          "en": "SCI Papers",
+          "weight": 5
+        },
+        {
+          "keyword": "研究生导师",
+          "en": "Graduate Supervisor",
+          "weight": 4
+        }
       ]
     },
-    "metrics_examples": ["发表论文X篇", "主持课题X项"],
-    "suitable_for": ["博士", "博士后"]
+    "metrics_examples": [
+      "发表论文X篇",
+      "主持课题X项"
+    ],
+    "suitable_for": [
+      "博士",
+      "博士后"
+    ]
   },
   "banking_credit": {
     "name": "银行信贷",
     "name_en": "Bank Credit",
     "keywords": {
       "required": [
-        {"keyword": "信贷审批", "en": "Credit Approval", "weight": 10},
-        {"keyword": "客户评估", "en": "Customer Assessment", "weight": 9},
-        {"keyword": "风险控制", "en": "Risk Control", "weight": 8},
-        {"keyword": "贷款产品", "en": "Loan Products", "weight": 8},
-        {"keyword": "客户维护", "en": "Customer Maintenance", "weight": 7}
+        {
+          "keyword": "信贷审批",
+          "en": "Credit Approval",
+          "weight": 10
+        },
+        {
+          "keyword": "客户评估",
+          "en": "Customer Assessment",
+          "weight": 9
+        },
+        {
+          "keyword": "风险控制",
+          "en": "Risk Control",
+          "weight": 8
+        },
+        {
+          "keyword": "贷款产品",
+          "en": "Loan Products",
+          "weight": 8
+        },
+        {
+          "keyword": "客户维护",
+          "en": "Customer Maintenance",
+          "weight": 7
+        }
       ],
       "preferred": [
-        {"keyword": "银行从业证", "en": "Bank Certificate", "weight": 5},
-        {"keyword": "征信分析", "en": "Credit Analysis", "weight": 5},
-        {"keyword": "合规操作", "en": "Compliance", "weight": 4}
+        {
+          "keyword": "银行从业证",
+          "en": "Bank Certificate",
+          "weight": 5
+        },
+        {
+          "keyword": "征信分析",
+          "en": "Credit Analysis",
+          "weight": 5
+        },
+        {
+          "keyword": "合规操作",
+          "en": "Compliance",
+          "weight": 4
+        }
       ]
     },
-    "metrics_examples": ["审批贷款金额X万", "客户满意度95%"],
-    "suitable_for": ["本科应届", "有经验"]
+    "metrics_examples": [
+      "审批贷款金额X万",
+      "客户满意度95%"
+    ],
+    "suitable_for": [
+      "本科应届",
+      "有经验"
+    ]
   },
   "insurance_agent": {
     "name": "保险业务",
     "name_en": "Insurance",
     "keywords": {
       "required": [
-        {"keyword": "保险销售", "en": "Insurance Sales", "weight": 10},
-        {"keyword": "客户咨询", "en": "Customer Consultation", "weight": 9},
-        {"keyword": "理赔协助", "en": "Claims Assistance", "weight": 8},
-        {"keyword": "方案设计", "en": "Plan Design", "weight": 8},
-        {"keyword": "客户维护", "en": "Customer Maintenance", "weight": 7}
+        {
+          "keyword": "保险销售",
+          "en": "Insurance Sales",
+          "weight": 10
+        },
+        {
+          "keyword": "客户咨询",
+          "en": "Customer Consultation",
+          "weight": 9
+        },
+        {
+          "keyword": "理赔协助",
+          "en": "Claims Assistance",
+          "weight": 8
+        },
+        {
+          "keyword": "方案设计",
+          "en": "Plan Design",
+          "weight": 8
+        },
+        {
+          "keyword": "客户维护",
+          "en": "Customer Maintenance",
+          "weight": 7
+        }
       ],
       "preferred": [
-        {"keyword": "保险从业证", "en": "Insurance Certificate", "weight": 5},
-        {"keyword": "产品知识", "en": "Product Knowledge", "weight": 5},
-        {"keyword": "理财规划", "en": "Financial Planning", "weight": 4}
+        {
+          "keyword": "保险从业证",
+          "en": "Insurance Certificate",
+          "weight": 5
+        },
+        {
+          "keyword": "产品知识",
+          "en": "Product Knowledge",
+          "weight": 5
+        },
+        {
+          "keyword": "理财规划",
+          "en": "Financial Planning",
+          "weight": 4
+        }
       ]
     },
-    "metrics_examples": ["年保费收入X万", "客户续保率90%"],
-    "suitable_for": ["本科应届", "大专", "有经验"]
+    "metrics_examples": [
+      "年保费收入X万",
+      "客户续保率90%"
+    ],
+    "suitable_for": [
+      "本科应届",
+      "大专",
+      "有经验"
+    ]
   },
   "auditor": {
     "name": "审计专员",
     "name_en": "Auditor",
     "keywords": {
       "required": [
-        {"keyword": "审计执行", "en": "Audit Execution", "weight": 10},
-        {"keyword": "内控评估", "en": "Internal Control Assessment", "weight": 9},
-        {"keyword": "风险评估", "en": "Risk Assessment", "weight": 8},
-        {"keyword": "审计报告", "en": "Audit Report", "weight": 8},
-        {"keyword": "合规检查", "en": "Compliance Check", "weight": 7}
+        {
+          "keyword": "审计执行",
+          "en": "Audit Execution",
+          "weight": 10
+        },
+        {
+          "keyword": "内控评估",
+          "en": "Internal Control Assessment",
+          "weight": 9
+        },
+        {
+          "keyword": "风险评估",
+          "en": "Risk Assessment",
+          "weight": 8
+        },
+        {
+          "keyword": "审计报告",
+          "en": "Audit Report",
+          "weight": 8
+        },
+        {
+          "keyword": "合规检查",
+          "en": "Compliance Check",
+          "weight": 7
+        }
       ],
       "preferred": [
-        {"keyword": "CPA", "en": "CPA", "weight": 6},
-        {"keyword": "审计软件", "en": "Audit Software", "weight": 5},
-        {"keyword": "数据分析", "en": "Data Analysis", "weight": 4}
+        {
+          "keyword": "CPA",
+          "en": "CPA",
+          "weight": 6
+        },
+        {
+          "keyword": "审计软件",
+          "en": "Audit Software",
+          "weight": 5
+        },
+        {
+          "keyword": "数据分析",
+          "en": "Data Analysis",
+          "weight": 4
+        }
       ]
     },
-    "metrics_examples": ["审计项目10+个", "发现问题整改率100%"],
-    "suitable_for": ["本科应届", "研究生"]
+    "metrics_examples": [
+      "审计项目10+个",
+      "发现问题整改率100%"
+    ],
+    "suitable_for": [
+      "本科应届",
+      "研究生"
+    ]
   },
   "tax_specialist": {
     "name": "税务专员",
     "name_en": "Tax Specialist",
     "keywords": {
       "required": [
-        {"keyword": "税务申报", "en": "Tax Declaration", "weight": 10},
-        {"keyword": "税务筹划", "en": "Tax Planning", "weight": 9},
-        {"keyword": "政策解读", "en": "Policy Interpretation", "weight": 8},
-        {"keyword": "税务分析", "en": "Tax Analysis", "weight": 8},
-        {"keyword": "合规检查", "en": "Compliance Check", "weight": 7}
+        {
+          "keyword": "税务申报",
+          "en": "Tax Declaration",
+          "weight": 10
+        },
+        {
+          "keyword": "税务筹划",
+          "en": "Tax Planning",
+          "weight": 9
+        },
+        {
+          "keyword": "政策解读",
+          "en": "Policy Interpretation",
+          "weight": 8
+        },
+        {
+          "keyword": "税务分析",
+          "en": "Tax Analysis",
+          "weight": 8
+        },
+        {
+          "keyword": "合规检查",
+          "en": "Compliance Check",
+          "weight": 7
+        }
       ],
       "preferred": [
-        {"keyword": "税务师证", "en": "Tax Agent Certificate", "weight": 5},
-        {"keyword": "税务软件", "en": "Tax Software", "weight": 5},
-        {"keyword": "成本优化", "en": "Cost Optimization", "weight": 4}
+        {
+          "keyword": "税务师证",
+          "en": "Tax Agent Certificate",
+          "weight": 5
+        },
+        {
+          "keyword": "税务软件",
+          "en": "Tax Software",
+          "weight": 5
+        },
+        {
+          "keyword": "成本优化",
+          "en": "Cost Optimization",
+          "weight": 4
+        }
       ]
     },
-    "metrics_examples": ["税务筹划节省X万", "申报准确率100%"],
-    "suitable_for": ["本科应届", "研究生"]
+    "metrics_examples": [
+      "税务筹划节省X万",
+      "申报准确率100%"
+    ],
+    "suitable_for": [
+      "本科应届",
+      "研究生"
+    ]
   },
   "supply_chain": {
     "name": "供应链管理",
     "name_en": "Supply Chain",
     "keywords": {
       "required": [
-        {"keyword": "供应链规划", "en": "Supply Chain Planning", "weight": 10},
-        {"keyword": "库存优化", "en": "Inventory Optimization", "weight": 9},
-        {"keyword": "采购协调", "en": "Procurement Coordination", "weight": 8},
-        {"keyword": "物流调度", "en": "Logistics Scheduling", "weight": 8},
-        {"keyword": "数据分析", "en": "Data Analysis", "weight": 7}
+        {
+          "keyword": "供应链规划",
+          "en": "Supply Chain Planning",
+          "weight": 10
+        },
+        {
+          "keyword": "库存优化",
+          "en": "Inventory Optimization",
+          "weight": 9
+        },
+        {
+          "keyword": "采购协调",
+          "en": "Procurement Coordination",
+          "weight": 8
+        },
+        {
+          "keyword": "物流调度",
+          "en": "Logistics Scheduling",
+          "weight": 8
+        },
+        {
+          "keyword": "数据分析",
+          "en": "Data Analysis",
+          "weight": 7
+        }
       ],
       "preferred": [
-        {"keyword": "ERP系统", "en": "ERP System", "weight": 5},
-        {"keyword": "预测模型", "en": "Forecasting Model", "weight": 5},
-        {"keyword": "成本控制", "en": "Cost Control", "weight": 4}
+        {
+          "keyword": "ERP系统",
+          "en": "ERP System",
+          "weight": 5
+        },
+        {
+          "keyword": "预测模型",
+          "en": "Forecasting Model",
+          "weight": 5
+        },
+        {
+          "keyword": "成本控制",
+          "en": "Cost Control",
+          "weight": 4
+        }
       ]
     },
-    "metrics_examples": ["库存周转率提升20%", "供应链成本降低15%"],
-    "suitable_for": ["本科应届", "研究生"]
+    "metrics_examples": [
+      "库存周转率提升20%",
+      "供应链成本降低15%"
+    ],
+    "suitable_for": [
+      "本科应届",
+      "研究生"
+    ]
   },
   "test_engineer": {
     "name": "测试工程师",
     "name_en": "Test Engineer",
     "keywords": {
       "required": [
-        {"keyword": "测试设计", "en": "Test Design", "weight": 10},
-        {"keyword": "测试执行", "en": "Test Execution", "weight": 9},
-        {"keyword": "Bug管理", "en": "Bug Management", "weight": 8},
-        {"keyword": "自动化测试", "en": "Automated Testing", "weight": 8},
-        {"keyword": "性能测试", "en": "Performance Testing", "weight": 7}
+        {
+          "keyword": "测试设计",
+          "en": "Test Design",
+          "weight": 10
+        },
+        {
+          "keyword": "测试执行",
+          "en": "Test Execution",
+          "weight": 9
+        },
+        {
+          "keyword": "Bug管理",
+          "en": "Bug Management",
+          "weight": 8
+        },
+        {
+          "keyword": "自动化测试",
+          "en": "Automated Testing",
+          "weight": 8
+        },
+        {
+          "keyword": "性能测试",
+          "en": "Performance Testing",
+          "weight": 7
+        }
       ],
       "preferred": [
-        {"keyword": "Selenium", "en": "Selenium", "weight": 5},
-        {"keyword": "Python", "en": "Python", "weight": 5},
-        {"keyword": "测试工具", "en": "Testing Tools", "weight": 4}
+        {
+          "keyword": "Selenium",
+          "en": "Selenium",
+          "weight": 5
+        },
+        {
+          "keyword": "Python",
+          "en": "Python",
+          "weight": 5
+        },
+        {
+          "keyword": "测试工具",
+          "en": "Testing Tools",
+          "weight": 4
+        }
       ]
     },
-    "metrics_examples": ["测试覆盖率95%", "发现Bug200+"],
-    "suitable_for": ["本科应届", "有经验"]
+    "metrics_examples": [
+      "测试覆盖率95%",
+      "发现Bug200+"
+    ],
+    "suitable_for": [
+      "本科应届",
+      "有经验"
+    ]
   }
 }
