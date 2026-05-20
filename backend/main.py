@@ -1477,6 +1477,20 @@ def analyze_resume(resume: str, industry: str, language: str, jd: Optional[str] 
         examples = generate_example_sentences(kw_text, industry)
         example_sentences[kw_text] = examples
     
+    # 为缺失关键词推荐位置（新增O3-2）
+    position_suggestions = {}
+    if keywords_missing:
+        try:
+            position_result = suggest_keyword_positions(resume, keywords_missing[:8], industry)
+            for suggestion in position_result.get("suggestions", []):
+                position_suggestions[suggestion["keyword"]] = {
+                    "recommended_section": suggestion["recommended_section"],
+                    "alternatives": suggestion.get("alternative_sections", []),
+                    "suggestion_text": suggestion["suggestion_text"]
+                }
+        except Exception as e:
+            logger.warning(f"位置建议生成失败: {e}")
+    
     return {
         "overall_score": overall_score,
         "keyword_score": keyword_score,
@@ -1489,6 +1503,7 @@ def analyze_resume(resume: str, industry: str, language: str, jd: Optional[str] 
         "keywords_missing": keywords_missing,
         "suggestions": suggestions,
         "example_sentences": example_sentences,  # 新增：示例句子
+        "position_suggestions": position_suggestions,  # 新增O3-2：位置建议
         "industry_name": industry_keywords.get("name", industry)
     }
 
@@ -1814,6 +1829,147 @@ def generate_example_sentences(keyword: str, industry: str, context: str = "") -
     
     # 返回多个示例供用户选择
     return examples[:4]  # 最多返回4个示例
+
+def analyze_resume_structure(resume: str) -> dict:
+    """分析简历结构，识别各段落区域"""
+    # 定义常见简历段落标记
+    section_markers = {
+        "个人信息": ["个人信息", "联系方式", "电话", "邮箱", "姓名"],
+        "求职意向": ["求职意向", "目标职位", "期望职位", "应聘职位"],
+        "工作经历": ["工作经历", "工作经验", "任职经历", "工作履历", "就业经历"],
+        "技能特长": ["技能", "专业技能", "特长", "技能特长", "能力", "核心技能"],
+        "教育经历": ["教育经历", "教育背景", "学历", "毕业院校"],
+        "项目经历": ["项目经历", "项目经验", "主要项目", "项目"],
+        "自我评价": ["自我评价", "个人评价", "个人简介", "简介"]
+    }
+    
+    sections = {}
+    section_positions = []
+    
+    # 按段落分割简历
+    paragraphs = resume.split('\n\n')
+    
+    for i, para in enumerate(paragraphs):
+        para_clean = para.strip()
+        if not para_clean:
+            continue
+        
+        # 检测段落类型
+        detected_type = None
+        for section_type, markers in section_markers.items():
+            for marker in markers:
+                if marker in para_clean[:50]:  # 检查段落开头
+                    detected_type = section_type
+                    break
+            if detected_type:
+                break
+        
+        # 如果没检测到类型，根据内容特征判断
+        if not detected_type:
+            if re.search(r'\d{4}年|\d{4}\.\d+|至今', para_clean):
+                if re.search(r'公司|企业|任职|就职', para_clean):
+                    detected_type = "工作经历"
+                elif re.search(r'大学|学院|学校|专业', para_clean):
+                    detected_type = "教育经历"
+            elif re.search(r'熟练|精通|掌握|熟悉|擅长', para_clean):
+                detected_type = "技能特长"
+        
+        if detected_type:
+            sections[detected_type] = {
+                "index": i,
+                "content": para_clean,
+                "start_pos": resume.find(para_clean),
+                "end_pos": resume.find(para_clean) + len(para_clean),
+                "length": len(para_clean)
+            }
+            section_positions.append({
+                "type": detected_type,
+                "start": resume.find(para_clean),
+                "end": resume.find(para_clean) + len(para_clean)
+            })
+    
+    return {
+        "sections": sections,
+        "section_positions": section_positions,
+        "total_paragraphs": len(paragraphs),
+        "detected_types": list(sections.keys())
+    }
+
+def suggest_keyword_positions(resume: str, missing_keywords: list, industry: str) -> dict:
+    """为缺失关键词推荐最佳插入位置"""
+    structure = analyze_resume_structure(resume)
+    
+    # 关键词最佳位置规则（根据关键词类型）
+    keyword_position_rules = {
+        "技能类": ["技能特长", "工作经历", "自我评价"],
+        "成果类": ["工作经历", "项目经历", "自我评价"],
+        "经历类": ["工作经历", "项目经历"],
+        "能力类": ["技能特长", "自我评价", "工作经历"],
+        "通用类": ["工作经历", "技能特长", "自我评价", "求职意向"]
+    }
+    
+    # 行业关键词类型映射（简化）
+    industry_keyword_types = {
+        "sales": {
+            "客户开发": "技能类", "销售目标": "成果类", "业绩增长": "成果类",
+            "渠道拓展": "技能类", "客户维护": "技能类"
+        },
+        "finance": {
+            "成本控制": "技能类", "财务分析": "技能类", "预算管理": "技能类",
+            "风险控制": "技能类", "报表编制": "技能类"
+        },
+        "administrative": {
+            "流程优化": "成果类", "会议管理": "技能类", "文档管理": "技能类",
+            "协调沟通": "能力类", "行政支持": "技能类"
+        }
+    }
+    
+    position_suggestions = []
+    
+    for kw in missing_keywords[:8]:  # 最多处理8个关键词
+        kw_text = kw["keyword"]
+        
+        # 获取关键词类型
+        kw_type = "通用类"
+        if industry in industry_keyword_types:
+            kw_type = industry_keyword_types[industry].get(kw_text, "通用类")
+        
+        # 获取推荐位置列表
+        recommended_sections = keyword_position_rules.get(kw_type, keyword_position_rules["通用类"])
+        
+        # 检查简历中是否有这些段落
+        available_sections = []
+        for section_name in recommended_sections:
+            if section_name in structure["sections"]:
+                available_sections.append(section_name)
+        
+        # 如果没有匹配的段落，推荐工作经历或技能
+        if not available_sections:
+            if "工作经历" in structure["sections"]:
+                available_sections = ["工作经历"]
+            elif "技能特长" in structure["sections"]:
+                available_sections = ["技能特长"]
+            else:
+                available_sections = ["简历末尾"]
+        
+        # 生成位置建议
+        primary_section = available_sections[0]
+        section_info = structure["sections"].get(primary_section, {})
+        
+        position_suggestions.append({
+            "keyword": kw_text,
+            "recommended_section": primary_section,
+            "alternative_sections": available_sections[1:3] if len(available_sections) > 1 else [],
+            "section_content_preview": section_info.get("content", "")[:100] if section_info else "",
+            "insert_position": section_info.get("end_pos", 0) if section_info else len(resume),
+            "suggestion_text": f"建议将「{kw_text}」添加到{primary_section}段落"
+        })
+    
+    return {
+        "suggestions": position_suggestions,
+        "resume_structure": structure["detected_types"],
+        "total_sections": len(structure["sections"])
+    }
 
 def analyze_keyword_density(resume: str, keywords_found: list, all_keywords: list) -> dict:
     """关键词密度分析"""

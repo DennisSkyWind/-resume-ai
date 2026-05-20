@@ -3306,6 +3306,29 @@
                 `;
             }
             
+            // 位置建议展示（新增O3-2）
+            if (data.position_suggestions && Object.keys(data.position_suggestions).length > 0) {
+                html += `
+                    <div class="keywords-section" style="background:#f0fdf4;padding:20px;border-radius:12px;margin-bottom:24px;">
+                        <div class="keywords-title" style="display:flex;align-items:center;gap:8px;">
+                            <span>📍 位置建议</span>
+                            <span style="font-size:13px;color:#6b7280;">关键词最佳插入位置</span>
+                        </div>
+                        <div style="display:flex;flex-direction:column;gap:12px;">
+                            ${Object.entries(data.position_suggestions).map(([keyword, info]) => `
+                                <div style="display:flex;align-items:center;gap:12px;padding:12px;background:#fff;border-radius:8px;border:1px solid #e5e7eb;">
+                                    <span style="font-weight:600;color:#1f2937;min-width:80px;">「${keyword}」</span>
+                                    <span style="flex:1;font-size:13px;color:#374151;">${info.suggestion_text}</span>
+                                    ${info.alternatives && info.alternatives.length > 0 ? `
+                                        <span style="font-size:12px;color:#6b7280;">备选: ${info.alternatives.join('、')}</span>
+                                    ` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
             if (data.suggestions && data.suggestions.length > 0) {
                 html += `
                     <div class="suggestions-section">
