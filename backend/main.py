@@ -1912,6 +1912,45 @@ def generate_example_sentences(keyword: str, industry: str, context: str = "") -
     # 返回多个示例供用户选择
     return examples[:4]  # 最多返回4个示例
 
+def get_recommended_weights(industry: str) -> dict:
+    """O5-2新增：根据行业推荐最佳权重配置"""
+    # 行业权重推荐规则
+    weight_rules = {
+        # 销售类：关键词权重高（客户匹配更重要）
+        "sales": {"keyword_weight": 70, "ats_weight": 30, "reason": "销售岗位更看重关键词匹配和客户相关经验"},
+        "new_media": {"keyword_weight": 70, "ats_weight": 30, "reason": "新媒体岗位更看重内容关键词匹配"},
+        "live_streaming": {"keyword_weight": 70, "ats_weight": 30, "reason": "直播岗位更看重关键词匹配"},
+        "medical_sales": {"keyword_weight": 70, "ats_weight": 30, "reason": "医疗销售更看重专业关键词"},
+        "real_estate_sales": {"keyword_weight": 70, "ats_weight": 30, "reason": "房产销售更看重关键词匹配"},
+        "cross_border_ecommerce": {"keyword_weight": 65, "ats_weight": 35, "reason": "跨境电商关键词和格式都很重要"},
+        
+        # 技术类：ATS权重较高（格式和技术细节更重要）
+        "it_developer": {"keyword_weight": 50, "ats_weight": 50, "reason": "技术岗位关键词和ATS格式同等重要"},
+        "it_product": {"keyword_weight": 55, "ats_weight": 45, "reason": "产品岗位关键词稍重要"},
+        "it_operation": {"keyword_weight": 50, "ats_weight": 50, "reason": "运维岗位关键词和格式同等重要"},
+        
+        # 财务类：均衡权重（精确性重要）
+        "finance": {"keyword_weight": 55, "ats_weight": 45, "reason": "财务岗位关键词和格式都需要精确"},
+        
+        # 行政类：关键词权重稍高
+        "administrative": {"keyword_weight": 60, "ats_weight": 40, "reason": "行政岗位关键词匹配较重要"},
+        
+        # 教育类：关键词权重高
+        "education": {"keyword_weight": 65, "ats_weight": 35, "reason": "教育岗位关键词匹配较重要"},
+        
+        # 设计类：均衡权重
+        "design": {"keyword_weight": 55, "ats_weight": 45, "reason": "设计岗位关键词和格式同等重要"},
+        
+        # 默认配置
+        "default": {"keyword_weight": 60, "ats_weight": 40, "reason": "默认权重配置"}
+    }
+    
+    # 获取推荐权重
+    if industry in weight_rules:
+        return weight_rules[industry]
+    else:
+        return weight_rules["default"]
+
 def analyze_resume_structure(resume: str) -> dict:
     """分析简历结构，识别各段落区域"""
     # 定义常见简历段落标记
@@ -2346,6 +2385,19 @@ async def get_sub_industries(industry_id: str):
         })
     
     return {"success": True, "data": result}
+
+# O5-2新增：获取行业推荐权重
+@app.get("/api/v1/recommended-weights/{industry}")
+async def get_weights_recommendation(industry: str):
+    """获取指定行业的推荐评分权重配置"""
+    recommendation = get_recommended_weights(industry)
+    return {
+        "success": True,
+        "industry": industry,
+        "recommended_keyword_weight": recommendation["keyword_weight"],
+        "recommended_ats_weight": recommendation["ats_weight"],
+        "reason": recommendation["reason"]
+    }
 
 @app.get("/health")
 async def health_check():

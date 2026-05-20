@@ -3174,6 +3174,26 @@
             // 同时加载用户自定义关键词
             await loadUserKeywords(industry);
             
+            // O5-2新增：自动加载推荐权重
+            if (industry) {
+                try {
+                    const weightRes = await safeFetch(`${API}/api/v1/recommended-weights/${industry}`);
+                    const weightData = await weightRes.json();
+                    
+                    if (weightData.success) {
+                        // 自动应用推荐权重到滑块
+                        document.getElementById('keyword-weight-slider').value = weightData.recommended_keyword_weight;
+                        document.getElementById('ats-weight-slider').value = weightData.recommended_ats_weight;
+                        updateWeightDisplay();
+                        
+                        // 显示推荐原因（可选）
+                        console.log(`推荐权重: ${weightData.reason}`);
+                    }
+                } catch (err) {
+                    console.log('获取推荐权重失败，使用默认值');
+                }
+            }
+            
             if (!industry) {
                 subGroup.style.display = 'none';
                 return;
