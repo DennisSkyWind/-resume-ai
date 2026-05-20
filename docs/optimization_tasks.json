@@ -4,9 +4,9 @@
   "created_at": "2026-05-19T22:45:00",
   "source": "用户视角测试发现的改进点",
   "total_tasks": 18,
-  "completed": 14,
+  "completed": 16,
   "in_progress": 0,
-  "pending": 4,
+  "pending": 2,
   "current_phase": 3,
   "current_phase": 2,
   "current_phase": 2,
@@ -273,30 +273,32 @@
       "id": "O5-1",
       "name": "评分权重 - 用户可调整",
       "phase": 5,
-      "status": "pending",
+      "status": "completed",
       "priority": "medium",
       "eta": "1h",
+      "completed_at": "2026-05-20T12:00:00",
       "description": "用户可自定义评分权重",
       "details": [
-        "滑块调整关键词权重（40-80%）",
-        "滑块调整ATS权重（20-60%）",
-        "JD匹配时可单独调整",
-        "保存用户权重偏好"
+        "✅ 滑块调整关键词权重（40-80%）",
+        "✅ 滑块调整ATS权重（20-60%）",
+        "✅ 权重总和提示（接近100%时警告）",
+        "✅ API支持keyword_weight/ats_weight参数"
       ]
     },
     {
       "id": "O5-2",
       "name": "评分权重 - 智能推荐",
       "phase": 5,
-      "status": "pending",
+      "status": "completed",
       "priority": "low",
       "eta": "45min",
+      "completed_at": "2026-05-20T12:15:00",
       "description": "根据行业推荐最佳权重",
       "details": [
-        "销售类推荐高关键词权重",
-        "技术类推荐高ATS权重",
-        "管理类均衡权重",
-        "AI根据简历内容自动调整"
+        "✅ 销售类推荐高关键词权重（70%）",
+        "✅ 技术类推荐均衡权重（50%）",
+        "✅ 财务/行政类均衡权重",
+        "✅ 前端自动应用推荐权重"
       ]
     },
     {
