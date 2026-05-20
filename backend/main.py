@@ -278,6 +278,15 @@ def ensure_tables_exist():
     
     conn.commit()
     
+    # 创建用户自定义关键词表（O4-2新增）
+    conn.execute('''CREATE TABLE IF NOT EXISTS user_keywords
+        (id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER,
+        keyword TEXT,
+        industry TEXT,
+        weight INTEGER DEFAULT 5,
+        created_at TEXT)''')
+    
     # 初始化管理员账号
     cursor.execute("SELECT * FROM users WHERE email = ?", ('zhwffy@hotmail.com',))
     admin = cursor.fetchone()
@@ -684,6 +693,15 @@ class LoginRequest(BaseModel):
 class FeedbackRequest(BaseModel):
     type: str
     title: Optional[str] = None  # 新增：反馈标题
+
+# O4-2新增：自定义关键词请求类
+class AddKeywordRequest(BaseModel):
+    keyword: str
+    industry: str
+    weight: int = 5
+
+class UserKeywordsRequest(BaseModel):
+    industry: str
     content: str
     priority: Optional[str] = "medium"  # 新增：优先级 low/medium/high/urgent
     tags: Optional[List[str]] = None  # 新增：标签列表
@@ -1131,8 +1149,17 @@ async def analyze(request: AnalyzeRequest, user: dict = Depends(get_current_user
     if not check_usage_limit(user["id"]):
         raise HTTPException(status_code=403, detail="今日免费次数已用完，请升级付费或明天再试")
     
-    # 分析简历（O4-1新增sub_industry参数）
-    result = analyze_resume(request.resume_content, request.industry, request.language, request.jd_content, request.sub_industry)
+    # O4-2新增：获取用户自定义关键词
+    conn = get_user_db()
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT keyword, weight FROM user_keywords WHERE user_id = ? AND industry = ?
+        ORDER BY weight DESC
+    """, (user["id"], request.industry))
+    user_keywords_list = [{"keyword": row[0], "weight": row[1]} for row in cursor.fetchall()]
+    
+    # 分析简历（O4-1/O4-2新增参数）
+    result = analyze_resume(request.resume_content, request.industry, request.language, request.jd_content, request.sub_industry, user_keywords_list)
     
     # 记录使用
     record_usage(user["id"], "analyze", request.industry)
@@ -1374,8 +1401,8 @@ async def export_word(user: dict = Depends(get_current_user)):
 
 # ========== 核心分析函数 ==========
 
-def analyze_resume(resume: str, industry: str, language: str, jd: Optional[str] = None, sub_industry: Optional[str] = None):
-    """分析简历关键词匹配度（新增sub_industry参数O4-1）"""
+def analyze_resume(resume: str, industry: str, language: str, jd: Optional[str] = None, sub_industry: Optional[str] = None, user_keywords: Optional[list] = None):
+    """分析简历关键词匹配度（新增sub_industry和user_keywords参数O4-1/O4-2）"""
     
     industry_keywords = KEYWORDS_DB.get(industry, {})
     required_keywords = industry_keywords.get("keywords", {}).get("required", [])
@@ -1395,6 +1422,15 @@ def analyze_resume(resume: str, industry: str, language: str, jd: Optional[str] 
                         "source": "sub_industry"
                     })
                 break
+    
+    # O4-2新增：添加用户自定义关键词
+    if user_keywords:
+        for kw in user_keywords:
+            preferred_keywords.append({
+                "keyword": kw.get("keyword"),
+                "weight": kw.get("weight", 8),  # 用户关键词默认高权重
+                "source": "user_custom"
+            })
     
     all_keywords = required_keywords + preferred_keywords
     
@@ -2923,6 +2959,62 @@ async def admin_stats(admin: dict = Depends(get_admin_user)):
             "level_distribution": level_distribution
         }
     }
+
+# ========== O4-2新增：用户自定义关键词API ==========
+
+@app.post("/api/v1/user-keywords")
+async def add_user_keyword(request: AddKeywordRequest, user: dict = Depends(get_current_user)):
+    """添加用户自定义关键词"""
+    conn = get_user_db()
+    cursor = conn.cursor()
+    
+    # 检查是否已存在
+    cursor.execute("""
+        SELECT id FROM user_keywords WHERE user_id = ? AND keyword = ? AND industry = ?
+    """, (user["id"], request.keyword, request.industry))
+    
+    if cursor.fetchone():
+        return {"success": False, "error": "关键词已存在"}
+    
+    # 添加关键词
+    cursor.execute("""
+        INSERT INTO user_keywords (user_id, keyword, industry, weight, created_at)
+        VALUES (?, ?, ?, ?, ?)
+    """, (user["id"], request.keyword, request.industry, request.weight, datetime.now().isoformat()))
+    conn.commit()
+    
+    return {"success": True, "message": "关键词添加成功", "keyword": request.keyword, "weight": request.weight}
+
+@app.get("/api/v1/user-keywords/{industry}")
+async def get_user_keywords(industry: str, user: dict = Depends(get_current_user)):
+    """获取用户指定行业的自定义关键词"""
+    conn = get_user_db()
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        SELECT keyword, weight FROM user_keywords WHERE user_id = ? AND industry = ?
+        ORDER BY weight DESC
+    """, (user["id"], industry))
+    
+    keywords = [{"keyword": row[0], "weight": row[1]} for row in cursor.fetchall()]
+    
+    return {"success": True, "keywords": keywords}
+
+@app.delete("/api/v1/user-keywords/{keyword_id}")
+async def delete_user_keyword(keyword_id: int, user: dict = Depends(get_current_user)):
+    """删除用户自定义关键词"""
+    conn = get_user_db()
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        DELETE FROM user_keywords WHERE id = ? AND user_id = ?
+    """, (keyword_id, user["id"]))
+    conn.commit()
+    
+    if cursor.rowcount > 0:
+        return {"success": True, "message": "关键词删除成功"}
+    else:
+        return {"success": False, "error": "关键词不存在或无权限删除"}
 
 @app.post("/api/v1/feedback")
 async def submit_feedback(request: FeedbackRequest, user: Optional[dict] = Depends(get_current_user_optional)):

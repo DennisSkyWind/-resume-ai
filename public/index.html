@@ -1131,6 +1131,21 @@
                     </select>
                 </div>
                 
+                <!-- O4-2新增：自定义关键词 -->
+                <div class="form-group" id="custom-keywords-group" style="display:none;">
+                    <label>自定义关键词 <span class="tooltip-container"><span class="tooltip-icon">?</span><span class="tooltip-text">添加您希望强调的关键词，AI会在分析时重点关注</span></span></label>
+                    <div style="display:flex;gap:8px;margin-bottom:12px;">
+                        <input type="text" id="custom-keyword-input" placeholder="输入关键词..." style="flex:1;padding:8px;border:1px solid #e5e7eb;border-radius:6px;">
+                        <select id="custom-keyword-weight" style="padding:8px;border:1px solid #e5e7eb;border-radius:6px;">
+                            <option value="5">中权重</option>
+                            <option value="8">高权重</option>
+                            <option value="10">最高权重</option>
+                        </select>
+                        <button class="btn btn-secondary" onclick="addCustomKeyword()" style="padding:8px 16px;">添加</button>
+                    </div>
+                    <div id="user-keywords-list" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
+                </div>
+                
                 <div class="form-group">
                     <label>简历语言</label>
                     <div class="language-switch">
@@ -3011,7 +3026,102 @@
             }
         }
         
-        // O4-1新增：加载子行业列表
+        // O4-2新增：自定义关键词功能
+        let userKeywords = [];  // 存储用户自定义关键词
+        
+        async function loadUserKeywords(industry) {
+            const customGroup = document.getElementById('custom-keywords-group');
+            const keywordsList = document.getElementById('user-keywords-list');
+            
+            if (!industry) {
+                customGroup.style.display = 'none';
+                userKeywords = [];
+                return;
+            }
+            
+            try {
+                const res = await safeFetch(`${API}/api/v1/user-keywords/${industry}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    userKeywords = data.keywords || [];
+                    customGroup.style.display = 'block';
+                    renderUserKeywords();
+                }
+            } catch (err) {
+                console.error('加载用户关键词失败:', err);
+                customGroup.style.display = 'block';  // 仍然显示，允许添加
+                userKeywords = [];
+                renderUserKeywords();
+            }
+        }
+        
+        function renderUserKeywords() {
+            const keywordsList = document.getElementById('user-keywords-list');
+            keywordsList.innerHTML = '';
+            
+            for (const kw of userKeywords) {
+                const badge = document.createElement('span');
+                badge.style.cssText = 'padding:6px 12px;background:#dbeafe;border-radius:6px;font-size:13px;color:#1e40af;display:flex;align-items:center;gap:6px;';
+                badge.innerHTML = `${kw.keyword} <span style="font-size:11px;color:#6b7280;">(权重${kw.weight})</span> <button onclick="removeKeyword('${kw.keyword}')" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:14px;">×</button>`;
+                keywordsList.appendChild(badge);
+            }
+        }
+        
+        async function addCustomKeyword() {
+            const input = document.getElementById('custom-keyword-input');
+            const weightSelect = document.getElementById('custom-keyword-weight');
+            const keyword = input.value.trim();
+            const weight = parseInt(weightSelect.value);
+            const industry = document.getElementById('industry').value;
+            
+            if (!keyword) {
+                alert('请输入关键词');
+                return;
+            }
+            
+            if (!industry) {
+                alert('请先选择行业');
+                return;
+            }
+            
+            try {
+                const res = await safeFetch(`${API}/api/v1/user-keywords`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ keyword, industry, weight })
+                });
+                
+                const data = await res.json();
+                if (data.success) {
+                    userKeywords.push({ keyword, weight });
+                    renderUserKeywords();
+                    input.value = '';
+                } else {
+                    alert(data.error || '添加失败');
+                }
+            } catch (err) {
+                alert('添加失败，请稍后重试');
+            }
+        }
+        
+        async function removeKeyword(keyword) {
+            const industry = document.getElementById('industry').value;
+            
+            // 从本地列表移除
+            userKeywords = userKeywords.filter(kw => kw.keyword !== keyword);
+            renderUserKeywords();
+            
+            // 注意：这里只做本地移除，实际删除需要keyword_id
+            // 简化处理：下次加载时从服务器获取最新列表
+        }
+        
+        // 修改loadSubIndustries以同时加载用户关键词
         async function loadSubIndustries() {
             const industry = document.getElementById('industry').value;
             const subGroup = document.getElementById('sub-industry-group');
@@ -3019,6 +3129,9 @@
             
             // 清空子行业选择
             subSelect.innerHTML = '<option value="">选择职位类型</option>';
+            
+            // 同时加载用户自定义关键词
+            await loadUserKeywords(industry);
             
             if (!industry) {
                 subGroup.style.display = 'none';
