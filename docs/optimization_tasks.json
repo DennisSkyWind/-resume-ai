@@ -4,9 +4,9 @@
   "created_at": "2026-05-19T22:45:00",
   "source": "用户视角测试发现的改进点",
   "total_tasks": 18,
-  "completed": 12,
+  "completed": 13,
   "in_progress": 0,
-  "pending": 6,
+  "pending": 5,
   "current_phase": 3,
   "current_phase": 2,
   "current_phase": 2,
@@ -241,15 +241,16 @@
       "id": "O4-2",
       "name": "行业细分 - 自定义关键词",
       "phase": 4,
-      "status": "pending",
+      "status": "completed",
       "priority": "medium",
       "eta": "1h",
+      "completed_at": "2026-05-20T11:30:00",
       "description": "用户可添加自定义关键词",
       "details": [
-        "输入框添加自定义关键词",
-        "自定义关键词权重设置",
-        "保存用户关键词偏好",
-        "下次自动加载用户关键词"
+        "✅ 输入框添加自定义关键词",
+        "✅ 自定义关键词权重设置（5/8/10）",
+        "✅ 保存用户关键词偏好（数据库持久化）",
+        "✅ 下次自动加载用户关键词"
       ]
     },
     {
