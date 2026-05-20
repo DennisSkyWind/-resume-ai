@@ -715,6 +715,9 @@ class AnalyzeRequest(BaseModel):
     sub_industry: Optional[str] = None  # 新增O4-1：子行业参数
     language: str = "zh"
     jd_content: Optional[str] = None
+    # O5-1新增：评分权重配置
+    keyword_weight: Optional[int] = 60  # 关键词权重百分比（40-80）
+    ats_weight: Optional[int] = 40  # ATS权重百分比（20-60）
 
 class OptimizeRequest(BaseModel):
     resume_content: str
@@ -1159,7 +1162,7 @@ async def analyze(request: AnalyzeRequest, user: dict = Depends(get_current_user
     user_keywords_list = [{"keyword": row[0], "weight": row[1]} for row in cursor.fetchall()]
     
     # 分析简历（O4-1/O4-2新增参数）
-    result = analyze_resume(request.resume_content, request.industry, request.language, request.jd_content, request.sub_industry, user_keywords_list)
+    result = analyze_resume(request.resume_content, request.industry, request.language, request.jd_content, request.sub_industry, user_keywords_list, request.keyword_weight, request.ats_weight)
     
     # 记录使用
     record_usage(user["id"], "analyze", request.industry)
@@ -1401,8 +1404,8 @@ async def export_word(user: dict = Depends(get_current_user)):
 
 # ========== 核心分析函数 ==========
 
-def analyze_resume(resume: str, industry: str, language: str, jd: Optional[str] = None, sub_industry: Optional[str] = None, user_keywords: Optional[list] = None):
-    """分析简历关键词匹配度（新增sub_industry和user_keywords参数O4-1/O4-2）"""
+def analyze_resume(resume: str, industry: str, language: str, jd: Optional[str] = None, sub_industry: Optional[str] = None, user_keywords: Optional[list] = None, keyword_weight_pct: int = 60, ats_weight_pct: int = 40):
+    """分析简历关键词匹配度（新增sub_industry、user_keywords、权重参数O4-1/O4-2/O5-1）"""
     
     industry_keywords = KEYWORDS_DB.get(industry, {})
     required_keywords = industry_keywords.get("keywords", {}).get("required", [])
@@ -1502,11 +1505,21 @@ def analyze_resume(resume: str, industry: str, language: str, jd: Optional[str] 
     # 量化指标分析（新增）
     quantified_metrics_result = analyze_quantified_metrics(resume)
     
+    # O5-1新增：使用用户自定义权重计算综合评分
+    # 将百分比转换为权重系数（keyword_weight_pct默认60，ats_weight_pct默认40）
+    kw_weight = keyword_weight_pct / 100.0  # 转换为0-1范围
+    ats_weight = ats_weight_pct / 100.0
+    
     # 如果有JD，综合评分加入JD匹配度
     if jd_match_result:
-        overall_score = round((keyword_score * 0.3 + ats_score * 0.2 + jd_match_result["jd_match_score"] * 0.5), 1)
+        # 有JD时，关键词权重降低，JD权重提高
+        jd_weight = 0.5
+        adjusted_kw_weight = kw_weight * 0.6  # 调整为30%
+        adjusted_ats_weight = ats_weight * 0.4  # 调整为20%
+        overall_score = round((keyword_score * adjusted_kw_weight + ats_score * adjusted_ats_weight + jd_match_result["jd_match_score"] * jd_weight), 1)
     else:
-        overall_score = round((keyword_score * 0.6 + ats_score * 0.4), 1)
+        # 无JD时，按用户权重计算
+        overall_score = round((keyword_score * kw_weight + ats_score * ats_weight), 1)
     
     suggestions = generate_suggestions(resume, keywords_missing, industry)
     
