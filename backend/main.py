@@ -1491,6 +1491,21 @@ def analyze_resume(resume: str, industry: str, language: str, jd: Optional[str] 
         except Exception as e:
             logger.warning(f"位置建议生成失败: {e}")
     
+    # 同义词推荐（新增O3-3）
+    synonym_suggestions = {}
+    for kw in keywords_found[:10]:  # 已找到的关键词
+        kw_text = kw["keyword"]
+        synonyms = get_keyword_synonyms(kw_text, industry)
+        if synonyms:
+            synonym_suggestions[kw_text] = synonyms
+    
+    # 为缺失关键词也提供同义词
+    for kw in keywords_missing[:5]:
+        kw_text = kw["keyword"]
+        synonyms = get_keyword_synonyms(kw_text, industry)
+        if synonyms:
+            synonym_suggestions[kw_text] = synonyms
+    
     return {
         "overall_score": overall_score,
         "keyword_score": keyword_score,
@@ -1504,6 +1519,7 @@ def analyze_resume(resume: str, industry: str, language: str, jd: Optional[str] 
         "suggestions": suggestions,
         "example_sentences": example_sentences,  # 新增：示例句子
         "position_suggestions": position_suggestions,  # 新增O3-2：位置建议
+        "synonym_suggestions": synonym_suggestions,  # 新增O3-3：同义词推荐
         "industry_name": industry_keywords.get("name", industry)
     }
 
@@ -1970,6 +1986,82 @@ def suggest_keyword_positions(resume: str, missing_keywords: list, industry: str
         "resume_structure": structure["detected_types"],
         "total_sections": len(structure["sections"])
     }
+
+def get_keyword_synonyms(keyword: str, industry: str = "") -> list:
+    """获取关键词同义词推荐"""
+    # 同义词库（按行业分类）
+    synonym_db = {
+        "sales": {
+            "客户开发": ["客户拓展", "客户获取", "新客户开发", "业务拓展"],
+            "销售目标": ["销售业绩", "销售任务", "业绩指标", "销售配额"],
+            "业绩增长": ["业绩提升", "销售增长", "业绩突破", "业务增长"],
+            "渠道拓展": ["渠道开发", "渠道建设", "渠道布局", "销售渠道"],
+            "客户维护": ["客户关系维护", "客户服务", "客户管理", "客户跟进"],
+            "团队管理": ["团队建设", "团队领导", "人员管理", "团队培养"]
+        },
+        "finance": {
+            "成本控制": ["成本管理", "成本优化", "成本降低", "费用控制"],
+            "财务分析": ["财务报表分析", "数据分析", "财务诊断", "经营分析"],
+            "预算管理": ["预算编制", "预算控制", "预算执行", "财务预算"],
+            "风险控制": ["风险管理", "风险防范", "内控管理", "风险防控"],
+            "报表编制": ["报表制作", "财务报告", "报表分析", "账务处理"]
+        },
+        "administrative": {
+            "流程优化": ["流程改进", "流程再造", "流程梳理", "流程完善"],
+            "会议管理": ["会议组织", "会议安排", "会议协调", "会务管理"],
+            "文档管理": ["档案管理", "文件管理", "资料管理", "文档归档"],
+            "协调沟通": ["沟通协调", "跨部门协作", "组织协调", "沟通联络"]
+        },
+        "tech": {
+            "项目管理": ["项目推进", "项目执行", "项目实施", "项目统筹"],
+            "团队协作": ["团队合作", "协同工作", "跨部门协作", "团队配合"],
+            "技术优化": ["性能优化", "技术改进", "代码优化", "系统优化"],
+            "需求分析": ["需求调研", "需求梳理", "业务分析", "需求评估"]
+        },
+        "marketing": {
+            "市场推广": ["市场拓展", "品牌推广", "市场宣传", "营销推广"],
+            "活动策划": ["活动组织", "营销策划", "活动执行", "方案策划"],
+            "内容运营": ["内容创作", "内容管理", "内容营销", "内容制作"],
+            "数据分析": ["数据挖掘", "数据统计", "数据报告", "数据分析"]
+        }
+    }
+    
+    # 通用同义词
+    common_synonyms = {
+        "负责": ["主管", "承担", "主导", "统筹"],
+        "参与": ["协助", "配合", "参与", "加入"],
+        "完成": ["达成", "实现", "完成", "取得"],
+        "提升": ["提高", "优化", "增强", "改进"],
+        "管理": ["管理", "管控", "治理", "监管"],
+        "优化": ["改进", "完善", "优化", "提升"],
+        "协调": ["协调", "联络", "沟通", "对接"]
+    }
+    
+    synonyms = []
+    
+    # 1. 行业特定同义词
+    if industry in synonym_db:
+        industry_synonyms = synonym_db[industry].get(keyword, [])
+        synonyms.extend(industry_synonyms[:3])  # 最多3个行业同义词
+    
+    # 2. 通用同义词
+    for key, values in common_synonyms.items():
+        if key in keyword and keyword != key:
+            # 为关键词生成变体
+            for v in values[:2]:
+                variant = keyword.replace(key, v)
+                if variant != keyword and variant not in synonyms:
+                    synonyms.append(variant)
+    
+    # 3. 如果没有找到同义词，生成一些通用的变体
+    if not synonyms:
+        # 添加"能力"、"经验"等后缀变体
+        if not keyword.endswith("能力"):
+            synonyms.append(f"{keyword}能力")
+        if not keyword.endswith("经验"):
+            synonyms.append(f"{keyword}经验")
+    
+    return synonyms[:6]  # 返回最多6个同义词
 
 def analyze_keyword_density(resume: str, keywords_found: list, all_keywords: list) -> dict:
     """关键词密度分析"""

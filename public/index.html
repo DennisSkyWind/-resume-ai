@@ -3329,6 +3329,30 @@
                 `;
             }
             
+            // 同义词推荐展示（新增O3-3）
+            if (data.synonym_suggestions && Object.keys(data.synonym_suggestions).length > 0) {
+                html += `
+                    <div class="keywords-section" style="background:#fef3c7;padding:20px;border-radius:12px;margin-bottom:24px;">
+                        <div class="keywords-title" style="display:flex;align-items:center;gap:8px;">
+                            <span>🔄 同义词推荐</span>
+                            <span style="font-size:13px;color:#6b7280;">丰富表达，避免重复</span>
+                        </div>
+                        <div style="display:flex;flex-direction:column;gap:12px;">
+                            ${Object.entries(data.synonym_suggestions).map(([keyword, synonyms]) => `
+                                <div style="padding:12px;background:#fff;border-radius:8px;border:1px solid #e5e7eb;">
+                                    <div style="font-weight:600;color:#1f2937;margin-bottom:8px;">「${keyword}」可替换为：</div>
+                                    <div style="display:flex;flex-wrap:wrap;gap:8px;">
+                                        ${synonyms.map(syn => `
+                                            <span style="padding:4px 12px;background:#fef3c7;border-radius:4px;font-size:13px;color:#92400e;cursor:pointer;" onclick="copyExampleSentence('${syn}')" title="点击复制">${syn}</span>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
             if (data.suggestions && data.suggestions.length > 0) {
                 html += `
                     <div class="suggestions-section">
