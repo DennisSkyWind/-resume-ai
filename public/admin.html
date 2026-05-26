@@ -206,7 +206,65 @@
                 <div class="card">
                     <div class="card-header">AI模型配置</div>
                     <div id="ai-config-section">
-            </div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+                            <div>
+                                <label style="font-weight:600;display:block;margin-bottom:6px;">API提供商</label>
+                                <select id="ai-provider" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:4px;">
+                                    <option value="openai">OpenAI 兼容</option>
+                                    <option value="dashscope">阿里云灵积 (DashScope)</option>
+                                    <option value="iflytek">讯飞星火 (iFlytek)</option>
+                                    <option value="zhipu">智谱AI (GLM)</option>
+                                    <option value="minimax">MiniMax</option>
+                                    <option value="custom">自定义</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="font-weight:600;display:block;margin-bottom:6px;">兼容模式</label>
+                                <select id="ai-compat-mode" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:4px;">
+                                    <option value="openai">OpenAI Completions API</option>
+                                    <option value="openai-chat">OpenAI Chat Completions API</option>
+                                    <option value="dashscope">DashScope API</option>
+                                    <option value="iflytek">讯飞 Spark API</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div style="margin-bottom:16px;">
+                            <label style="font-weight:600;display:block;margin-bottom:6px;">API Base URL</label>
+                            <input type="url" id="ai-base-url" placeholder="https://api.openai.com/v1" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:4px;">
+                            <div style="font-size:12px;color:#888;margin-top:4px;">不同提供商的Base URL格式不同，请参考对应文档</div>
+                        </div>
+                        <div style="margin-bottom:16px;">
+                            <label style="font-weight:600;display:block;margin-bottom:6px;">API Key</label>
+                            <input type="password" id="ai-api-key" placeholder="sk-..." style="width:100%;padding:10px;border:1px solid #ddd;border-radius:4px;">
+                            <div style="font-size:12px;color:#888;margin-top:4px;">API Key将被安全存储，不会暴露给前端</div>
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+                            <div>
+                                <label style="font-weight:600;display:block;margin-bottom:6px;">模型名称</label>
+                                <input type="text" id="ai-model-name" placeholder="qwen3.5-plus" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:4px;">
+                            </div>
+                            <div>
+                                <label style="font-weight:600;display:block;margin-bottom:6px;">Temperature</label>
+                                <input type="number" id="ai-temperature" min="0" max="1" step="0.1" value="0.7" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:4px;">
+                            </div>
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+                            <div>
+                                <label style="font-weight:600;display:block;margin-bottom:6px;">Max Tokens</label>
+                                <input type="number" id="ai-max-tokens" min="100" max="32000" step="100" value="2000" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:4px;">
+                            </div>
+                            <div>
+                                <label style="font-weight:600;display:block;margin-bottom:6px;">Top P</label>
+                                <input type="number" id="ai-top-p" min="0.1" max="1" step="0.1" value="0.9" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:4px;">
+                            </div>
+                        </div>
+                        <div style="display:flex;gap:12px;align-items:center;">
+                            <button class="btn btn-primary" onclick="saveAIConfig()">保存AI配置</button>
+                            <button class="btn btn-secondary" onclick="testAIConfig()" style="background:#17a2b8;color:#fff;border:none;padding:8px 16px;border-radius:4px;cursor:pointer;">测试连接</button>
+                            <span id="ai-config-status" style="color:#28a745;"></span>
+                        </div>
+                    </div>
+                </div>
             
             <!-- 反馈面板（增强版） -->
             <div id="feedback-panel" style="display:none;">
@@ -899,7 +957,11 @@
                     
                     // AI配置填充表单
                     const aiConfig = data.data.ai;
-                    document.getElementById('ai-model-select').value = aiConfig.model || 'qwen3.5-plus';
+                    document.getElementById('ai-provider').value = aiConfig.provider || 'openai';
+                    document.getElementById('ai-compat-mode').value = aiConfig.compat_mode || 'openai';
+                    document.getElementById('ai-base-url').value = aiConfig.base_url || '';
+                    document.getElementById('ai-api-key').value = aiConfig.api_key || '';
+                    document.getElementById('ai-model-name').value = aiConfig.model || '';
                     document.getElementById('ai-temperature').value = aiConfig.temperature || 0.7;
                     document.getElementById('ai-max-tokens').value = aiConfig.max_tokens || 2000;
                     document.getElementById('ai-top-p').value = aiConfig.top_p || 0.9;
@@ -929,10 +991,20 @@
         }
         
         async function saveAIConfig() {
-            const model = document.getElementById('ai-model-select').value;
+            const provider = document.getElementById('ai-provider').value;
+            const compatMode = document.getElementById('ai-compat-mode').value;
+            const baseUrl = document.getElementById('ai-base-url').value.trim();
+            const apiKey = document.getElementById('ai-api-key').value.trim();
+            const model = document.getElementById('ai-model-name').value.trim();
             const temperature = parseFloat(document.getElementById('ai-temperature').value);
             const maxTokens = parseInt(document.getElementById('ai-max-tokens').value);
             const topP = parseFloat(document.getElementById('ai-top-p').value);
+            
+            if (!baseUrl || !apiKey || !model) {
+                document.getElementById('ai-config-status').textContent = '⚠️ URL、API Key和模型名称不能为空';
+                document.getElementById('ai-config-status').style.color = '#dc3545';
+                return;
+            }
             
             const statusEl = document.getElementById('ai-config-status');
             statusEl.textContent = '保存中...';
@@ -946,6 +1018,10 @@
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
+                        provider,
+                        compat_mode: compatMode,
+                        base_url: baseUrl,
+                        api_key: apiKey,
                         model,
                         temperature,
                         max_tokens: maxTokens,

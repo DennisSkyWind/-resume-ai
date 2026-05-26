@@ -4315,6 +4315,8 @@ async def restore_backup(backup_filename: str, admin: dict = Depends(get_admin_u
 @app.get("/api/v1/admin/config")
 async def admin_get_config(admin: dict = Depends(get_admin_user)):
     """获取系统配置"""
+    # 从持久化文件加载AI配置
+    ai_config = load_ai_config()
     config = {
         "email": {
             "smtp_server": EMAIL_CONFIG.get("smtp_server", ""),
@@ -4324,14 +4326,67 @@ async def admin_get_config(admin: dict = Depends(get_admin_user)):
             "test_mode": EMAIL_CONFIG.get("test_mode", True)
         },
         "ai": {
-            "provider": "coding",
-            "model": DASHSCOPE_MODEL,
-            "base_url": DASHSCOPE_BASE_URL,
-            "configured": bool(DASHSCOPE_API_KEY)
+            "provider": ai_config.get("provider", "openai"),
+            "model": ai_config.get("model", DASHSCOPE_MODEL),
+            "base_url": ai_config.get("base_url", DASHSCOPE_BASE_URL),
+            "api_key": ai_config.get("api_key", DASHSCOPE_API_KEY),
+            "compat_mode": ai_config.get("compat_mode", "openai"),
+            "temperature": ai_config.get("temperature", 0.7),
+            "max_tokens": ai_config.get("max_tokens", 2000),
+            "top_p": ai_config.get("top_p", 0.9),
+            "configured": bool(ai_config.get("api_key", DASHSCOPE_API_KEY))
         },
         "levels": USER_LEVELS
     }
     return {"success": True, "data": config}
+
+# AI配置持久化
+AI_CONFIG_FILE = os.path.join(os.path.dirname(__file__), "ai_config.json")
+
+def load_ai_config():
+    """加载AI配置"""
+    if os.path.exists(AI_CONFIG_FILE):
+        try:
+            with open(AI_CONFIG_FILE, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except:
+            pass
+    return {}
+
+def save_ai_config_file(config):
+    """保存AI配置到文件"""
+    with open(AI_CONFIG_FILE, 'w', encoding='utf-8') as f:
+        json.dump(config, f, indent=2, ensure_ascii=False)
+
+@app.put("/api/v1/admin/ai-config")
+async def admin_update_ai_config(request: Request, admin: dict = Depends(get_admin_user)):
+    """更新AI模型配置"""
+    body = await request.json()
+    
+    # 构建配置
+    ai_config = {
+        "provider": body.get("provider", "openai"),
+        "model": body.get("model", DASHSCOPE_MODEL),
+        "base_url": body.get("base_url", DASHSCOPE_BASE_URL),
+        "api_key": body.get("api_key", DASHSCOPE_API_KEY),
+        "compat_mode": body.get("compat_mode", "openai"),
+        "temperature": float(body.get("temperature", 0.7)),
+        "max_tokens": int(body.get("max_tokens", 2000)),
+        "top_p": float(body.get("top_p", 0.9)),
+        "updated_at": datetime.now().isoformat(),
+        "updated_by": admin.get("email", "admin")
+    }
+    
+    # 持久化保存
+    save_ai_config_file(ai_config)
+    
+    # 更新运行时全局变量
+    global DASHSCOPE_API_KEY, DASHSCOPE_BASE_URL, DASHSCOPE_MODEL
+    DASHSCOPE_API_KEY = ai_config["api_key"]
+    DASHSCOPE_BASE_URL = ai_config["base_url"]
+    DASHSCOPE_MODEL = ai_config["model"]
+    
+    return {"success": True, "message": "AI配置已保存并生效", "data": ai_config}
 
 if __name__ == "__main__":
     import uvicorn
