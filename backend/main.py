@@ -1369,7 +1369,7 @@ async def export_pdf(request: Request, user: dict = Depends(get_current_user)):
     
     # 综合评分
     elements.append(Paragraph("综合评分", heading_style))
-    total_score = analysis_data.get("total_score", 0)
+    total_score = analysis_data.get("total_score", analysis_data.get("overall_score", 0))
     keyword_score = analysis_data.get("keyword_score", 0)
     ats_score = analysis_data.get("ats_score", 0)
     score_data = [
@@ -1388,7 +1388,7 @@ async def export_pdf(request: Request, user: dict = Depends(get_current_user)):
     elements.append(Spacer(1, 15))
     
     # 已匹配关键词
-    matched_keywords = analysis_data.get("matched_keywords", [])
+    matched_keywords = analysis_data.get("matched_keywords", analysis_data.get("keywords_found", []))
     if matched_keywords:
         elements.append(Paragraph("已匹配关键词", heading_style))
         matched_str = "、".join([k if isinstance(k, str) else k.get("keyword", str(k)) for k in matched_keywords[:50]])
@@ -1396,7 +1396,7 @@ async def export_pdf(request: Request, user: dict = Depends(get_current_user)):
         elements.append(Spacer(1, 10))
     
     # 缺失关键词
-    missing_keywords = analysis_data.get("missing_keywords", [])
+    missing_keywords = analysis_data.get("missing_keywords", analysis_data.get("keywords_missing", []))
     if missing_keywords:
         elements.append(Paragraph("缺失关键词（建议补充）", heading_style))
         missing_str = "、".join([k if isinstance(k, str) else k.get("keyword", str(k)) for k in missing_keywords[:50]])
@@ -1509,7 +1509,7 @@ async def export_word(request: Request, user: dict = Depends(get_current_user)):
     
     # 综合评分
     doc.add_heading('综合评分', level=1)
-    total_score = analysis_data.get("total_score", 0)
+    total_score = analysis_data.get("total_score", analysis_data.get("overall_score", 0))
     keyword_score = analysis_data.get("keyword_score", 0)
     ats_score = analysis_data.get("ats_score", 0)
     doc.add_paragraph(f'综合评分: {total_score}分')
@@ -1517,14 +1517,14 @@ async def export_word(request: Request, user: dict = Depends(get_current_user)):
     doc.add_paragraph(f'ATS兼容性评分: {ats_score}分')
     
     # 已匹配关键词
-    matched_keywords = analysis_data.get("matched_keywords", [])
+    matched_keywords = analysis_data.get("matched_keywords", analysis_data.get("keywords_found", []))
     if matched_keywords:
         doc.add_heading('已匹配关键词', level=1)
         matched_str = "、".join([k if isinstance(k, str) else k.get("keyword", str(k)) for k in matched_keywords[:50]])
         doc.add_paragraph(matched_str)
     
     # 缺失关键词
-    missing_keywords = analysis_data.get("missing_keywords", [])
+    missing_keywords = analysis_data.get("missing_keywords", analysis_data.get("keywords_missing", []))
     if missing_keywords:
         doc.add_heading('缺失关键词（建议补充）', level=1)
         missing_str = "、".join([k if isinstance(k, str) else k.get("keyword", str(k)) for k in missing_keywords[:50]])
