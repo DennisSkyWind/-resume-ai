@@ -1,0 +1,98 @@
+{
+  "summary": {
+    "total": 11,
+    "passed": 2,
+    "failed": 9,
+    "timestamp": "2026-05-21T05:02:30.841168"
+  },
+  "results": [
+    {
+      "test_id": "T15-0-0",
+      "name": "\u670d\u52a1\u5065\u5eb7\u68c0\u67e5",
+      "status": "FAIL",
+      "message": "HTTPSConnectionPool(host='resume-ai-9tvi.onrender.com', port=443): Read timed out. (read timeout=5)",
+      "duration": 0,
+      "timestamp": "2026-05-21T05:01:50.343689"
+    },
+    {
+      "test_id": "T15-1-2",
+      "name": "\u884c\u4e1a\u5217\u8868API",
+      "status": "FAIL",
+      "message": "HTTPSConnectionPool(host='resume-ai-9tvi.onrender.com', port=443): Read timed out. (read timeout=10)",
+      "duration": 0,
+      "timestamp": "2026-05-21T05:02:00.870967"
+    },
+    {
+      "test_id": "T15-1-1",
+      "name": "\u6ce8\u518c\u9a8c\u8bc1\u7801\u53d1\u9001",
+      "status": "FAIL",
+      "message": "HTTPSConnectionPool(host='resume-ai-9tvi.onrender.com', port=443): Read timed out. (read timeout=10)",
+      "duration": 0,
+      "timestamp": "2026-05-21T05:02:11.396804"
+    },
+    {
+      "test_id": "T15-1-1b",
+      "name": "\u7ba1\u7406\u5458\u767b\u5f55",
+      "status": "FAIL",
+      "message": "HTTPSConnectionPool(host='resume-ai-9tvi.onrender.com', port=443): Read timed out. (read timeout=10)",
+      "duration": 0,
+      "timestamp": "2026-05-21T05:02:21.910070"
+    },
+    {
+      "test_id": "T15-1-1c",
+      "name": "\u83b7\u53d6\u7528\u6237\u4fe1\u606f",
+      "status": "FAIL",
+      "message": "\u65e0token",
+      "duration": 0,
+      "timestamp": "2026-05-21T05:02:21.910153"
+    },
+    {
+      "test_id": "T15-1-5",
+      "name": "\u53cd\u9988\u63d0\u4ea4API",
+      "status": "FAIL",
+      "message": "\u72b6\u6001\u7801: 500",
+      "duration": 0,
+      "timestamp": "2026-05-21T05:02:29.086389"
+    },
+    {
+      "test_id": "T15-3-2",
+      "name": "\u7ba1\u7406\u5458\u7edf\u8ba1API",
+      "status": "FAIL",
+      "message": "\u65e0\u7ba1\u7406\u5458token",
+      "duration": 0,
+      "timestamp": "2026-05-21T05:02:29.089639"
+    },
+    {
+      "test_id": "T15-3-2b",
+      "name": "\u7ba1\u7406\u5458\u53cd\u9988\u5217\u8868API",
+      "status": "FAIL",
+      "message": "\u65e0\u7ba1\u7406\u5458token",
+      "duration": 0,
+      "timestamp": "2026-05-21T05:02:29.089705"
+    },
+    {
+      "test_id": "T15-3-3",
+      "name": "\u7ba1\u7406\u5458AI\u914d\u7f6eAPI",
+      "status": "FAIL",
+      "message": "\u65e0\u7ba1\u7406\u5458token",
+      "duration": 0,
+      "timestamp": "2026-05-21T05:02:29.089743"
+    },
+    {
+      "test_id": "T15-5-1",
+      "name": "\u672a\u6388\u6743\u8bbf\u95ee\u62e6\u622a",
+      "status": "PASS",
+      "message": "",
+      "duration": 0.8770570755004883,
+      "timestamp": "2026-05-21T05:02:29.966860"
+    },
+    {
+      "test_id": "T15-5-1b",
+      "name": "\u65e0\u6548Token\u62e6\u622a",
+      "status": "PASS",
+      "message": "",
+      "duration": 0.8669168949127197,
+      "timestamp": "2026-05-21T05:02:30.836767"
+    }
+  ]
+}

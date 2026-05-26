@@ -1546,12 +1546,17 @@
                 // 检查响应状态
                 if (!response.ok) {
                     // 尝试读取响应体获取详细错误信息
+                    const clonedResponse = response.clone();
                     try {
                         const errorData = await response.json();
                         const errorMsg = errorData.detail || errorData.message || `HTTP ${response.status}`;
-                        throw new Error(errorMsg);
+                        const error = new Error(errorMsg);
+                        error.status = response.status;
+                        error.data = errorData;
+                        throw error;
                     } catch (parseError) {
-                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                        parseError.status = response.status;
+                        throw parseError;
                     }
                 }
                 
@@ -2804,8 +2809,6 @@
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
             
-            console.log('email:', email, 'password:', password);
-            
             if (!email || !password) {
                 showError('login-error', '请输入邮箱和密码');
                 return;
@@ -2814,19 +2817,16 @@
             showLoading('正在登录...');
             
             try {
-                console.log('fetching:', `${API}/api/v1/login`);
                 const res = await safeFetch(`${API}/api/v1/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email, password })
                 });
                 
-                console.log('response status:', res.status);
                 const data = await res.json();
-                console.log('response data:', data);
                 hideLoading();
                 
-                if (!res.ok) {
+                if (!data.success) {
                     showError('login-error', data.detail || '登录失败');
                     return;
                 }
@@ -2985,21 +2985,20 @@
                 return;
             }
             
-            const res = await safeFetch(`${API}/api/v1/me`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            
-            // Token过期处理
-            if (res.status === 401) {
-                handleTokenExpired();
-                return;
-            }
-            
-            const data = await res.json();
-            
-            if (!res.ok) {
-                throw new Error('获取用户信息失败');
-            }
+            try {
+                const res = await safeFetch(`${API}/api/v1/me`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                const data = await res.json();
+                
+                if (!res.ok || !data.success) {
+                    if (res.status === 401) {
+                        handleTokenExpired();
+                        return;
+                    }
+                    throw new Error('获取用户信息失败');
+                }
             
             currentUser = data.data;
             setCache('userInfo', currentUser);
