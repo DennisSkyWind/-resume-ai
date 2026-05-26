@@ -1644,6 +1644,7 @@
         let token = localStorage.getItem('token');
         let currentUser = null;
         let currentLanguage = 'auto';  // 当前语言设置
+        let lastAnalysisData = null;  // 存储最近一次分析结果
         
         // ========== 国际化文本 ==========
         const i18n = {
@@ -3292,6 +3293,8 @@
         
         // 显示分析结果
         function displayResults(data) {
+            // 保存分析结果供导出使用
+            lastAnalysisData = data;
             let html = `
                 <div class="result-section">
                     <div class="result-header">分析结果</div>
@@ -3784,17 +3787,20 @@
         
         // 导出PDF
         async function exportPDF() {
+            if (!lastAnalysisData) {
+                showToast('请先分析简历后再导出报告', 'warning');
+                return;
+            }
             showLoading('生成PDF报告...');
             try {
                 const res = await safeFetch(`${API}/api/v1/export/pdf`, {
                     method: 'POST',
-                    headers: { 'Authorization': `Bearer ${token}` }
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ analysis_data: lastAnalysisData })
                 });
-                
-                if (res.status === 401) {
-                    handleTokenExpired();
-                    return;
-                }
                 
                 if (!res.ok) {
                     throw new Error('生成失败');
@@ -3820,17 +3826,20 @@
         }
         
         async function exportWord() {
+            if (!lastAnalysisData) {
+                showToast('请先分析简历后再导出报告', 'warning');
+                return;
+            }
             showLoading('生成Word文档...');
             try {
                 const res = await safeFetch(`${API}/api/v1/export/word`, {
                     method: 'POST',
-                    headers: { 'Authorization': `Bearer ${token}` }
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ analysis_data: lastAnalysisData })
                 });
-                
-                if (res.status === 401) {
-                    handleTokenExpired();
-                    return;
-                }
                 
                 if (!res.ok) {
                     throw new Error('生成失败');

@@ -1296,8 +1296,12 @@ async def get_resume_detail(resume_id: int, user: dict = Depends(get_current_use
     }
 
 @app.post("/api/v1/export/pdf")
-async def export_pdf(user: dict = Depends(get_current_user)):
+async def export_pdf(request: Request, user: dict = Depends(get_current_user)):
     """导出简历分析报告PDF"""
+    # 获取分析数据
+    body = await request.json()
+    analysis_data = body.get("analysis_data", {})
+    
     # 生成PDF
     buffer = BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=A4, 
@@ -1328,12 +1332,19 @@ async def export_pdf(user: dict = Depends(get_current_user)):
         spaceAfter=6,
         leading=18
     )
+    sub_heading_style = ParagraphStyle(
+        'SubHeading',
+        fontName=PDF_FONT_BOLD,
+        fontSize=12,
+        spaceBefore=10,
+        spaceAfter=6
+    )
     
     # 构建PDF内容
     elements = []
     
     # 标题
-    elements.append(Paragraph("简历分析报告", title_style))
+    elements.append(Paragraph("简历优化分析报告", title_style))
     elements.append(Spacer(1, 20))
     
     # 基本信息
@@ -1341,6 +1352,8 @@ async def export_pdf(user: dict = Depends(get_current_user)):
     info_data = [
         ["分析日期", datetime.now().strftime("%Y-%m-%d %H:%M")],
         ["用户邮箱", user.get("email", "未知")],
+        ["分析行业", analysis_data.get("industry", "未知")],
+        ["子行业", analysis_data.get("sub_industry", "-")],
     ]
     info_table = Table(info_data, colWidths=[80*mm, 80*mm])
     info_table.setStyle(TableStyle([
@@ -1352,7 +1365,103 @@ async def export_pdf(user: dict = Depends(get_current_user)):
         ('BACKGROUND', (0, 0), (0, -1), colors.lightgrey),
     ]))
     elements.append(info_table)
-    elements.append(Spacer(1, 30))
+    elements.append(Spacer(1, 15))
+    
+    # 综合评分
+    elements.append(Paragraph("综合评分", heading_style))
+    total_score = analysis_data.get("total_score", 0)
+    keyword_score = analysis_data.get("keyword_score", 0)
+    ats_score = analysis_data.get("ats_score", 0)
+    score_data = [
+        ["综合评分", f"{total_score}分"],
+        ["关键词匹配评分", f"{keyword_score}分"],
+        ["ATS兼容性评分", f"{ats_score}分"],
+    ]
+    score_table = Table(score_data, colWidths=[80*mm, 80*mm])
+    score_table.setStyle(TableStyle([
+        ('FONTNAME', (0, 0), (-1, -1), PDF_FONT_NAME),
+        ('FONTSIZE', (0, 0), (-1, -1), 12),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+        ('BACKGROUND', (0, 0), (0, -1), colors.lightgrey),
+    ]))
+    elements.append(score_table)
+    elements.append(Spacer(1, 15))
+    
+    # 已匹配关键词
+    matched_keywords = analysis_data.get("matched_keywords", [])
+    if matched_keywords:
+        elements.append(Paragraph("已匹配关键词", heading_style))
+        matched_str = "、".join([k if isinstance(k, str) else k.get("keyword", str(k)) for k in matched_keywords[:50]])
+        elements.append(Paragraph(matched_str, body_style))
+        elements.append(Spacer(1, 10))
+    
+    # 缺失关键词
+    missing_keywords = analysis_data.get("missing_keywords", [])
+    if missing_keywords:
+        elements.append(Paragraph("缺失关键词（建议补充）", heading_style))
+        missing_str = "、".join([k if isinstance(k, str) else k.get("keyword", str(k)) for k in missing_keywords[:50]])
+        elements.append(Paragraph(f'<font color="red">{missing_str}</font>', body_style))
+        elements.append(Spacer(1, 10))
+    
+    # ATS检测详情
+    ats_details = analysis_data.get("ats_details", {})
+    if ats_details:
+        elements.append(Paragraph("ATS兼容性检测", heading_style))
+        ats_checks = ats_details.get("checks", [])
+        if ats_checks:
+            ats_data = [["检测项", "状态", "说明"]]
+            for check in ats_checks:
+                status = "✓ 通过" if check.get("status") == "ok" else ("⚠ 警告" if check.get("status") == "warning" else "✗ 错误")
+                ats_data.append([check.get("name", ""), status, check.get("message", "")])
+            ats_table = Table(ats_data, colWidths=[50*mm, 30*mm, 80*mm])
+            ats_table.setStyle(TableStyle([
+                ('FONTNAME', (0, 0), (-1, -1), PDF_FONT_NAME),
+                ('FONTSIZE', (0, 0), (-1, -1), 10),
+                ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+                ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
+            ]))
+            elements.append(ats_table)
+        elements.append(Spacer(1, 10))
+    
+    # 关键词密度
+    keyword_density = analysis_data.get("keyword_density", {})
+    if keyword_density:
+        elements.append(Paragraph("关键词密度分析", heading_style))
+        density_data = [
+            ["关键词密度", f"{keyword_density.get('density', 0)}%"],
+            ["关键词数量", f"{keyword_density.get('total_keywords', 0)}个"],
+            ["总字符数", f"{keyword_density.get('total_chars', 0)}字"],
+            ["密度状态", "正常" if keyword_density.get('density_status') == 'normal' else ("偏低" if keyword_density.get('density_status') == 'low' else "偏高")],
+        ]
+        density_table = Table(density_data, colWidths=[80*mm, 80*mm])
+        density_table.setStyle(TableStyle([
+            ('FONTNAME', (0, 0), (-1, -1), PDF_FONT_NAME),
+            ('FONTSIZE', (0, 0), (-1, -1), 12),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+            ('BACKGROUND', (0, 0), (0, -1), colors.lightgrey),
+        ]))
+        elements.append(density_table)
+        density_warnings = keyword_density.get("warnings", [])
+        if density_warnings:
+            elements.append(Spacer(1, 8))
+            elements.append(Paragraph("密度优化建议：", sub_heading_style))
+            for w in density_warnings:
+                elements.append(Paragraph(f"• {w}", body_style))
+        elements.append(Spacer(1, 10))
+    
+    # 优化建议
+    suggestions = analysis_data.get("suggestions", [])
+    if suggestions:
+        elements.append(Paragraph("优化建议", heading_style))
+        for i, s in enumerate(suggestions[:20], 1):
+            suggestion_text = s if isinstance(s, str) else s.get("suggestion", str(s))
+            elements.append(Paragraph(f"{i}. {suggestion_text}", body_style))
+        elements.append(Spacer(1, 10))
+    
+    # 使用说明
+    elements.append(Paragraph("使用说明", heading_style))
+    elements.append(Paragraph("本报告由 ResumeAI 自动生成，供求职者参考使用。", body_style))
+    elements.append(Paragraph("建议根据分析结果优化简历内容，提高求职成功率。", body_style))
     
     # 落款
     elements.append(Spacer(1, 50))
@@ -1373,26 +1482,99 @@ async def export_pdf(user: dict = Depends(get_current_user)):
     )
 
 @app.post("/api/v1/export/word")
-async def export_word(user: dict = Depends(get_current_user)):
+async def export_word(request: Request, user: dict = Depends(get_current_user)):
     """导出简历优化结果为Word文档"""
     from docx import Document
-    from docx.shared import Pt, Inches
+    from docx.shared import Pt, Inches, RGBColor
     from docx.enum.text import WD_ALIGN_PARAGRAPH
     from io import BytesIO
+    
+    # 获取分析数据
+    body = await request.json()
+    analysis_data = body.get("analysis_data", {})
     
     # 创建Word文档
     doc = Document()
     
     # 标题
-    title = doc.add_heading('简历优化报告', level=0)
+    title = doc.add_heading('简历优化分析报告', level=0)
     title.alignment = WD_ALIGN_PARAGRAPH.CENTER
     
     # 基本信息
     doc.add_heading('基本信息', level=1)
     doc.add_paragraph(f'分析日期: {datetime.now().strftime("%Y-%m-%d %H:%M")}')
     doc.add_paragraph(f'用户邮箱: {user.get("email", "未知")}')
+    doc.add_paragraph(f'分析行业: {analysis_data.get("industry", "未知")}')
+    doc.add_paragraph(f'子行业: {analysis_data.get("sub_industry", "-")}')
     
-    # 说明
+    # 综合评分
+    doc.add_heading('综合评分', level=1)
+    total_score = analysis_data.get("total_score", 0)
+    keyword_score = analysis_data.get("keyword_score", 0)
+    ats_score = analysis_data.get("ats_score", 0)
+    doc.add_paragraph(f'综合评分: {total_score}分')
+    doc.add_paragraph(f'关键词匹配评分: {keyword_score}分')
+    doc.add_paragraph(f'ATS兼容性评分: {ats_score}分')
+    
+    # 已匹配关键词
+    matched_keywords = analysis_data.get("matched_keywords", [])
+    if matched_keywords:
+        doc.add_heading('已匹配关键词', level=1)
+        matched_str = "、".join([k if isinstance(k, str) else k.get("keyword", str(k)) for k in matched_keywords[:50]])
+        doc.add_paragraph(matched_str)
+    
+    # 缺失关键词
+    missing_keywords = analysis_data.get("missing_keywords", [])
+    if missing_keywords:
+        doc.add_heading('缺失关键词（建议补充）', level=1)
+        missing_str = "、".join([k if isinstance(k, str) else k.get("keyword", str(k)) for k in missing_keywords[:50]])
+        p = doc.add_paragraph(missing_str)
+        for run in p.runs:
+            run.font.color.rgb = RGBColor(255, 0, 0)
+    
+    # ATS检测详情
+    ats_details = analysis_data.get("ats_details", {})
+    if ats_details:
+        doc.add_heading('ATS兼容性检测', level=1)
+        ats_checks = ats_details.get("checks", [])
+        if ats_checks:
+            table = doc.add_table(rows=1, cols=3)
+            table.style = 'Table Grid'
+            hdr_cells = table.rows[0].cells
+            hdr_cells[0].text = '检测项'
+            hdr_cells[1].text = '状态'
+            hdr_cells[2].text = '说明'
+            for check in ats_checks:
+                row_cells = table.add_row().cells
+                row_cells[0].text = check.get("name", "")
+                status = "✓ 通过" if check.get("status") == "ok" else ("⚠ 警告" if check.get("status") == "warning" else "✗ 错误")
+                row_cells[1].text = status
+                row_cells[2].text = check.get("message", "")
+    
+    # 关键词密度
+    keyword_density = analysis_data.get("keyword_density", {})
+    if keyword_density:
+        doc.add_heading('关键词密度分析', level=1)
+        doc.add_paragraph(f'关键词密度: {keyword_density.get("density", 0)}%')
+        doc.add_paragraph(f'关键词数量: {keyword_density.get("total_keywords", 0)}个')
+        doc.add_paragraph(f'总字符数: {keyword_density.get("total_chars", 0)}字')
+        density_status = "正常" if keyword_density.get('density_status') == 'normal' else ("偏低" if keyword_density.get('density_status') == 'low' else "偏高")
+        doc.add_paragraph(f'密度状态: {density_status}')
+        density_warnings = keyword_density.get("warnings", [])
+        if density_warnings:
+            doc.add_paragraph('密度优化建议：')
+            for w in density_warnings:
+                doc.add_paragraph(f'• {w}', style='List Bullet')
+    
+    # 优化建议
+    suggestions = analysis_data.get("suggestions", [])
+    if suggestions:
+        doc.add_heading('优化建议', level=1)
+        for i, s in enumerate(suggestions[:20], 1):
+            suggestion_text = s if isinstance(s, str) else s.get("suggestion", str(s))
+            doc.add_paragraph(f'{i}. {suggestion_text}')
+    
+    # 使用说明
     doc.add_heading('使用说明', level=1)
     doc.add_paragraph('本报告由 ResumeAI 自动生成，供求职者参考使用。')
     doc.add_paragraph('建议根据分析结果优化简历内容，提高求职成功率。')
