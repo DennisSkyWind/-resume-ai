@@ -3341,7 +3341,7 @@ async def submit_feedback(request: FeedbackRequest, user: Optional[dict] = Depen
     
     user_id = user["id"] if user else None
     email = request.email or (user["email"] if user else "anonymous")
-    title = request.title or request.content[:50]  # 默认取内容前50字作为标题
+    title = request.title or (request.content[:50] if request.content else "无标题")
     tags_str = json.dumps(request.tags) if request.tags else None
     
     cursor.execute("""
