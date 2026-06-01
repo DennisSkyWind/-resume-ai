@@ -4358,6 +4358,8 @@ def save_ai_config_file(config):
 @app.put("/api/v1/admin/ai-config")
 async def admin_update_ai_config(request: Request, admin: dict = Depends(get_admin_user)):
     """更新AI模型配置"""
+    global DASHSCOPE_API_KEY, DASHSCOPE_BASE_URL, DASHSCOPE_MODEL
+    
     body = await request.json()
     
     # 构建配置
@@ -4378,7 +4380,6 @@ async def admin_update_ai_config(request: Request, admin: dict = Depends(get_adm
     save_ai_config_file(ai_config)
     
     # 更新运行时全局变量
-    global DASHSCOPE_API_KEY, DASHSCOPE_BASE_URL, DASHSCOPE_MODEL
     DASHSCOPE_API_KEY = ai_config["api_key"]
     DASHSCOPE_BASE_URL = ai_config["base_url"]
     DASHSCOPE_MODEL = ai_config["model"]
