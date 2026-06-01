@@ -706,22 +706,19 @@ class LoginRequest(BaseModel):
 
 class FeedbackRequest(BaseModel):
     type: str
-    title: Optional[str] = None  # 新增：反馈标题
+    title: Optional[str] = None  # 反馈标题
+    content: Optional[str] = None  # 反馈内容
+    priority: Optional[str] = "medium"  # 优先级 low/medium/high/urgent
+    tags: Optional[List[str]] = None  # 标签列表
+    screenshot: Optional[str] = None  # 截图URL（base64或URL）
+    email: Optional[str] = None
+    page: Optional[str] = None
 
 # O4-2新增：自定义关键词请求类
 class AddKeywordRequest(BaseModel):
     keyword: str
     industry: str
     weight: int = 5
-
-class UserKeywordsRequest(BaseModel):
-    industry: str
-    content: str
-    priority: Optional[str] = "medium"  # 新增：优先级 low/medium/high/urgent
-    tags: Optional[List[str]] = None  # 新增：标签列表
-    screenshot: Optional[str] = None  # 新增：截图URL（base64或URL）
-    email: Optional[str] = None
-    page: Optional[str] = None
 
 class AnalyzeRequest(BaseModel):
     resume_content: str
