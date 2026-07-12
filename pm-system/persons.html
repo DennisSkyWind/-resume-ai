@@ -200,7 +200,7 @@
                     </select>
                 </div>
                 
-                <!-- 第四行：状态 -->
+                <!-- 第四行：状态、学历、生日 -->
                 <div class="form-group">
                     <label>状态</label>
                     <select id="person-status">
@@ -208,6 +208,32 @@
                         <option value="resigned">离职</option>
                         <option value="retired">退休</option>
                     </select>
+                </div>
+                <div class="form-group">
+                    <label>学历</label>
+                    <select id="person-education">
+                        <option value="">请选择</option>
+                        <option value="博士">博士</option>
+                        <option value="硕士">硕士</option>
+                        <option value="本科">本科</option>
+                        <option value="大专">大专</option>
+                        <option value="中专">中专</option>
+                        <option value="高中">高中</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>生日</label>
+                    <input type="date" id="person-birthday">
+                </div>
+                
+                <!-- 第五行：毕业学校、专业 -->
+                <div class="form-group">
+                    <label>毕业学校</label>
+                    <input type="text" id="person-school" placeholder="如：云南大学">
+                </div>
+                <div class="form-group">
+                    <label>专业</label>
+                    <input type="text" id="person-major" placeholder="如：计算机科学与技术">
                 </div>
             </div>
             
@@ -401,6 +427,22 @@
                             <span class="detail-value">${p.hire_date || '-'}</span>
                         </div>
                         <div class="detail-row">
+                            <span class="detail-label">学历</span>
+                            <span class="detail-value">${p.education || '-'}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">毕业学校</span>
+                            <span class="detail-value">${p.school || '-'}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">专业</span>
+                            <span class="detail-value">${p.major || '-'}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">生日</span>
+                            <span class="detail-value">${p.birthday || '-'}</span>
+                        </div>
+                        <div class="detail-row">
                             <span class="detail-label">职位序列</span>
                             <span class="detail-value">${p.job_sequence || '-'}</span>
                         </div>
@@ -480,6 +522,10 @@
             document.getElementById('person-hire-date').value = '';
             document.getElementById('person-role').value = 'member';
             document.getElementById('person-status').value = 'active';
+            document.getElementById('person-education').value = '';
+            document.getElementById('person-birthday').value = '';
+            document.getElementById('person-school').value = '';
+            document.getElementById('person-major').value = '';
             document.getElementById('person-modal').style.display = 'block';
         }
         
@@ -499,6 +545,10 @@
             document.getElementById('person-hire-date').value = person.hire_date || '';
             document.getElementById('person-role').value = person.role || 'member';
             document.getElementById('person-status').value = person.status || 'active';
+            document.getElementById('person-education').value = person.education || '';
+            document.getElementById('person-birthday').value = person.birthday || '';
+            document.getElementById('person-school').value = person.school || '';
+            document.getElementById('person-major').value = person.major || '';
             document.getElementById('person-modal').style.display = 'block';
         }
         
@@ -523,7 +573,11 @@
                 position: document.getElementById('person-position').value,
                 hire_date: document.getElementById('person-hire-date').value,
                 role: document.getElementById('person-role').value,
-                status: document.getElementById('person-status').value
+                status: document.getElementById('person-status').value,
+                education: document.getElementById('person-education').value,
+                birthday: document.getElementById('person-birthday').value,
+                school: document.getElementById('person-school').value,
+                major: document.getElementById('person-major').value
             };
             
             try {
