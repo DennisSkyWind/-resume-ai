@@ -963,13 +963,14 @@ ${(r.active_projects||[]).map(p=>`<div style="margin:10px 0"><strong>${p.name}</
 <div class="footer">生成时间：${new Date().toLocaleString('zh-CN')}</div>
 </body></html>`;
             
+            const exportDate = new Date().toISOString().slice(0,10).replace(/-/g,'');
             if (format === 'pdf') {
-                await PM_REPORT_EXPORT.htmlToPDF(html, `周报_${r.period.replace(/ ~ /,'_').replace(/-/g,'')}.pdf`);
+                await PM_REPORT_EXPORT.htmlToPDF(html, `周报_${r.period.replace(/ ~ /,'_').replace(/-/g,'')}_${exportDate}.pdf`);
             } else {
                 const blob = new Blob([html], {type: 'text/html;charset=utf-8'});
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
-                a.href = url; a.download = `周报_${r.period.replace(/ ~ /,'_').replace(/-/g,'')}.html`;
+                a.href = url; a.download = `周报_${r.period.replace(/ ~ /,'_').replace(/-/g,'')}_${exportDate}.html`;
                 a.click(); URL.revokeObjectURL(url);
             }
         }
@@ -1029,13 +1030,14 @@ ${(r.completed_tasks||[]).map(t=>`<tr><td>${t.name}</td><td>${t.project_name||'-
 <div class="footer">生成时间：${new Date().toLocaleString('zh-CN')}</div>
 </body></html>`;
             
+            const exportDate = new Date().toISOString().slice(0,10).replace(/-/g,'');
             if (format === 'pdf') {
-                await PM_REPORT_EXPORT.htmlToPDF(html, `月报_${(s.month||'').replace('-','')}.pdf`);
+                await PM_REPORT_EXPORT.htmlToPDF(html, `月报_${(s.month||'').replace('-','')}_${exportDate}.pdf`);
             } else {
                 const blob = new Blob([html], {type: 'text/html;charset=utf-8'});
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
-                a.href = url; a.download = `月报_${(s.month||'').replace('-','')}.html`;
+                a.href = url; a.download = `月报_${(s.month||'').replace('-','')}_${exportDate}.html`;
                 a.click(); URL.revokeObjectURL(url);
             }
         }

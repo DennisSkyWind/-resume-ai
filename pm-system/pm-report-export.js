@@ -402,7 +402,8 @@ const PM_REPORT_EXPORT = {
         const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
-        a.href = url; a.download = `${project.name}_项目报告.html`;
+        const dateStr = new Date().toISOString().slice(0,10).replace(/-/g,'');
+        a.href = url; a.download = `${project.name}_项目报告_${dateStr}.html`;
         a.click(); URL.revokeObjectURL(url);
     },
 
@@ -507,7 +508,8 @@ const PM_REPORT_EXPORT = {
                 document.body.removeChild(container);
             }
 
-            pdf.save(`${project.name}_项目报告.pdf`);
+            const dateStr = new Date().toISOString().slice(0,10).replace(/-/g,'');
+            pdf.save(`${project.name}_项目报告_${dateStr}.pdf`);
         } finally {
             document.body.removeChild(loadingEl);
         }
