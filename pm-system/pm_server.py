@@ -1771,7 +1771,7 @@ def check_due_tasks():
     cursor.execute('''
         SELECT t.*, p.name as project_name
         FROM task t LEFT JOIN project p ON t.project_id = p.id
-        WHERE t.due_date < ? AND t.status != 'completed' AND p.status NOT IN ('archived', 'cancelled')
+        WHERE t.due_date < ? AND t.status NOT IN ('completed', 'cancelled') AND p.status NOT IN ('archived', 'cancelled')
         ORDER BY t.due_date ASC
     ''', [today])
     overdue_tasks = [dict(row) for row in cursor.fetchall()]
@@ -1780,7 +1780,7 @@ def check_due_tasks():
     cursor.execute('''
         SELECT t.*, p.name as project_name
         FROM task t LEFT JOIN project p ON t.project_id = p.id
-        WHERE t.due_date = ? AND t.status != 'completed' AND p.status NOT IN ('archived', 'cancelled')
+        WHERE t.due_date = ? AND t.status NOT IN ('completed', 'cancelled') AND p.status NOT IN ('archived', 'cancelled')
     ''', [today])
     today_tasks = [dict(row) for row in cursor.fetchall()]
     
@@ -1788,7 +1788,7 @@ def check_due_tasks():
     cursor.execute('''
         SELECT t.*, p.name as project_name
         FROM task t LEFT JOIN project p ON t.project_id = p.id
-        WHERE t.due_date BETWEEN ? AND ? AND t.status != 'completed' AND p.status NOT IN ('archived', 'cancelled')
+        WHERE t.due_date BETWEEN ? AND ? AND t.status NOT IN ('completed', 'cancelled') AND p.status NOT IN ('archived', 'cancelled')
         ORDER BY t.due_date ASC
     ''', [tomorrow, next_week])
     upcoming_tasks = [dict(row) for row in cursor.fetchall()]
