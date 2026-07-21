@@ -324,7 +324,8 @@
                 <button class="filter-btn active" id="view-list-btn" onclick="switchView('list')">📋 列表</button>
                 <button class="filter-btn" id="view-kanban-btn" onclick="switchView('kanban')">📌 看板</button>
                 <strong style="margin-left:15px;">状态筛选：</strong>
-                <button class="filter-btn active" data-filter="status" data-value="" onclick="setFilter('status', '')">全部</button>
+                <button class="filter-btn" data-filter="status" data-value="" onclick="setFilter('status', '')">全部</button>
+                <button class="filter-btn" data-filter="status" data-value="uncompleted" onclick="setFilter('status', 'uncompleted')">未完成</button>
                 <button class="filter-btn" data-filter="status" data-value="pending" onclick="setFilter('status', 'pending')">待处理</button>
                 <button class="filter-btn" data-filter="status" data-value="in_progress" onclick="setFilter('status', 'in_progress')">进行中</button>
                 <button class="filter-btn" data-filter="status" data-value="completed" onclick="setFilter('status', 'completed')">已完成</button>
@@ -638,6 +639,7 @@
                     <label>任务状态：</label>
                     <select id="pdf-status">
                         <option value="all">全部状态</option>
+                        <option value="uncompleted">未完成</option>
                         <option value="pending">待处理</option>
                         <option value="in_progress">进行中</option>
                         <option value="completed">已完成</option>
@@ -1082,7 +1084,9 @@
             currentFilters.search = document.getElementById('filter-search').value.toLowerCase();
             
             filteredTasks = allTasks.filter(t => {
-                if (currentFilters.status && t.status !== currentFilters.status) return false;
+                if (currentFilters.status === 'uncompleted') {
+                    if (t.status === 'completed' || t.status === 'cancelled') return false;
+                } else if (currentFilters.status && t.status !== currentFilters.status) return false;
                 if (currentFilters.project && t.project_id != currentFilters.project) return false;
                 if (currentFilters.priority && t.priority !== currentFilters.priority) return false;
                 if (currentFilters.assignee && t.assignee_id != currentFilters.assignee) return false;
@@ -1918,6 +1922,14 @@
                 tasksToExport = tasksToExport.filter(t => t.project_id == projectId);
             }
             
+            if (statusFilter && statusFilter !== 'all') {
+                if (statusFilter === 'uncompleted') {
+                    tasksToExport = tasksToExport.filter(t => t.status !== 'completed' && t.status !== 'cancelled');
+                } else {
+                    tasksToExport = tasksToExport.filter(t => t.status === statusFilter);
+                }
+            }
+            
             if (tasksToExport.length === 0) {
                 alert('没有可导出的数据');
                 return;
@@ -1958,7 +1970,7 @@
                 
                 hidePdfExportModal();
                 const orientText = landscape ? '横向' : '纵向';
-                const statusText = statusFilter === 'all' ? '全部' : statusFilter;
+                const statusText = statusFilter === 'all' ? '全部' : statusFilter === 'uncompleted' ? '未完成' : statusFilter;
                 alert(`已导出 ${tasksToExport.length} 个任务 (${pdfStyleNames[selectedPdfStyle-1]}风格, ${statusText}状态, ${orientText})`);
                 
             } catch (e) {
