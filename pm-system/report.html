@@ -309,6 +309,10 @@
                     <div class="section-title">✅ 本月完成任务</div>
                     <div class="task-list" id="monthly-completed-tasks"></div>
                 </div>
+                <div class="section" id="monthly-rating-stats-section" style="display:">
+                    <h3>🏆 任务完成评价统计</h3>
+                    <div id="monthly-rating-stats"></div>
+                </div>
                 <div class="export-actions">
                     <button class="export-btn" onclick="exportMonthlyReport('html')">📥 导出HTML</button>
                     <button class="export-btn" onclick="exportMonthlyReport('pdf')">📄 导出PDF</button>
@@ -838,8 +842,12 @@ th{background:#f5f5f5;color:#666;font-size:13px}
 
             // 本周完成任务
             const completedTasks = report.completed_tasks || [];
+            const ratingLabels = { insufficient: '⚠️不足', normal: '✅正常', excellent: '⭐优秀', outstanding: '🌟卓越' };
             document.getElementById('weekly-completed-tasks').innerHTML = completedTasks.length > 0
-                ? completedTasks.map(t => `<div class="task-item"><div><div class="task-name">${t.name}</div><div class="task-meta">${t.project_name || ''} · ${t.assignee_name || ''} · ${t.completed_date || ''}</div></div><div class="task-meta">✅ 已完成</div></div>`).join('')
+                ? completedTasks.map(t => {
+                    const ratingTag = t.rating && ratingLabels[t.rating] ? ` <span style="font-size:0.85em;color:${t.rating==='insufficient'?'#e74c3c':t.rating==='outstanding'?'#9b59b6':t.rating==='excellent'?'#27ae60':'#3498db'}">${ratingLabels[t.rating]}</span>` : '';
+                    return `<div class="task-item"><div><div class="task-name">${t.name}${ratingTag}</div><div class="task-meta">${t.project_name || ''} · ${t.assignee_name || ''} · ${t.completed_date || ''}</div></div><div class="task-meta">✅ 已完成</div></div>`;
+                }).join('')
                 : '<div class="empty-state">本周无完成任务</div>';
 
             // 活跃项目
@@ -910,8 +918,36 @@ th{background:#f5f5f5;color:#666;font-size:13px}
             // 本月完成任务
             const completedTasks = report.completed_tasks || [];
             document.getElementById('monthly-completed-tasks').innerHTML = completedTasks.length > 0
-                ? completedTasks.map(t => `<div class="task-item"><div><div class="task-name">${t.name}</div><div class="task-meta">${t.project_name || ''} · ${t.assignee_name || ''} · ${t.completed_date || ''}</div></div><div class="task-meta">✅ 已完成</div></div>`).join('')
+                ? completedTasks.map(t => {
+                    const ratingTag = t.rating && ratingLabels[t.rating] ? ` <span style="font-size:0.85em;color:${t.rating==='insufficient'?'#e74c3c':t.rating==='outstanding'?'#9b59b6':t.rating==='excellent'?'#27ae60':'#3498db'}">${ratingLabels[t.rating]}</span>` : '';
+                    return `<div class="task-item"><div><div class="task-name">${t.name}${ratingTag}</div><div class="task-meta">${t.project_name || ''} · ${t.assignee_name || ''} · ${t.completed_date || ''}</div></div><div class="task-meta">✅ 已完成</div></div>`;
+                }).join('')
                 : '<div class="empty-state">本月无完成任务</div>';
+            
+            // 月度评价统计
+            const ratingStats = report.rating_stats || {};
+            const ratingDist = ratingStats.distribution || {};
+            const ratingByPerson = ratingStats.by_person || {};
+            if (Object.keys(ratingDist).length > 0 || Object.keys(ratingByPerson).length > 0) {
+                let ratingHtml = '<div class="stats-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px;">';
+                const ratingColors = {'不足':'#e74c3c','正常':'#3498db','优秀':'#27ae60','卓越':'#9b59b6'};
+                const ratingIcons2 = {'不足':'⚠️','正常':'✅','优秀':'⭐','卓越':'🌟'};
+                for (const [label, color] of Object.entries(ratingColors)) {
+                    ratingHtml += `<div class="stat-card"><h4>${ratingIcons2[label]} ${label}</h4><div class="number" style="color:${color}">${ratingDist[label]||0}</div></div>`;
+                }
+                ratingHtml += '</div>';
+                // 人员评价统计
+                if (Object.keys(ratingByPerson).length > 0) {
+                    ratingHtml += '<div style="margin-top:12px;">';
+                    for (const [name, data] of Object.entries(ratingByPerson)) {
+                        const parts = Object.entries(data.ratings).map(([l,c]) => `<span style="color:${ratingColors[l]||'#888'};margin-right:8px;">${ratingIcons2[l]||''}${l}:${c}</span>`).join('');
+                        ratingHtml += `<div style="padding:6px 0;border-bottom:1px solid #eee;"><strong>${name}</strong> <span style="font-size:0.85em;">${parts}</span></div>`;
+                    }
+                    ratingHtml += '</div>';
+                }
+                const existingRating = document.getElementById('monthly-rating-stats');
+                if (existingRating) existingRating.innerHTML = ratingHtml;
+            }
         }
 
         // === 导出周报 ===
