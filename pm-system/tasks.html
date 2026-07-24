@@ -831,7 +831,22 @@
         
         function isAdmin() {
             const user = JSON.parse(localStorage.getItem('pm_user') || '{}');
-            return user.role === 'admin';
+            if (user.role === 'admin') return true;
+            // fallback: 从auth.js的checkAuth获取
+            return false;
+        }
+        
+        // 页面加载时获取用户信息
+        async function initUserInfo() {
+            if (!localStorage.getItem('pm_user')) {
+                try {
+                    const res = await authFetch(`${API}/auth/me`);
+                    const data = await res.json();
+                    if (data.success && data.user) {
+                        localStorage.setItem('pm_user', JSON.stringify(data.user));
+                    }
+                } catch(e) {}
+            }
         }
         
         async function rateTask(id, currentRating) {
@@ -875,6 +890,7 @@
         
         // 加载初始数据
         async function init() {
+            await initUserInfo();
             await loadProjects();
             await loadPersons();
             await loadTasks();
