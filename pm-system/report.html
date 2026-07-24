@@ -858,6 +858,7 @@ th{background:#f5f5f5;color:#666;font-size:13px}
         }
 
         async function loadMonthlyReport() {
+            const ratingLabels = { insufficient: '⚠️不足', normal: '✅正常', excellent: '⭐优秀', outstanding: '🌟卓越' };
             const res = await authFetch(`${API}/report/monthly`);
             if (!res) return;
             const data = await res.json();
