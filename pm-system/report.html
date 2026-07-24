@@ -901,7 +901,9 @@ th{background:#f5f5f5;color:#666;font-size:13px}
                     const total = p.task_count || 0;
                     const done = p.completed_count || 0;
                     const rate = total > 0 ? Math.round(done / total * 100) : 0;
-                    return `<div class="person-card"><h4>${p.name}</h4><div class="stats">总任务: ${total} · 完成: ${done} · 完成率: ${rate}%</div><div class="progress-bar" style="margin-top:8px"><div class="progress-fill" style="width:${rate}%;background:${rate>=80?'#4caf50':rate>=50?'#ff9800':'#2196f3'}"></div></div></div>`;
+                    const delays = p.delay_count || 0;
+                    const delayTag = delays > 0 ? `<span style="color:#e74c3c;font-size:0.85em;margin-left:8px;" title="延期${delays}次，涉及${p.delayed_tasks||0}个任务">🔄延期${delays}次</span>` : '<span style="color:#4caf50;font-size:0.85em;margin-left:8px;">✅无延期</span>';
+                    return `<div class="person-card"><h4>${p.name}${delayTag}</h4><div class="stats">总任务: ${total} · 完成: ${done} · 完成率: ${rate}%</div><div class="progress-bar" style="margin-top:8px"><div class="progress-fill" style="width:${rate}%;background:${rate>=80?'#4caf50':rate>=50?'#ff9800':'#2196f3'}"></div></div></div>`;
                 }).join('')
                 : '<div class="empty-state">暂无人员数据</div>';
 

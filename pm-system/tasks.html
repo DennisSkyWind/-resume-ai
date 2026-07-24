@@ -499,7 +499,15 @@
             </div>
             <div class="form-group">
                 <label>截止日期</label>
-                <input type="date" id="edit-task-due">
+                <input type="date" id="edit-task-due" onchange="onDueDateChange()">
+            </div>
+            <div class="form-group" id="delay-reason-group" style="display:none;">
+                <label>延期原因</label>
+                <input type="text" id="edit-delay-reason" placeholder="请输入延期原因（可选）">
+            </div>
+            <div id="delay-history-section" style="display:none;">
+                <label style="font-weight:600;color:#e74c3c;">📋 延期记录</label>
+                <div id="delay-history-list" style="max-height:150px;overflow-y:auto;font-size:0.85em;background:#fef5f5;border:1px solid #f0c9c9;border-radius:6px;padding:8px;margin-top:4px;"></div>
             </div>
             <div class="form-group">
                 <label>描述</label>
@@ -1279,6 +1287,7 @@
                         <td>
                             ${t.due_date || '-'}
                             ${isDelayed ? '<span class="delayed"> ⚠️延期</span>' : ''}
+                            ${t.delay_count > 0 ? `<span style="color:#e67e22;font-size:0.8em;margin-left:4px;" title="已延期${t.delay_count}次">🔄${t.delay_count}</span>` : ''}
                         </td>
                         <td style="display: flex; gap: 4px; flex-wrap: wrap;">
                             ${!isFinished ? `<button class="action-btn btn-complete" onclick="completeTask(${t.id})">完成</button>` : ''}
@@ -1511,6 +1520,12 @@
             document.getElementById('edit-task-desc').value = task.description || '';
             document.getElementById('edit-task-priority').value = task.priority || 'medium';
             document.getElementById('edit-task-due').value = task.due_date || '';
+            // 保存原始截止日期，用于检测变更
+            window._originalDueDate = task.due_date || '';
+            document.getElementById('edit-delay-reason').value = '';
+            document.getElementById('delay-reason-group').style.display = 'none';
+            // 加载延期历史
+            loadDelayHistory(id);
             document.getElementById('edit-task-project').value = task.project_id || '';
             document.getElementById('edit-task-project-search').value = task.project_name || '';
             document.getElementById('edit-task-assignee').value = task.assignee_id || '';
@@ -1530,6 +1545,50 @@
         function hideEditTaskModal() {
             document.getElementById('edit-task-modal').classList.remove('show');
             document.getElementById('task-comments-list').innerHTML = '';
+            document.getElementById('delay-reason-group').style.display = 'none';
+            document.getElementById('delay-history-section').style.display = 'none';
+        }
+        
+        // 检测截止日期变更，显示延期原因输入
+        function onDueDateChange() {
+            const newDate = document.getElementById('edit-task-due').value;
+            const origDate = window._originalDueDate || '';
+            if (newDate && origDate && newDate > origDate) {
+                document.getElementById('delay-reason-group').style.display = 'block';
+                document.getElementById('edit-delay-reason').focus();
+            } else {
+                document.getElementById('delay-reason-group').style.display = 'none';
+                document.getElementById('edit-delay-reason').value = '';
+            }
+        }
+        
+        // 加载任务延期历史
+        async function loadDelayHistory(taskId) {
+            try {
+                const res = await authFetch(`${API}/tasks/${taskId}/delay-history`);
+                const data = await res.json();
+                if (data.success && data.history && data.history.length > 0) {
+                    const section = document.getElementById('delay-history-section');
+                    const list = document.getElementById('delay-history-list');
+                    const delays = data.history.filter(h => h.new_due_date > h.old_due_date);
+                    let html = `<div style="margin-bottom:4px;color:#c0392b;font-weight:600;">延期 ${data.delay_count} 次</div>`;
+                    delays.forEach(h => {
+                        const time = h.created_at ? h.created_at.substring(0, 16).replace('T', ' ') : '';
+                        html += `<div style="padding:3px 0;border-bottom:1px solid #f5d5d5;">
+                            <span style="color:#888;">${time}</span> 
+                            ${h.old_due_date || '无'} → ${h.new_due_date}
+                            ${h.operator_name ? `<span style="color:#666;">(${h.operator_name})</span>` : ''}
+                            ${h.reason ? `<div style="color:#555;padding-left:12px;">原因: ${h.reason}</div>` : ''}
+                        </div>`;
+                    });
+                    list.innerHTML = html;
+                    section.style.display = 'block';
+                } else {
+                    document.getElementById('delay-history-section').style.display = 'none';
+                }
+            } catch(e) {
+                console.error('加载延期历史失败:', e);
+            }
         }
         
         // ========== 评论功能 ==========
@@ -1691,7 +1750,8 @@
                 phase_id: document.getElementById('edit-task-phase').value || null,
                 assignee_id: document.getElementById('edit-task-assignee').value || null,
                 priority: document.getElementById('edit-task-priority').value,
-                due_date: document.getElementById('edit-task-due').value || null
+                due_date: document.getElementById('edit-task-due').value || null,
+                delay_reason: document.getElementById('edit-delay-reason').value || ''
             };
             
             try {
