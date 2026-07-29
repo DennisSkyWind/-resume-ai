@@ -894,6 +894,18 @@
             await loadProjects();
             await loadPersons();
             await loadTasks();
+            
+            // Ctrl+K搜索跳转定位：如果URL有edit参数，自动打开编辑
+            const urlParams = new URLSearchParams(window.location.search);
+            const editId = urlParams.get('edit');
+            if (editId) {
+                // 等待任务列表渲染完成
+                setTimeout(() => {
+                    editTask(parseInt(editId));
+                    // 清除URL参数，避免刷新时重复打开
+                    window.history.replaceState({}, '', 'tasks.html');
+                }, 300);
+            }
         }
         
         async function loadProjects() {

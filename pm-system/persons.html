@@ -830,7 +830,21 @@
             URL.revokeObjectURL(csvUrl);
         }
         
-        document.addEventListener('DOMContentLoaded', async () => { const u = await initAuthPage(); if (u) loadPersons(); });
+        document.addEventListener('DOMContentLoaded', async () => {
+            const u = await initAuthPage();
+            if (u) {
+                await loadPersons();
+                // Ctrl+K搜索跳转定位：如果URL有edit参数，自动打开编辑
+                const urlParams = new URLSearchParams(window.location.search);
+                const editId = urlParams.get('edit');
+                if (editId) {
+                    setTimeout(() => {
+                        editPerson(parseInt(editId));
+                        window.history.replaceState({}, '', 'persons.html');
+                    }, 300);
+                }
+            }
+        });
     </script>
     <script src="dark-mode.js"></script>
 </body>
