@@ -895,16 +895,43 @@
             await loadPersons();
             await loadTasks();
             
-            // Ctrl+K搜索跳转定位：如果URL有edit参数，自动打开编辑
+            // Ctrl+K搜索跳转定位：如果URL有highlight参数，定位并高亮该任务
             const urlParams = new URLSearchParams(window.location.search);
+            const highlightId = urlParams.get('highlight');
             const editId = urlParams.get('edit');
-            if (editId) {
-                // 等待任务列表渲染完成
+            const targetId = highlightId || editId;
+            
+            if (targetId) {
+                // 清除所有筛选条件，确保目标任务可见
+                currentFilters = { status: '', project: '', priority: '', assignee: '', dateStart: '', dateEnd: '', search: '' };
+                document.getElementById('filter-project') && (document.getElementById('filter-project').value = '');
+                document.getElementById('filter-priority') && (document.getElementById('filter-priority').value = '');
+                document.getElementById('filter-assignee') && (document.getElementById('filter-assignee').value = '');
+                document.getElementById('filter-status') && (document.getElementById('filter-status').value = '');
+                document.getElementById('filter-search') && (document.getElementById('filter-search').value = '');
+                
+                // 重新筛选并渲染
+                filteredTasks = allTasks.filter(t => true);
+                renderTasks();
+                
                 setTimeout(() => {
-                    editTask(parseInt(editId));
-                    // 清除URL参数，避免刷新时重复打开
+                    // 高亮目标行并滚动到可见位置
+                    const targetRow = document.querySelector(`tr[data-id="${targetId}"]`);
+                    if (targetRow) {
+                        targetRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        targetRow.style.transition = 'background 0.3s';
+                        targetRow.style.background = '#fff3e0';
+                        setTimeout(() => { targetRow.style.background = ''; }, 3000);
+                    }
+                    
+                    // 如果是edit模式，弹出编辑弹窗
+                    if (editId) {
+                        editTask(parseInt(editId));
+                    }
+                    
+                    // 清除URL参数
                     window.history.replaceState({}, '', 'tasks.html');
-                }, 300);
+                }, 500);
             }
         }
         

@@ -370,12 +370,12 @@
             // 搜索任务
             searchData.tasks.filter(t => (t.name || '').toLowerCase().includes(query)).slice(0, 8).forEach(t => {
                 const statusIcons = { pending: '⬜', in_progress: '🔄', completed: '✅', cancelled: '❌' };
-                results.push({ type: 'task', icon: statusIcons[t.status] || '📋', name: t.name, detail: `${t.project_name || ''} · ${t.assignee_name || '未分配'}`, link: `tasks.html?edit=${t.id}` });
+                results.push({ type: 'task', icon: statusIcons[t.status] || '📋', name: t.name, detail: `${t.project_name || ''} · ${t.assignee_name || '未分配'}`, link: `tasks.html?highlight=${t.id}` });
             });
             
             // 搜索人员
             searchData.persons.filter(p => p.name.toLowerCase().includes(query)).slice(0, 5).forEach(p => {
-                results.push({ type: 'person', icon: '👤', name: p.name, detail: `${p.line || ''} ${p.position || ''}`, link: `persons.html?edit=${p.id}` });
+                results.push({ type: 'person', icon: '👤', name: p.name, detail: `${p.line || ''} ${p.position || ''}`, link: `persons.html?highlight=${p.id}` });
             });
             
             const container = document.getElementById('global-search-results');

@@ -392,7 +392,7 @@
             }
             
             grid.innerHTML = filteredList.map(p => `
-                <div class="person-card">
+                <div class="person-card" data-id="${p.id}">
                     <div class="person-header">
                         <div class="avatar">${p.name.charAt(0)}</div>
                         <div class="person-info">
@@ -834,14 +834,39 @@
             const u = await initAuthPage();
             if (u) {
                 await loadPersons();
-                // Ctrl+K搜索跳转定位：如果URL有edit参数，自动打开编辑
+                
+                // Ctrl+K搜索跳转定位
                 const urlParams = new URLSearchParams(window.location.search);
+                const highlightId = urlParams.get('highlight');
                 const editId = urlParams.get('edit');
-                if (editId) {
+                const targetId = highlightId || editId;
+                
+                if (targetId) {
+                    // 清除搜索筛选，确保目标人员可见
+                    const searchInput = document.getElementById('person-search');
+                    if (searchInput) { searchInput.value = ''; renderPersons(); }
+                    
                     setTimeout(() => {
-                        editPerson(parseInt(editId));
+                        // 高亮目标卡片并滚动
+                        const targetCard = document.querySelector(`.person-card[data-id="${targetId}"]`);
+                        if (targetCard) {
+                            targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            targetCard.style.transition = 'box-shadow 0.3s, background 0.3s';
+                            targetCard.style.boxShadow = '0 0 0 3px #ff9800';
+                            targetCard.style.background = '#fff3e0';
+                            setTimeout(() => { 
+                                targetCard.style.boxShadow = ''; 
+                                targetCard.style.background = '';
+                            }, 3000);
+                        }
+                        
+                        // 如果是edit模式，弹出编辑弹窗
+                        if (editId) {
+                            editPerson(parseInt(editId));
+                        }
+                        
                         window.history.replaceState({}, '', 'persons.html');
-                    }, 300);
+                    }, 500);
                 }
             }
         });
