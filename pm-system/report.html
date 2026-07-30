@@ -994,8 +994,11 @@ ${(r.risk_tasks||[]).length>0?`<h2 style="color:#9c27b0">⚠️ 风险预警</h2
 ${(r.new_tasks||[]).map(t=>`<tr><td>${t.name}</td><td>${t.project_name||'-'}</td><td>${t.assignee_name||'-'}</td><td>${t.progress||0}%</td><td>${t.status==='completed'?'✅已完成':t.status==='in_progress'?'🔄进行中':'⏳待处理'}</td></tr>`).join('')||'<tr><td colspan="5" style="text-align:center;color:#999">无新增任务</td></tr>'}
 </table>
 <h2>✅ 本周完成任务</h2>
-<table><tr><th>任务</th><th>项目</th><th>负责人</th><th>完成日期</th></tr>
-${(r.completed_tasks||[]).map(t=>`<tr><td>${t.name}</td><td>${t.project_name||'-'}</td><td>${t.assignee_name||'-'}</td><td>${t.completed_date||'-'}</td></tr>`).join('')||'<tr><td colspan="4" style="text-align:center;color:#999">无完成任务</td></tr>'}
+<table><tr><th>任务</th><th>项目</th><th>负责人</th><th>完成日期</th><th>评价</th></tr>
+${(r.completed_tasks||[]).map(t=>{
+    const ratingMap={insufficient:'⚠️不足',normal:'✅正常',excellent:'⭐优秀',outstanding:'🌟卓越'};
+    return `<tr><td>${t.name}</td><td>${t.project_name||'-'}</td><td>${t.assignee_name||'-'}</td><td>${t.completed_date||'-'}</td><td>${t.rating?ratingMap[t.rating]||t.rating:'-'}</td></tr>`;
+}).join('')||'<tr><td colspan="5" style="text-align:center;color:#999">无完成任务</td></tr>'}
 </table>
 <h2>📊 活跃项目进度</h2>
 ${(r.active_projects||[]).map(p=>`<div style="margin:10px 0"><strong>${p.name}</strong> <span style="color:#666">· 负责人: ${p.owner_name||'-'}</span><div class="progress-bar"><div class="progress-fill" style="width:${p.progress}%;background:${p.progress>=80?'#4caf50':p.progress>=50?'#ff9800':'#2196f3'}"></div></div><span style="font-size:13px;color:#666">${p.progress}%</span></div>`).join('')||'<p style="color:#999">无活跃项目</p>'}
@@ -1063,9 +1066,19 @@ ${(r.active_projects||[]).map(p=>`<div style="margin:10px 0"><strong>${p.name}</
     return `<div class="person-card"><strong>${p.name}</strong><div style="font-size:13px;color:#666;margin:5px 0">总任务:${total} · 完成:${done} · 完成率:${rate}%</div><div class="progress-bar"><div class="progress-fill" style="width:${rate}%;background:${rate>=80?'#4caf50':rate>=50?'#ff9800':'#2196f3'}"></div></div></div>`;
 }).join('')||'<p style="color:#999">暂无数据</p>'}</div>
 <h2>✅ 本月完成任务</h2>
-<table><tr><th>任务</th><th>项目</th><th>负责人</th><th>完成日期</th></tr>
-${(r.completed_tasks||[]).map(t=>`<tr><td>${t.name}</td><td>${t.project_name||'-'}</td><td>${t.assignee_name||'-'}</td><td>${t.completed_date||'-'}</td></tr>`).join('')||'<tr><td colspan="4" style="text-align:center;color:#999">无完成任务</td></tr>'}
+<table><tr><th>任务</th><th>项目</th><th>负责人</th><th>完成日期</th><th>评价</th></tr>
+${(r.completed_tasks||[]).map(t=>{
+    const ratingMap={insufficient:'⚠️不足',normal:'✅正常',excellent:'⭐优秀',outstanding:'🌟卓越'};
+    return `<tr><td>${t.name}</td><td>${t.project_name||'-'}</td><td>${t.assignee_name||'-'}</td><td>${t.completed_date||'-'}</td><td>${t.rating?ratingMap[t.rating]||t.rating:'-'}</td></tr>`;
+}).join('')||'<tr><td colspan="5" style="text-align:center;color:#999">无完成任务</td></tr>'}
 </table>
+${(()=>{const rs=r.rating_stats||{};const dist=rs.distribution||{};const byPerson=rs.by_person||{};if(Object.keys(dist).length===0&&Object.keys(byPerson).length===0)return'';
+const colors={'不足':'#e74c3c','正常':'#3498db','优秀':'#27ae60','卓越':'#9b59b6'};const icons={'不足':'⚠️','正常':'✅','优秀':'⭐','卓越':'🌟'};
+let h='<h2>🏆 任务评价统计</h2><div class="stats" style="margin:15px 0">';
+for(const[l,c]of Object.entries(dist)){h+=`<div class="stat"><div class="num" style="color:${colors[l]||'#764ba2'}">${c}</div><div class="label">${icons[l]||''} ${l}</div></div>`;}
+h+='</div>';
+if(Object.keys(byPerson).length>0){h+='<table><tr><th>人员</th><th>评价分布</th></tr>';for(const[name,data]of Object.entries(byPerson)){const parts=Object.entries(data.ratings||{}).map(([l,c])=>`<span style="color:${colors[l]||'#888'};margin-right:8px;">${icons[l]||''}${l}:${c}</span>`).join('');h+=`<tr><td>${name}</td><td>${parts}</td></tr>`;}h+='</table>';}
+return h;})()}
 <div class="footer">生成时间：${new Date().toLocaleString('zh-CN')}</div>
 </body></html>`;
             
