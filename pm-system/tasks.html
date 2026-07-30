@@ -778,12 +778,49 @@
                 } catch(e) {}
             }
             const res = [];
-            _gsData.projects.filter(p => p.name.toLowerCase().includes(q)).slice(0,5).forEach(p => res.push({t:'project',i:'📁',n:p.name,d:`进度 ${p.progress||0}%`,l:`project.html?id=${p.id}`}));
-            _gsData.tasks.filter(t => (t.name||'').toLowerCase().includes(q)).slice(0,8).forEach(t => res.push({t:'task',i:'📋',n:t.name,d:`${t.project_name||''} · ${t.assignee_name||'未分配'}`,l:'tasks.html'}));
-            _gsData.persons.filter(p => p.name.toLowerCase().includes(q)).slice(0,5).forEach(p => res.push({t:'person',i:'👤',n:p.name,d:`${p.line||''} ${p.position||''}`,l:'persons.html'}));
+            _gsData.projects.filter(p => p.name.toLowerCase().includes(q)).slice(0,5).forEach(p => res.push({t:'project',i:'📁',n:p.name,d:`进度 ${p.progress||0}%`,l:`projects.html?highlight=${p.id}`,aid:p.id}));
+            _gsData.tasks.filter(t => (t.name||'').toLowerCase().includes(q)).slice(0,8).forEach(t => res.push({t:'task',i:'📋',n:t.name,d:`${t.project_name||''} · ${t.assignee_name||'未分配'}`,l:`tasks.html?highlight=${t.id}`,aid:t.id}));
+            _gsData.persons.filter(p => p.name.toLowerCase().includes(q)).slice(0,5).forEach(p => res.push({t:'person',i:'👤',n:p.name,d:`${p.line||''} ${p.position||''}`,l:`persons.html?highlight=${p.id}`,aid:p.id}));
             const c = document.getElementById('global-search-results');
             if (!res.length) { c.innerHTML = '<div style="padding:20px;text-align:center;color:#999">未找到相关结果</div>'; return; }
-            c.innerHTML = res.map(r => `<a href="${r.l}" style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-radius:8px;text-decoration:none;color:#333" onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background=''"><span style="font-size:18px">${r.i}</span><div style="flex:1"><div style="font-weight:500">${r.n}</div><div style="font-size:12px;color:#888">${r.d}</div></div><span style="font-size:11px;color:#bbb;background:#f5f5f5;padding:2px 6px;border-radius:3px">${r.t==='project'?'项目':r.t==='task'?'任务':'人员'}</span></a>`).join('');
+            c.innerHTML = res.map(r => `<a href="${r.l}" onclick="handleSearchClick(event,'${r.t}',${r.aid})" style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-radius:8px;text-decoration:none;color:#333" onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background=''"><span style="font-size:18px">${r.i}</span><div style="flex:1"><div style="font-weight:500">${r.n}</div><div style="font-size:12px;color:#888">${r.d}</div></div><span style="font-size:11px;color:#bbb;background:#f5f5f5;padding:2px 6px;border-radius:3px">${r.t==='project'?'项目':r.t==='task'?'任务':'人员'}</span></a>`).join('');
+        }
+        function handleSearchClick(e, type, id) {
+            // 如果搜索结果类型是当前页面类型，直接在当前页面定位
+            const currentPage = location.pathname;
+            if (type === 'task' && currentPage.includes('tasks.html')) {
+                e.preventDefault();
+                hideGlobalSearch();
+                highlightTask(id);
+            } else if (type === 'person' && currentPage.includes('persons.html')) {
+                e.preventDefault();
+                hideGlobalSearch();
+                highlightPerson(id);
+            }
+            // 其他情况正常跳转
+        }
+        function highlightTask(taskId) {
+            // 清除筛选，确保目标任务可见
+            currentFilters = { status: '', project: '', priority: '', assignee: '', dateStart: '', dateEnd: '', search: '' };
+            const fp = document.getElementById('filter-project'); if (fp) fp.value = '';
+            const fpr = document.getElementById('filter-priority'); if (fpr) fpr.value = '';
+            const fa = document.getElementById('filter-assignee'); if (fa) fa.value = '';
+            const fs = document.getElementById('filter-status'); if (fs) fs.value = '';
+            const fse = document.getElementById('filter-search'); if (fse) fse.value = '';
+            filteredTasks = allTasks.filter(t => true);
+            renderTasks();
+            if (currentView === 'kanban') switchView('list');
+            requestAnimationFrame(() => {
+                setTimeout(() => {
+                    const targetRow = document.querySelector(`tr[data-id="${taskId}"]`);
+                    if (targetRow) {
+                        targetRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        targetRow.style.transition = 'background 0.3s';
+                        targetRow.style.background = '#fff3e0';
+                        setTimeout(() => { targetRow.style.background = ''; }, 3000);
+                    }
+                }, 100);
+            });
         }
         function handleSearchKey(e) { if (e.key === 'Escape') hideGlobalSearch(); }
         document.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(); showGlobalSearch(); } });
@@ -893,45 +930,61 @@
             await initUserInfo();
             await loadProjects();
             await loadPersons();
-            await loadTasks();
             
-            // Ctrl+K搜索跳转定位：如果URL有highlight参数，定位并高亮该任务
+            // Ctrl+K搜索跳转定位：在loadTasks之前先读取highlight参数
             const urlParams = new URLSearchParams(window.location.search);
             const highlightId = urlParams.get('highlight');
             const editId = urlParams.get('edit');
             const targetId = highlightId || editId;
             
             if (targetId) {
-                // 清除所有筛选条件，确保目标任务可见
+                // 先清除所有筛选条件，确保目标任务可见
                 currentFilters = { status: '', project: '', priority: '', assignee: '', dateStart: '', dateEnd: '', search: '' };
-                document.getElementById('filter-project') && (document.getElementById('filter-project').value = '');
-                document.getElementById('filter-priority') && (document.getElementById('filter-priority').value = '');
-                document.getElementById('filter-assignee') && (document.getElementById('filter-assignee').value = '');
-                document.getElementById('filter-status') && (document.getElementById('filter-status').value = '');
-                document.getElementById('filter-search') && (document.getElementById('filter-search').value = '');
-                
-                // 重新筛选并渲染
-                filteredTasks = allTasks.filter(t => true);
-                renderTasks();
-                
-                setTimeout(() => {
-                    // 高亮目标行并滚动到可见位置
-                    const targetRow = document.querySelector(`tr[data-id="${targetId}"]`);
-                    if (targetRow) {
-                        targetRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        targetRow.style.transition = 'background 0.3s';
-                        targetRow.style.background = '#fff3e0';
-                        setTimeout(() => { targetRow.style.background = ''; }, 3000);
-                    }
-                    
-                    // 如果是edit模式，弹出编辑弹窗
-                    if (editId) {
-                        editTask(parseInt(editId));
-                    }
-                    
-                    // 清除URL参数
-                    window.history.replaceState({}, '', 'tasks.html');
-                }, 500);
+                const fp = document.getElementById('filter-project'); if (fp) fp.value = '';
+                const fpr = document.getElementById('filter-priority'); if (fpr) fpr.value = '';
+                const fa = document.getElementById('filter-assignee'); if (fa) fa.value = '';
+                const fs = document.getElementById('filter-status'); if (fs) fs.value = '';
+                const fse = document.getElementById('filter-search'); if (fse) fse.value = '';
+            }
+            
+            await loadTasks();
+            
+            if (targetId) {
+                // loadTasks内部applyFilters已从DOM读取了清空后的筛选值，目标任务应该可见
+                // 等待DOM渲染完成后定位
+                requestAnimationFrame(() => {
+                    setTimeout(() => {
+                        const targetRow = document.querySelector(`tr[data-id="${targetId}"]`);
+                        if (targetRow) {
+                            targetRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            targetRow.style.transition = 'background 0.3s';
+                            targetRow.style.background = '#fff3e0';
+                            setTimeout(() => { targetRow.style.background = ''; }, 3000);
+                        } else {
+                            // 可能在看板视图，尝试切换到列表视图
+                            if (currentView === 'kanban') {
+                                switchView('list');
+                                setTimeout(() => {
+                                    const row = document.querySelector(`tr[data-id="${targetId}"]`);
+                                    if (row) {
+                                        row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                        row.style.transition = 'background 0.3s';
+                                        row.style.background = '#fff3e0';
+                                        setTimeout(() => { row.style.background = ''; }, 3000);
+                                    }
+                                }, 300);
+                            }
+                        }
+                        
+                        // 如果是edit模式，弹出编辑弹窗
+                        if (editId) {
+                            editTask(parseInt(editId));
+                        }
+                        
+                        // 清除URL参数
+                        window.history.replaceState({}, '', 'tasks.html');
+                    }, 100);
+                });
             }
         }
         
