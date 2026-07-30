@@ -704,8 +704,22 @@
             const user = await initAuthPage();
             if (!user) return; // 未登录会自动跳转
             loadDashboard();
+            checkVersion();
         });
+        
+        // 版本检查
+        async function checkVersion() {
+            try {
+                const res = await authFetch(`${API}/version`);
+                if (!res) return;
+                const data = await res.json();
+                if (data.success && data.version) {
+                    document.getElementById('app-version').textContent = `v${data.version}`;
+                }
+            } catch(e) {}
+        }
     </script>
         <script src="dark-mode.js"></script>
+        <div style="text-align:center;padding:8px;color:#bbb;font-size:11px;">项目管理系统 <span id="app-version">v-</span></div>
 </body>
 </html>
