@@ -207,6 +207,8 @@
             <button class="tab-btn active" onclick="switchTab('daily')">日报</button>
             <button class="tab-btn" onclick="switchTab('weekly')">周报</button>
             <button class="tab-btn" onclick="switchTab('monthly')">月报</button>
+            <button class="tab-btn" onclick="switchTab('quarterly')">季度报</button>
+            <button class="tab-btn" onclick="switchTab('annual')">年度报</button>
         </div>
 
         <div class="report-container">
@@ -316,6 +318,92 @@
                 <div class="export-actions">
                     <button class="export-btn" onclick="exportMonthlyReport('html')">📥 导出HTML</button>
                     <button class="export-btn" onclick="exportMonthlyReport('pdf')">📄 导出PDF</button>
+                </div>
+            </div>
+
+            <!-- 季度报面板 -->
+            <div id="quarterly-report" style="display:none">
+                <div class="report-header">
+                    <div class="report-title">📊 季度报告</div>
+                    <div class="report-period" id="quarterly-period"></div>
+                    <div style="display:flex;gap:8px;margin-top:8px;">
+                        <select id="quarterly-year" onchange="loadQuarterlyReport()" style="padding:4px 8px;border-radius:4px;border:1px solid #ddd;"></select>
+                        <select id="quarterly-quarter" onchange="loadQuarterlyReport()" style="padding:4px 8px;border-radius:4px;border:1px solid #ddd;">
+                            <option value="1">Q1 (1-3月)</option>
+                            <option value="2">Q2 (4-6月)</option>
+                            <option value="3">Q3 (7-9月)</option>
+                            <option value="4">Q4 (10-12月)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="stats-grid" id="quarterly-stats"></div>
+                <div class="section" id="quarterly-trend-section" style="display:none">
+                    <div class="section-title">📈 月度趋势</div>
+                    <div id="quarterly-trend"></div>
+                </div>
+                <div class="section" id="quarterly-overdue-section" style="display:none">
+                    <div class="section-title">🔴 延期任务</div>
+                    <div class="task-list" id="quarterly-overdue-tasks"></div>
+                </div>
+                <div class="section">
+                    <div class="section-title">📋 活跃项目</div>
+                    <div id="quarterly-active-projects"></div>
+                </div>
+                <div class="section">
+                    <div class="section-title">📊 人员工作量与绩效</div>
+                    <div id="quarterly-person-stats"></div>
+                </div>
+                <div class="section">
+                    <div class="section-title">✅ 完成任务</div>
+                    <div class="task-list" id="quarterly-completed-tasks"></div>
+                </div>
+                <div class="section" id="quarterly-rating-stats-section">
+                    <div class="section-title">🏆 评价统计</div>
+                    <div id="quarterly-rating-stats"></div>
+                </div>
+                <div class="export-actions">
+                    <button class="export-btn" onclick="exportPeriodReport('quarterly','html')">📥 导出HTML</button>
+                    <button class="export-btn" onclick="exportPeriodReport('quarterly','pdf')">📄 导出PDF</button>
+                </div>
+            </div>
+
+            <!-- 年度报面板 -->
+            <div id="annual-report" style="display:none">
+                <div class="report-header">
+                    <div class="report-title">📊 年度报告</div>
+                    <div class="report-period" id="annual-period"></div>
+                    <div style="display:flex;gap:8px;margin-top:8px;">
+                        <select id="annual-year" onchange="loadAnnualReport()" style="padding:4px 8px;border-radius:4px;border:1px solid #ddd;"></select>
+                    </div>
+                </div>
+                <div class="stats-grid" id="annual-stats"></div>
+                <div class="section" id="annual-trend-section" style="display:none">
+                    <div class="section-title">📈 月度趋势</div>
+                    <div id="annual-trend"></div>
+                </div>
+                <div class="section" id="annual-overdue-section" style="display:none">
+                    <div class="section-title">🔴 延期任务</div>
+                    <div class="task-list" id="annual-overdue-tasks"></div>
+                </div>
+                <div class="section">
+                    <div class="section-title">📋 活跃项目</div>
+                    <div id="annual-active-projects"></div>
+                </div>
+                <div class="section">
+                    <div class="section-title">📊 人员工作量与绩效</div>
+                    <div id="annual-person-stats"></div>
+                </div>
+                <div class="section">
+                    <div class="section-title">✅ 完成任务</div>
+                    <div class="task-list" id="annual-completed-tasks"></div>
+                </div>
+                <div class="section" id="annual-rating-stats-section">
+                    <div class="section-title">🏆 评价统计</div>
+                    <div id="annual-rating-stats"></div>
+                </div>
+                <div class="export-actions">
+                    <button class="export-btn" onclick="exportPeriodReport('annual','html')">📥 导出HTML</button>
+                    <button class="export-btn" onclick="exportPeriodReport('annual','pdf')">📄 导出PDF</button>
                 </div>
             </div>
         </div>
@@ -473,9 +561,13 @@
             document.getElementById('daily-report').style.display = tab === 'daily' ? '' : 'none';
             document.getElementById('weekly-report').style.display = tab === 'weekly' ? '' : 'none';
             document.getElementById('monthly-report').style.display = tab === 'monthly' ? '' : 'none';
+            document.getElementById('quarterly-report').style.display = tab === 'quarterly' ? '' : 'none';
+            document.getElementById('annual-report').style.display = tab === 'annual' ? '' : 'none';
             if (tab === 'daily') loadDailyReport();
             if (tab === 'weekly') loadWeeklyReport();
             if (tab === 'monthly') loadMonthlyReport();
+            if (tab === 'quarterly') loadQuarterlyReport();
+            if (tab === 'annual') loadAnnualReport();
         }
 
         // === 日报功能 ===
@@ -948,6 +1040,196 @@ th{background:#f5f5f5;color:#666;font-size:13px}
                 }
                 const existingRating = document.getElementById('monthly-rating-stats');
                 if (existingRating) existingRating.innerHTML = ratingHtml;
+            }
+        }
+
+        // === 季度报/年度报通用渲染 ===
+        function initYearSelectors() {
+            const now = new Date();
+            const curYear = now.getFullYear();
+            ['quarterly-year', 'annual-year'].forEach(id => {
+                const sel = document.getElementById(id);
+                if (!sel || sel.options.length > 0) return;
+                for (let y = curYear; y >= curYear - 3; y--) {
+                    sel.innerHTML += `<option value="${y}">${y}年</option>`;
+                }
+            });
+            // 默认季度
+            const qSel = document.getElementById('quarterly-quarter');
+            if (qSel) qSel.value = Math.floor(now.getMonth() / 3) + 1;
+        }
+        initYearSelectors();
+
+        async function loadQuarterlyReport() {
+            const year = document.getElementById('quarterly-year').value;
+            const quarter = document.getElementById('quarterly-quarter').value;
+            const res = await authFetch(`${API}/report/quarterly?year=${year}&quarter=${quarter}`);
+            if (!res) return;
+            const data = await res.json();
+            if (!data.success) return;
+            renderPeriodReport('quarterly', data.report);
+        }
+
+        async function loadAnnualReport() {
+            const year = document.getElementById('annual-year').value;
+            const res = await authFetch(`${API}/report/annual?year=${year}`);
+            if (!res) return;
+            const data = await res.json();
+            if (!data.success) return;
+            renderPeriodReport('annual', data.report);
+        }
+
+        function renderPeriodReport(prefix, report) {
+            const ratingLabels = { insufficient: '⚠️不足', normal: '✅正常', excellent: '⭐优秀', outstanding: '🌟卓越' };
+            const s = report.stats;
+            document.getElementById(`${prefix}-period`).textContent = report.period;
+            document.getElementById(`${prefix}-stats`).innerHTML = `
+                <div class="stat-card"><h4>完成任务</h4><div class="number">${s.completed_tasks||0}</div></div>
+                <div class="stat-card"><h4>完成项目</h4><div class="number">${s.completed_projects||0}</div></div>
+                <div class="stat-card"><h4>延期任务</h4><div class="number" style="color:${(s.overdue_tasks||0)>0?'#f44336':'#667eea'}">${s.overdue_tasks||0}</div></div>
+                <div class="stat-card"><h4>解决问题</h4><div class="number">${s.resolved_issues||0}</div></div>
+            `;
+
+            // 月度趋势
+            const trend = report.monthly_trend || [];
+            const trendSection = document.getElementById(`${prefix}-trend-section`);
+            if (trend.length > 0) {
+                trendSection.style.display = '';
+                document.getElementById(`${prefix}-trend`).innerHTML = `
+                    <div class="stats-grid" style="grid-template-columns:repeat(${trend.length},1fr)">
+                        ${trend.map(m => `<div class="stat-card"><h4>${m.month}</h4><div style="font-size:14px">完成:${m.completed||0} · 延期:${m.overdue||0}</div></div>`).join('')}
+                    </div>
+                `;
+            } else {
+                trendSection.style.display = 'none';
+            }
+
+            // 延期任务
+            const overdueTasks = report.overdue_tasks || [];
+            const overdueSection = document.getElementById(`${prefix}-overdue-section`);
+            if (overdueTasks.length > 0) {
+                overdueSection.style.display = '';
+                document.getElementById(`${prefix}-overdue-tasks`).innerHTML = overdueTasks.map(t =>
+                    `<div class="task-item" style="border-left:3px solid #f44336"><div><div class="task-name">${t.name}</div><div class="task-meta">${t.project_name||''} · ${t.assignee_name||''} · 截止:${t.due_date||'-'} · 进度${t.progress||0}%</div></div><div class="task-meta" style="color:#f44336">🔴 延期</div></div>`
+                ).join('');
+            } else { overdueSection.style.display = 'none'; }
+
+            // 活跃项目
+            document.getElementById(`${prefix}-active-projects`).innerHTML = (report.active_projects||[]).map(p =>
+                `<div style="margin:8px 0"><strong>${p.name}</strong> <span style="color:#666">· ${p.owner_name||'-'} · 任务:${p.done_tasks||0}/${p.total_tasks||0} · ${p.progress||0}%</span></div>`
+            ).join('') || '<div class="empty-state">暂无活跃项目</div>';
+
+            // 人员工作量与绩效（table，支持PDF导出）
+            const persons = report.person_stats || [];
+            document.getElementById(`${prefix}-person-stats`).innerHTML = persons.length > 0
+                ? `<table style="width:100%;border-collapse:collapse"><thead><tr style="background:#764ba2;color:white"><th style="padding:8px;text-align:left">人员</th><th style="padding:8px">条线</th><th style="padding:8px">总任务</th><th style="padding:8px">完成</th><th style="padding:8px">进行中</th><th style="padding:8px">待处理</th><th style="padding:8px">完成率</th><th style="padding:8px">延期</th><th style="padding:8px">评价</th></tr></thead><tbody>${persons.map(p => {
+                    const total=p.task_count||0, done=p.completed_count||0, inp=p.in_progress_count||0, pend=p.pending_count||0;
+                    const rate=total>0?Math.round(done/total*100):0;
+                    const delays=p.delay_count||0;
+                    const rd=p.rating_detail||{};
+                    const ratingStr=Object.entries(rd).map(([l,c])=>`<span style="color:${l==='卓越'?'#9b59b6':l==='优秀'?'#27ae60':l==='不足'?'#e74c3c':'#3498db'}">${l}:${c}</span>`).join(' ') || '-';
+                    return `<tr style="border-bottom:1px solid #eee"><td style="padding:8px"><strong>${p.name}</strong></td><td style="padding:8px;color:#666">${p.line||'-'}</td><td style="padding:8px;text-align:center">${total}</td><td style="padding:8px;text-align:center;color:#4caf50">${done}</td><td style="padding:8px;text-align:center;color:#ff9800">${inp}</td><td style="padding:8px;text-align:center">${pend}</td><td style="padding:8px;text-align:center;font-weight:bold;color:${rate>=80?'#4caf50':rate>=50?'#ff9800':'#2196f3'}">${rate}%</td><td style="padding:8px;text-align:center;color:${delays>0?'#f44336':'#4caf50'}">${delays>0?'🔴'+delays:'✅0'}</td><td style="padding:8px;font-size:0.85em">${ratingStr}</td></tr>`;
+                }).join('')}</tbody></table>`
+                : '<div class="empty-state">暂无人员数据</div>';
+
+            // 完成任务
+            document.getElementById(`${prefix}-completed-tasks`).innerHTML = (report.completed_tasks||[]).map(t => {
+                const ratingTag = t.rating && ratingLabels[t.rating] ? ` <span style="font-size:0.85em">${ratingLabels[t.rating]}</span>` : '';
+                return `<div class="task-item"><div><div class="task-name">${t.name}${ratingTag}</div><div class="task-meta">${t.project_name||''} · ${t.assignee_name||''} · ${t.completed_date||''}</div></div><div class="task-meta">✅</div></div>`;
+            }).join('') || '<div class="empty-state">无完成任务</div>';
+
+            // 评价统计
+            const ratingStats = report.rating_stats || {};
+            const ratingDist = ratingStats.distribution || {};
+            const ratingByPerson = ratingStats.by_person || {};
+            const ratingSection = document.getElementById(`${prefix}-rating-stats`);
+            if (Object.keys(ratingDist).length > 0 || Object.keys(ratingByPerson).length > 0) {
+                const colors = {'不足':'#e74c3c','正常':'#3498db','优秀':'#27ae60','卓越':'#9b59b6'};
+                const icons = {'不足':'⚠️','正常':'✅','优秀':'⭐','卓越':'🌟'};
+                let html = '<div class="stats-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px;">';
+                for (const [label, color] of Object.entries(colors)) {
+                    html += `<div class="stat-card"><h4>${icons[label]} ${label}</h4><div class="number" style="color:${color}">${ratingDist[label]||0}</div></div>`;
+                }
+                html += '</div>';
+                if (Object.keys(ratingByPerson).length > 0) {
+                    html += '<div style="margin-top:12px">';
+                    for (const [name, data] of Object.entries(ratingByPerson)) {
+                        const parts = Object.entries(data.ratings||{}).map(([l,c]) => `<span style="color:${colors[l]||'#888'};margin-right:8px;">${icons[l]||''}${l}:${c}</span>`).join('');
+                        html += `<div style="padding:6px 0;border-bottom:1px solid #eee;"><strong>${name}</strong> <span style="font-size:0.85em;">${parts}</span></div>`;
+                    }
+                    html += '</div>';
+                }
+                ratingSection.innerHTML = html;
+            } else {
+                ratingSection.innerHTML = '<div class="empty-state">暂无评价数据</div>';
+            }
+        }
+
+        // === 通用导出（季度报/年度报）===
+        async function exportPeriodReport(reportType, format) {
+            const year = document.getElementById(`${reportType}-year`).value;
+            let url = `${API}/report/${reportType}?year=${year}`;
+            if (reportType === 'quarterly') {
+                const quarter = document.getElementById('quarterly-quarter').value;
+                url += `&quarter=${quarter}`;
+            }
+            const res = await authFetch(url);
+            if (!res) return;
+            const data = await res.json();
+            if (!data.success) return;
+            const r = data.report;
+            const s = r.stats;
+
+            const themeColor = reportType === 'quarterly' ? '#e91e63' : '#ff5722';
+            const title = reportType === 'quarterly' ? '📊 季度报告' : '📊 年度报告';
+            const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${title} - ${r.period}</title>
+<style>body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:900px;margin:0 auto;padding:30px;color:#333}
+h1{color:${themeColor};border-bottom:3px solid ${themeColor};padding-bottom:10px}
+h2{color:#555;margin-top:30px}
+.stats{display:flex;gap:15px;margin:20px 0}
+.stat{flex:1;background:#f8f9fa;padding:15px;border-radius:8px;text-align:center}
+.stat .num{font-size:28px;font-weight:bold;color:${themeColor}}
+.stat .label{font-size:13px;color:#666;margin-top:5px}
+table{width:100%;border-collapse:collapse;margin:15px 0}
+th{background:${themeColor};color:white;padding:10px;text-align:left}
+td{padding:10px;border-bottom:1px solid #eee}
+.footer{margin-top:40px;color:#999;font-size:12px;border-top:1px solid #eee;padding-top:10px}
+.overdue{border-left:3px solid #f44336;padding-left:10px}
+</style></head><body>
+<h1>${title}</h1>
+<p style="color:#666">统计周期：${r.period}</p>
+<div class="stats">
+<div class="stat"><div class="num">${s.completed_tasks||0}</div><div class="label">完成任务</div></div>
+<div class="stat"><div class="num">${s.completed_projects||0}</div><div class="label">完成项目</div></div>
+<div class="stat"><div class="num" style="color:${(s.overdue_tasks||0)>0?'#f44336':themeColor}">${s.overdue_tasks||0}</div><div class="label">延期任务</div></div>
+<div class="stat"><div class="num">${s.resolved_issues||0}</div><div class="label">解决问题</div></div>
+</div>
+${(r.monthly_trend||[]).length>0?`<h2>📈 月度趋势</h2><table><tr><th>月份</th><th>完成</th><th>延期</th></tr>${r.monthly_trend.map(m=>`<tr><td>${m.month}</td><td>${m.completed||0}</td><td style="color:${(m.overdue||0)>0?'#f44336':'#333'}">${m.overdue||0}</td></tr>`).join('')}</table>`:''}
+${(r.overdue_tasks||[]).length>0?`<h2 style="color:#f44336">🔴 延期任务</h2><table><tr><th>任务</th><th>项目</th><th>负责人</th><th>截止日</th><th>进度</th></tr>${r.overdue_tasks.map(t=>`<tr class="overdue"><td>${t.name}</td><td>${t.project_name||'-'}</td><td>${t.assignee_name||'-'}</td><td>${t.due_date||'-'}</td><td>${t.progress||0}%</td></tr>`).join('')}</table>`:''}
+<h2>📋 活跃项目</h2>
+${(r.active_projects||[]).map(p=>`<div style="margin:8px 0"><strong>${p.name}</strong> <span style="color:#666">· ${p.owner_name||'-'} · 任务:${p.done_tasks||0}/${p.total_tasks||0} · ${p.progress||0}%</span></div>`).join('')||'<p style="color:#999">暂无</p>'}
+<h2>📊 人员工作量与绩效</h2>
+<table><tr><th>人员</th><th>条线</th><th>总任务</th><th>完成</th><th>完成率</th><th>延期</th><th>评价</th></tr>
+${(r.person_stats||[]).map(p=>{const t=p.task_count||0,d=p.completed_count||0,rate=t>0?Math.round(d/t*100):0,delays=p.delay_count||0;const rd=p.rating_detail||{};const rs=Object.entries(rd).map(([l,c])=>`${l}:${c}`).join(' ')||'-';return `<tr><td><strong>${p.name}</strong></td><td>${p.line||'-'}</td><td>${t}</td><td>${d}</td><td style="font-weight:bold;color:${rate>=80?'#4caf50':rate>=50?'#ff9800':'#2196f3'}">${rate}%</td><td style="color:${delays>0?'#f44336':'#4caf50'}">${delays}</td><td style="font-size:0.85em">${rs}</td></tr>`;}).join('')||'<tr><td colspan="7" style="text-align:center;color:#999">暂无数据</td></tr>'}
+</table>
+<h2>✅ 完成任务</h2>
+<table><tr><th>任务</th><th>项目</th><th>负责人</th><th>完成日期</th><th>评价</th></tr>
+${(r.completed_tasks||[]).map(t=>{const rm={insufficient:'⚠️不足',normal:'✅正常',excellent:'⭐优秀',outstanding:'🌟卓越'};return `<tr><td>${t.name}</td><td>${t.project_name||'-'}</td><td>${t.assignee_name||'-'}</td><td>${t.completed_date||'-'}</td><td>${t.rating?rm[t.rating]||t.rating:'-'}</td></tr>`;}).join('')||'<tr><td colspan="5" style="text-align:center;color:#999">无完成任务</td></tr>'}
+</table>
+${(()=>{const rs=r.rating_stats||{};const dist=rs.distribution||{};const byP=rs.by_person||{};if(Object.keys(dist).length===0&&Object.keys(byP).length===0)return'';const cols={'不足':'#e74c3c','正常':'#3498db','优秀':'#27ae60','卓越':'#9b59b6'};const icons={'不足':'⚠️','正常':'✅','优秀':'⭐','卓越':'🌟'};let h='<h2>🏆 评价统计</h2><div class="stats">';for(const[l,c]of Object.entries(dist)){h+=`<div class="stat"><div class="num" style="color:${cols[l]||themeColor}">${c}</div><div class="label">${icons[l]||''} ${l}</div></div>`;}h+='</div>';if(Object.keys(byP).length>0){h+='<table><tr><th>人员</th><th>评价分布</th></tr>';for(const[name,data]of Object.entries(byP)){const parts=Object.entries(data.ratings||{}).map(([l,c])=>`<span style="color:${cols[l]||'#888'};margin-right:8px;">${icons[l]||''}${l}:${c}</span>`).join('');h+=`<tr><td>${name}</td><td>${parts}</td></tr>`;}h+='</table>';}return h;})()}
+<div class="footer">生成时间：${new Date().toLocaleString('zh-CN')}</div>
+</body></html>`;
+
+            const exportDate = new Date().toISOString().slice(0,10).replace(/-/g,'');
+            const periodKey = r.period.replace(/[^0-9Q年月季度]/g,'');
+            if (format === 'pdf') {
+                await PM_REPORT_EXPORT.htmlToPDF(html, `${reportType === 'quarterly' ? '季度报' : '年度报'}_${periodKey}_${exportDate}.pdf`);
+            } else {
+                const blob = new Blob([html], {type: 'text/html;charset=utf-8'});
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url; a.download = `${reportType === 'quarterly' ? '季度报' : '年度报'}_${periodKey}_${exportDate}.html`;
+                a.click(); URL.revokeObjectURL(url);
             }
         }
 
