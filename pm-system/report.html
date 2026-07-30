@@ -289,6 +289,15 @@
                 <div class="report-header">
                     <div class="report-title">月报</div>
                     <div class="report-period" id="monthly-period"></div>
+                    <div style="display:flex;gap:8px;margin-top:8px;">
+                        <select id="monthly-year" onchange="loadMonthlyReport()" style="padding:4px 8px;border-radius:4px;border:1px solid #ddd;"></select>
+                        <select id="monthly-month" onchange="loadMonthlyReport()" style="padding:4px 8px;border-radius:4px;border:1px solid #ddd;">
+                            <option value="1">1月</option><option value="2">2月</option><option value="3">3月</option>
+                            <option value="4">4月</option><option value="5">5月</option><option value="6">6月</option>
+                            <option value="7">7月</option><option value="8">8月</option><option value="9">9月</option>
+                            <option value="10">10月</option><option value="11">11月</option><option value="12">12月</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="stats-grid" id="monthly-stats"></div>
                 <div class="section" id="monthly-overdue-section" style="display:none">
@@ -951,7 +960,18 @@ th{background:#f5f5f5;color:#666;font-size:13px}
 
         async function loadMonthlyReport() {
             const ratingLabels = { insufficient: '⚠️不足', normal: '✅正常', excellent: '⭐优秀', outstanding: '🌟卓越' };
-            const res = await authFetch(`${API}/report/monthly`);
+            // 初始化年份选择器
+            const mYearSel = document.getElementById('monthly-year');
+            if (mYearSel.options.length === 0) {
+                const curYear = new Date().getFullYear();
+                for (let y = curYear; y >= curYear - 3; y--) {
+                    mYearSel.innerHTML += `<option value="${y}">${y}年</option>`;
+                }
+                document.getElementById('monthly-month').value = new Date().getMonth() + 1;
+            }
+            const year = mYearSel.value;
+            const month = document.getElementById('monthly-month').value;
+            const res = await authFetch(`${API}/report/monthly?year=${year}&month=${month}`);
             if (!res) return;
             const data = await res.json();
             if (!data.success) return;
@@ -1301,7 +1321,9 @@ ${(r.active_projects||[]).map(p=>`<div style="margin:10px 0"><strong>${p.name}</
 
         // === 导出月报 ===
         async function exportMonthlyReport(format) {
-            const res = await authFetch(`${API}/report/monthly`);
+            const year = document.getElementById('monthly-year').value;
+            const month = document.getElementById('monthly-month').value;
+            const res = await authFetch(`${API}/report/monthly?year=${year}&month=${month}`);
             if (!res) return;
             const data = await res.json();
             if (!data.success) return;
