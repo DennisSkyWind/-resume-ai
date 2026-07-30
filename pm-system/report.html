@@ -1037,7 +1037,6 @@ h2{color:#555;margin-top:30px}
 table{width:100%;border-collapse:collapse;margin:15px 0}
 th{background:#764ba2;color:white;padding:10px;text-align:left}
 td{padding:10px;border-bottom:1px solid #eee}
-.person-card{display:inline-block;width:45%;margin:8px;padding:15px;background:#f8f9fa;border-radius:8px;vertical-align:top}
 .progress-bar{height:8px;background:#e0e0e0;border-radius:4px;margin-top:5px}
 .progress-fill{height:100%;border-radius:4px}
 .footer{margin-top:40px;color:#999;font-size:12px;border-top:1px solid #eee;padding-top:10px}
@@ -1061,10 +1060,12 @@ ${(r.overdue_tasks||[]).length>0?`<h2 style="color:#f44336">🔴 延期任务</h
 <h2>📋 活跃项目</h2>
 ${(r.active_projects||[]).map(p=>`<div style="margin:10px 0"><strong>${p.name}</strong> <span style="color:#666">· 负责人:${p.owner_name||'-'} · 任务:${p.done_tasks||0}/${p.total_tasks||0}</span><div class="progress-bar"><div class="progress-fill" style="width:${p.progress}%;background:${p.progress>=80?'#4caf50':p.progress>=50?'#ff9800':'#2196f3'}"></div></div><span style="font-size:13px;color:#666">${p.progress}%</span></div>`).join('')||'<p style="color:#999">暂无活跃项目</p>'}
 <h2>📊 人员工作量统计</h2>
-<div>${(r.person_stats||[]).map(p=>{
-    const total=p.task_count||0;const done=p.completed_count||0;const rate=total>0?Math.round(done/total*100):0;
-    return `<div class="person-card"><strong>${p.name}</strong><div style="font-size:13px;color:#666;margin:5px 0">总任务:${total} · 完成:${done} · 完成率:${rate}%</div><div class="progress-bar"><div class="progress-fill" style="width:${rate}%;background:${rate>=80?'#4caf50':rate>=50?'#ff9800':'#2196f3'}"></div></div></div>`;
-}).join('')||'<p style="color:#999">暂无数据</p>'}</div>
+<table><tr><th>人员</th><th>总任务</th><th>完成</th><th>完成率</th><th>延期次数</th></tr>
+${(r.person_stats||[]).map(p=>{
+    const total=p.task_count||0;const done=p.completed_count||0;const rate=total>0?Math.round(done/total*100):0;const delays=p.delay_count||0;
+    return `<tr><td><strong>${p.name}</strong></td><td>${total}</td><td>${done}</td><td>${rate}%</td><td style="color:${delays>0?'#f44336':'#4caf50'}">${delays>0?'🔴 '+delays:'✅ 0'}</td></tr>`;
+}).join('')||'<tr><td colspan="5" style="text-align:center;color:#999">暂无数据</td></tr>'}
+</table>
 <h2>✅ 本月完成任务</h2>
 <table><tr><th>任务</th><th>项目</th><th>负责人</th><th>完成日期</th><th>评价</th></tr>
 ${(r.completed_tasks||[]).map(t=>{
