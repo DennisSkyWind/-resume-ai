@@ -679,18 +679,40 @@
                 return;
             }
             let html = '<table style="width:100%;border-collapse:collapse"><thead><tr style="background:#f5f5f5">';
-            html += '<th style="padding:10px;text-align:left">人员</th><th style="padding:10px;text-align:center">任务</th><th style="padding:10px;text-align:center">延期</th><th style="padding:10px;text-align:center">高风险</th><th style="padding:10px;text-align:center">状态</th>';
+            html += '<th style="padding:10px;text-align:left">人员</th><th style="padding:10px;text-align:center">任务</th><th style="padding:10px;text-align:center">延期</th><th style="padding:10px;text-align:center">高风险</th><th style="padding:10px;text-align:center">推迟次数</th><th style="padding:10px;text-align:center">评价</th><th style="padding:10px;text-align:center">状态</th>';
             html += '</tr></thead><tbody>';
+            const ratingLabels = { outstanding: '🌟卓越', excellent: '⭐优秀', normal: '✅正常', insufficient: '⚠️不足' };
             for (const p of persons) {
                 let status = '', statusColor = '';
                 if (p.overdue_count > 0) { status = '⚠️ 需关注'; statusColor = '#f44336'; }
                 else if (p.high_risk_count > 0) { status = '🔶 有风险'; statusColor = '#ff9800'; }
                 else { status = '✅ 正常'; statusColor = '#4caf50'; }
+                
+                // 推迟次数
+                const delays = p.delay_count || 0;
+                const delayColor = delays > 3 ? '#f44336' : delays > 0 ? '#ff9800' : '#4caf50';
+                
+                // 评价
+                const r = p.rating || {};
+                let ratingHtml = '';
+                if (r.rated_count > 0) {
+                    const parts = [];
+                    if (r.outstanding) parts.push(`<span style="color:#9b59b6">🌟${r.outstanding}</span>`);
+                    if (r.excellent) parts.push(`<span style="color:#27ae60">⭐${r.excellent}</span>`);
+                    if (r.normal) parts.push(`<span style="color:#3498db">✅${r.normal}</span>`);
+                    if (r.insufficient) parts.push(`<span style="color:#e74c3c">⚠️${r.insufficient}</span>`);
+                    ratingHtml = parts.join(' ');
+                } else {
+                    ratingHtml = '<span style="color:#999">-</span>';
+                }
+                
                 html += `<tr style="border-bottom:1px solid #eee">
                     <td style="padding:10px">${p.name}</td>
                     <td style="padding:10px;text-align:center">${p.total_tasks}</td>
                     <td style="padding:10px;text-align:center">${p.overdue_count || 0}</td>
                     <td style="padding:10px;text-align:center">${p.high_risk_count || 0}</td>
+                    <td style="padding:10px;text-align:center;color:${delayColor};font-weight:${delays>0?'bold':'normal'}">${delays}</td>
+                    <td style="padding:10px;text-align:center;font-size:0.85em">${ratingHtml}</td>
                     <td style="padding:10px;text-align:center;color:${statusColor}">${status}</td>
                 </tr>`;
             }
@@ -805,10 +827,21 @@ th{background:#f5f5f5;color:#666;font-size:13px}
             }
             
             if (data.person_stats && data.person_stats.length > 0) {
-                html += '<h2>👥 人员工作量</h2><table><thead><tr><th>人员</th><th>任务数</th><th>延期</th><th>高风险</th><th>状态</th></tr></thead><tbody>';
+                html += '<h2>👥 人员工作量</h2><table><thead><tr><th>人员</th><th>任务数</th><th>延期</th><th>高风险</th><th>推迟次数</th><th>评价</th><th>状态</th></tr></thead><tbody>';
                 for (const p of data.person_stats) {
                     const status = p.overdue_count > 0 ? '⚠️ 需关注' : (p.high_risk_count > 0 ? '🔶 有风险' : '✅ 正常');
-                    html += `<tr><td>${p.name}</td><td>${p.total_tasks}</td><td>${p.overdue_count || 0}</td><td>${p.high_risk_count || 0}</td><td>${status}</td></tr>`;
+                    const delays = p.delay_count || 0;
+                    const r = p.rating || {};
+                    let ratingStr = '-';
+                    if (r.rated_count > 0) {
+                        const parts = [];
+                        if (r.outstanding) parts.push('🌟' + r.outstanding);
+                        if (r.excellent) parts.push('⭐' + r.excellent);
+                        if (r.normal) parts.push('✅' + r.normal);
+                        if (r.insufficient) parts.push('⚠️' + r.insufficient);
+                        ratingStr = parts.join(' ');
+                    }
+                    html += `<tr><td>${p.name}</td><td>${p.total_tasks}</td><td>${p.overdue_count || 0}</td><td>${p.high_risk_count || 0}</td><td>${delays}</td><td style="font-size:0.85em">${ratingStr}</td><td>${status}</td></tr>`;
                 }
                 html += '</tbody></table>';
             }
